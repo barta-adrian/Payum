@@ -6,7 +6,7 @@ use Payum\Core\Request\Refund;
 use Payum\Offline\Action\RefundAction;
 use Payum\Offline\Constants;
 
-class RefundActionTest extends \PHPUnit_Framework_TestCase
+class RefundActionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -33,7 +33,7 @@ class RefundActionTest extends \PHPUnit_Framework_TestCase
     {
         $action = new RefundAction();
 
-        $request = new Refund($this->getMock('ArrayAccess'));
+        $request = new Refund($this->createMock('ArrayAccess'));
 
         $this->assertTrue($action->supports($request));
     }
@@ -64,11 +64,10 @@ class RefundActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
     public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
         $action = new RefundAction();
 
         $action->execute(new \stdClass());
@@ -91,7 +90,7 @@ class RefundActionTest extends \PHPUnit_Framework_TestCase
 
         $action->execute($request);
 
-        $this->assertTrue(isset($details[Constants::FIELD_STATUS]));
+        $this->assertArrayHasKey(Constants::FIELD_STATUS, $details);
         $this->assertEquals(Constants::STATUS_REFUNDED, $details[Constants::FIELD_STATUS]);
     }
 
@@ -112,7 +111,7 @@ class RefundActionTest extends \PHPUnit_Framework_TestCase
 
         $action->execute($request);
 
-        $this->assertTrue(isset($details[Constants::FIELD_STATUS]));
+        $this->assertArrayHasKey(Constants::FIELD_STATUS, $details);
         $this->assertEquals(Constants::STATUS_PENDING, $details[Constants::FIELD_STATUS]);
     }
 }

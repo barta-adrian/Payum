@@ -7,7 +7,7 @@ use Payum\Core\Request\Capture;
 use Payum\Core\Request\GetHttpRequest;
 use Payum\Payex\Action\PaymentDetailsCaptureAction;
 
-class PaymentDetailsCaptureActionTest extends \PHPUnit_Framework_TestCase
+class PaymentDetailsCaptureActionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -96,11 +96,10 @@ class PaymentDetailsCaptureActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
     public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
         $action = new PaymentDetailsCaptureAction();
 
         $action->execute(new \stdClass());
@@ -208,6 +207,6 @@ class PaymentDetailsCaptureActionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createGatewayMock()
     {
-        return $this->getMock('Payum\Core\GatewayInterface');
+        return $this->createMock('Payum\Core\GatewayInterface');
     }
 }

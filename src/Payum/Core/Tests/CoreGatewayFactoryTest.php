@@ -19,8 +19,11 @@ use Payum\Core\GatewayFactoryInterface;
 use Payum\Core\HttpClientInterface;
 use GuzzleHttp\ClientInterface as GuzzleClientInterface;
 use Payum\Core\Storage\StorageInterface;
+use PHPUnit\Framework\TestCase;
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
 
-class CoreGatewayFactoryTest extends \PHPUnit_Framework_TestCase
+class CoreGatewayFactoryTest extends TestCase
 {
     /**
      * @test
@@ -179,7 +182,7 @@ class CoreGatewayFactoryTest extends \PHPUnit_Framework_TestCase
 
         $this->assertArrayHasKey('PayumCore', $config['payum.paths']);
         $this->assertStringEndsWith('Resources/views', $config['payum.paths']['PayumCore']);
-        $this->assertTrue(file_exists($config['payum.paths']['PayumCore']));
+        $this->assertFileExists($config['payum.paths']['PayumCore']);
     }
 
     /**
@@ -201,7 +204,7 @@ class CoreGatewayFactoryTest extends \PHPUnit_Framework_TestCase
 
         $this->assertArrayHasKey('PayumCore', $config['payum.paths']);
         $this->assertStringEndsWith('Resources/views', $config['payum.paths']['PayumCore']);
-        $this->assertTrue(file_exists($config['payum.paths']['PayumCore']));
+        $this->assertFileExists($config['payum.paths']['PayumCore']);
 
         $this->assertArrayHasKey('FooNamespace', $config['payum.paths']);
         $this->assertEquals('FooPath', $config['payum.paths']['FooNamespace']);
@@ -223,7 +226,7 @@ class CoreGatewayFactoryTest extends \PHPUnit_Framework_TestCase
 
         $twig = call_user_func($config['twig.env'], ArrayObject::ensureArrayObject($config));
 
-        $this->assertInstanceOf(\Twig_Environment::class, $twig);
+        $this->assertInstanceOf(Environment::class, $twig);
     }
 
     /**
@@ -233,7 +236,7 @@ class CoreGatewayFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $factory = new CoreGatewayFactory();
 
-        $twig = new \Twig_Environment(new \Twig_Loader_Filesystem());
+        $twig = new Environment(new FilesystemLoader());
 
         $config = $factory->createConfig([
             'twig.env' => $twig,
@@ -260,7 +263,7 @@ class CoreGatewayFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $factory = new CoreGatewayFactory();
 
-        $tokenStorageMock = $this->getMock(StorageInterface::class);
+        $tokenStorageMock = $this->createMock(StorageInterface::class);
 
         $config = $factory->createConfig([
             'payum.security.token_storage' => $tokenStorageMock,
@@ -304,8 +307,8 @@ class CoreGatewayFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function shouldAllowPrependAction()
     {
-        $firstAction = $this->getMock('Payum\Core\Action\ActionInterface');
-        $secondAction = $this->getMock('Payum\Core\Action\ActionInterface');
+        $firstAction = $this->createMock('Payum\Core\Action\ActionInterface');
+        $secondAction = $this->createMock('Payum\Core\Action\ActionInterface');
 
         $factory = new CoreGatewayFactory();
 
@@ -368,8 +371,8 @@ class CoreGatewayFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function shouldAllowPrependExtensions()
     {
-        $firstExtension = $this->getMock(ExtensionInterface::class);
-        $secondExtension = $this->getMock(ExtensionInterface::class);
+        $firstExtension = $this->createMock(ExtensionInterface::class);
+        $secondExtension = $this->createMock(ExtensionInterface::class);
 
         $factory = new CoreGatewayFactory();
 
@@ -393,5 +396,20 @@ class CoreGatewayFactoryTest extends \PHPUnit_Framework_TestCase
         $extensions = $this->readAttribute($this->readAttribute($gateway, 'extensions'), 'extensions');
         $this->assertSame($secondExtension, $extensions[0]);
         $this->assertSame($firstExtension, $extensions[1]);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldNotAllowGlobalFunctionsAsGatewayConfig()
+    {
+        $factory = new CoreGatewayFactory();
+
+        $factory->create(array(
+            'hash' => 'sha1',
+            'verify' => function ($config) {
+                $this->assertSame('sha1', $config['hash']);
+            },
+        ));
     }
 }

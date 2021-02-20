@@ -9,8 +9,9 @@ use Payum\Core\Registry\DynamicRegistry;
 use Payum\Core\Registry\GatewayFactoryRegistryInterface;
 use Payum\Core\Registry\RegistryInterface;
 use Payum\Core\Storage\StorageInterface;
+use PHPUnit\Framework\TestCase;
 
-class DynamicRegistryTest extends \PHPUnit_Framework_TestCase
+class DynamicRegistryTest extends TestCase
 {
     /**
      * @test
@@ -105,7 +106,7 @@ class DynamicRegistryTest extends \PHPUnit_Framework_TestCase
 
         $gateway = new Gateway();
 
-        $gatewayFactoryMock = $this->getMock(GatewayFactoryInterface::class);
+        $gatewayFactoryMock = $this->createMock(GatewayFactoryInterface::class);
         $gatewayFactoryMock
             ->expects($this->once())
             ->method('create')
@@ -154,7 +155,7 @@ class DynamicRegistryTest extends \PHPUnit_Framework_TestCase
 
         $gateway = new Gateway();
 
-        $gatewayFactoryMock = $this->getMock(GatewayFactoryInterface::class);
+        $gatewayFactoryMock = $this->createMock(GatewayFactoryInterface::class);
         $gatewayFactoryMock
             ->expects($this->once())
             ->method('create')
@@ -202,7 +203,7 @@ class DynamicRegistryTest extends \PHPUnit_Framework_TestCase
 
         $gateway = new Gateway();
 
-        $gatewayFactoryMock = $this->getMock(GatewayFactoryInterface::class);
+        $gatewayFactoryMock = $this->createMock(GatewayFactoryInterface::class);
         $gatewayFactoryMock
             ->expects($this->once())
             ->method('create')
@@ -243,7 +244,7 @@ class DynamicRegistryTest extends \PHPUnit_Framework_TestCase
 
         $gateway = new Gateway();
 
-        $gatewayFactoryMock = $this->getMock(GatewayFactoryInterface::class);
+        $gatewayFactoryMock = $this->createMock(GatewayFactoryInterface::class);
         $gatewayFactoryMock
             ->expects($this->once())
             ->method('create')
@@ -307,12 +308,11 @@ class DynamicRegistryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\InvalidArgumentException
-     * @expectedExceptionMessage Gateway "theGatewayName" does not exist.
      */
     public function throwIfGatewayConfigNotFoundOnGetGateway()
     {
+        $this->expectException(\Payum\Core\Exception\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Gateway "theGatewayName" does not exist.');
         $gatewayFactoryRegistry = $this->createGatewayFactoryRegistryMock();
         $gatewayFactoryRegistry
             ->expects($this->never())
@@ -394,12 +394,11 @@ class DynamicRegistryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\InvalidArgumentException
-     * @expectedExceptionMessage Gateway factory "theName" does not exist.
      */
     public function alwaysThrowOnGetGatewayFactory()
     {
+        $this->expectException(\Payum\Core\Exception\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Gateway factory "theName" does not exist.');
         $registry = new DynamicRegistry(
             $this->createStorageMock(),
             $this->createGatewayFactoryRegistryMock()
@@ -470,12 +469,11 @@ class DynamicRegistryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\InvalidArgumentException
-     * @expectedExceptionMessage Storage for given class "theClass" does not exist.
      */
     public function alwaysThrowOnGetStorageForClass()
     {
+        $this->expectException(\Payum\Core\Exception\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Storage for given class "theClass" does not exist.');
         $registry = new DynamicRegistry(
             $this->createStorageMock(),
             $this->createGatewayFactoryRegistryMock()
@@ -487,12 +485,11 @@ class DynamicRegistryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\InvalidArgumentException
-     * @expectedExceptionMessage Storage for given class "stdClass" does not exist.
      */
     public function alwaysThrowOnGetStorageForObject()
     {
+        $this->expectException(\Payum\Core\Exception\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Storage for given class "stdClass" does not exist.');
         $registry = new DynamicRegistry(
             $this->createStorageMock(),
             $this->createGatewayFactoryRegistryMock()
@@ -507,7 +504,7 @@ class DynamicRegistryTest extends \PHPUnit_Framework_TestCase
      */
     protected function createStorageMock()
     {
-        return $this->getMock(StorageInterface::class);
+        return $this->createMock(StorageInterface::class);
     }
 
     /**
@@ -515,7 +512,7 @@ class DynamicRegistryTest extends \PHPUnit_Framework_TestCase
      */
     protected function createRegistryMock()
     {
-        return $this->getMock(RegistryInterface::class);
+        return $this->createMock(RegistryInterface::class);
     }
 
     /**
@@ -523,6 +520,6 @@ class DynamicRegistryTest extends \PHPUnit_Framework_TestCase
      */
     protected function createGatewayFactoryRegistryMock()
     {
-        return $this->getMock(GatewayFactoryRegistryInterface::class);
+        return $this->createMock(GatewayFactoryRegistryInterface::class);
     }
 }

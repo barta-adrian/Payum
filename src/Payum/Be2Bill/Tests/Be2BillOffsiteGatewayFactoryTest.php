@@ -8,8 +8,9 @@ use Payum\Core\CoreGatewayFactory;
 use Payum\Core\GatewayFactory;
 use Payum\Core\GatewayFactoryInterface;
 use Payum\Core\Storage\StorageInterface;
+use PHPUnit\Framework\TestCase;
 
-class Be2billOffsiteGatewayFactoryTest extends \PHPUnit_Framework_TestCase
+class Be2billOffsiteGatewayFactoryTest extends TestCase
 {
     /**
      * @test
@@ -44,7 +45,7 @@ class Be2billOffsiteGatewayFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function shouldUseCoreGatewayFactoryPassedAsSecondArgument()
     {
-        $coreGatewayFactory = $this->getMock(GatewayFactoryInterface::class);
+        $coreGatewayFactory = $this->createMock(GatewayFactoryInterface::class);
 
         $factory = new Be2BillOffsiteGatewayFactory(array(), $coreGatewayFactory);
 
@@ -156,12 +157,11 @@ class Be2billOffsiteGatewayFactoryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The identifier, password fields are required.
      */
     public function shouldThrowIfRequiredOptionsNotPassed()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The identifier, password fields are required.');
         $factory = new Be2BillOffsiteGatewayFactory();
 
         $factory->create();

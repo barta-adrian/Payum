@@ -1,3 +1,12 @@
+<h2 align="center">Supporting Payum</h2>
+
+Payum is an MIT-licensed open source project with its ongoing development made possible entirely by the support of community and our customers. If you'd like to join them, please consider:
+
+- [Become a sponsor](https://www.patreon.com/makasim)
+- [Become our client](http://forma-pro.com/)
+
+---
+
 # Payum Bundle. Custom action usage
 
 Gateway comes with built in actions but sometime you have to add your own. First you have to define a service:
@@ -7,6 +16,7 @@ Gateway comes with built in actions but sometime you have to add your own. First
 
 services:
     acme.payum.action.foo:
+        public: true
         class: Acme\PaymentBundle\Payum\Action\FooAction
 ```
 
@@ -46,6 +56,7 @@ There are several ways to add it to a gateway:
     services:
         acme.payum.action.foo:
             class: Acme\PaymentBundle\Payum\Action\FooAction
+            public: true
             tags:
                 - { name: payum.action, factory: a_factory }
 
@@ -60,6 +71,7 @@ There are several ways to add it to a gateway:
     services:
         acme.payum.action.foo:
             class: Acme\PaymentBundle\Payum\Action\FooAction
+            public: true
             tags:
                 - {name: payum.action, prepend: true, all: true }
     ```

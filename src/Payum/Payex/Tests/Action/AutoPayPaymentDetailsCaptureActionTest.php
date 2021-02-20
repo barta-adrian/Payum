@@ -5,7 +5,7 @@ use Payum\Core\GatewayAwareInterface;
 use Payum\Core\Request\Capture;
 use Payum\Payex\Action\AutoPayPaymentDetailsCaptureAction;
 
-class AutoPayPaymentDetailsCaptureActionTest extends \PHPUnit_Framework_TestCase
+class AutoPayPaymentDetailsCaptureActionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -94,11 +94,10 @@ class AutoPayPaymentDetailsCaptureActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
     public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
         $action = new AutoPayPaymentDetailsCaptureAction();
 
         $action->execute(new \stdClass());
@@ -131,6 +130,6 @@ class AutoPayPaymentDetailsCaptureActionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createGatewayMock()
     {
-        return $this->getMock('Payum\Core\GatewayInterface');
+        return $this->createMock('Payum\Core\GatewayInterface');
     }
 }

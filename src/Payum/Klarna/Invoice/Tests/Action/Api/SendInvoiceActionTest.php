@@ -1,15 +1,14 @@
 <?php
 namespace Payum\Klarna\Invoice\Tests\Action\Api;
 
-use Payum\Core\Tests\SkipOnPhp7Trait;
 use Payum\Klarna\Invoice\Action\Api\SendInvoiceAction;
 use Payum\Klarna\Invoice\Config;
 use Payum\Klarna\Invoice\Request\Api\SendInvoice;
+use PHPUnit\Framework\TestCase;
+use PhpXmlRpc\Client;
 
-class SendInvoiceActionTest extends \PHPUnit_Framework_TestCase
+class SendInvoiceActionTest extends TestCase
 {
-    use SkipOnPhp7Trait;
-
     /**
      * @test
      */
@@ -50,12 +49,11 @@ class SendInvoiceActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\UnsupportedApiException
-     * @expectedExceptionMessage Not supported api given. It must be an instance of Payum\Klarna\Invoice\Config
      */
     public function throwApiNotSupportedIfNotConfigGivenAsApi()
     {
+        $this->expectException(\Payum\Core\Exception\UnsupportedApiException::class);
+        $this->expectExceptionMessage('Not supported api given. It must be an instance of Payum\Klarna\Invoice\Config');
         $action = new SendInvoiceAction($this->createKlarnaMock());
 
         $action->setApi(new \stdClass());
@@ -93,11 +91,10 @@ class SendInvoiceActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
     public function throwIfNotSupportedRequestGivenAsArgumentOnExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
         $action = new SendInvoiceAction();
 
         $action->execute(new \stdClass());
@@ -161,11 +158,11 @@ class SendInvoiceActionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createKlarnaMock()
     {
-        $klarnaMock =  $this->getMock('Klarna', array('config', 'sendInvoice'));
+        $klarnaMock =  $this->createMock('Klarna', array('config', 'sendInvoice'));
 
         $rp = new \ReflectionProperty($klarnaMock, 'xmlrpc');
         $rp->setAccessible(true);
-        $rp->setValue($klarnaMock, $this->getMock('xmlrpc_client', array(), array(), '', false));
+        $rp->setValue($klarnaMock, $this->createMock(class_exists('xmlrpc_client') ? 'xmlrpc_client' : Client::class));
         $rp->setAccessible(false);
 
         return $klarnaMock;

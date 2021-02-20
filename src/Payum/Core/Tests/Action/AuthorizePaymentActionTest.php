@@ -17,15 +17,12 @@ class AuthorizePaymentActionTest extends GenericActionTest
 
     protected $actionClass = AuthorizePaymentAction::class;
 
-    public function provideSupportedRequests()
+    public function provideSupportedRequests(): \Iterator
     {
-        $authorize = new $this->requestClass($this->getMock(TokenInterface::class));
-        $authorize->setModel($this->getMock(PaymentInterface::class));
-
-        return array(
-            array(new $this->requestClass(new Payment())),
-            array($authorize),
-        );
+        $authorize = new $this->requestClass($this->createMock(TokenInterface::class));
+        $authorize->setModel($this->createMock(PaymentInterface::class));
+        yield array(new $this->requestClass(new Payment()));
+        yield array($authorize);
     }
 
     /**
@@ -248,7 +245,7 @@ class AuthorizePaymentActionTest extends GenericActionTest
         $action = new AuthorizePaymentAction();
         $action->setGateway($gatewayMock);
 
-        $this->setExpectedException('Exception');
+        $this->expectException('Exception');
         $action->execute($authorize = new Authorize($payment));
 
         $this->assertSame($payment, $authorize->getFirstModel());

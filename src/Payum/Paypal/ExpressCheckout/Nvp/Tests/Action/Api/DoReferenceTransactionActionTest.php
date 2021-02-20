@@ -6,7 +6,7 @@ use Payum\Core\ApiAwareInterface;
 use Payum\Paypal\ExpressCheckout\Nvp\Action\Api\DoReferenceTransactionAction;
 use Payum\Paypal\ExpressCheckout\Nvp\Request\Api\DoReferenceTransaction;
 
-class DoReferenceTransactionActionTest extends \PHPUnit_Framework_TestCase
+class DoReferenceTransactionActionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -43,7 +43,7 @@ class DoReferenceTransactionActionTest extends \PHPUnit_Framework_TestCase
     {
         $action = new DoReferenceTransactionAction();
 
-        $this->assertTrue($action->supports(new DoReferenceTransaction($this->getMock('ArrayAccess'))));
+        $this->assertTrue($action->supports(new DoReferenceTransaction($this->createMock('ArrayAccess'))));
     }
 
     /**
@@ -58,11 +58,10 @@ class DoReferenceTransactionActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
     public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
         $action = new DoReferenceTransactionAction();
 
         $action->execute(new \stdClass());
@@ -70,12 +69,11 @@ class DoReferenceTransactionActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage REFERENCEID must be set.
      */
     public function throwIfReferenceIdNotSetInModel()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('REFERENCEID must be set.');
         $action = new DoReferenceTransactionAction();
 
         $action->execute(new DoReferenceTransaction(array()));
@@ -83,12 +81,11 @@ class DoReferenceTransactionActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage PAYMENTACTION must be set.
      */
     public function throwIfPaymentActionNotSet()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('PAYMENTACTION must be set.');
         $action = new DoReferenceTransactionAction();
 
         $request = new DoReferenceTransaction(array(
@@ -100,12 +97,11 @@ class DoReferenceTransactionActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage AMT must be set.
      */
     public function throwIfAmtNotSet()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('AMT must be set.');
         $action = new DoReferenceTransactionAction();
 
         $request = new DoReferenceTransaction(array(
@@ -195,6 +191,6 @@ class DoReferenceTransactionActionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createApiMock()
     {
-        return $this->getMock('Payum\Paypal\ExpressCheckout\Nvp\Api', array(), array(), '', false);
+        return $this->createMock('Payum\Paypal\ExpressCheckout\Nvp\Api', array(), array(), '', false);
     }
 }

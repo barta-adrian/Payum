@@ -6,7 +6,7 @@ use Payum\Core\Request\Payout;
 use Payum\Offline\Action\PayoutAction;
 use Payum\Offline\Constants;
 
-class PayoutActionTest extends \PHPUnit_Framework_TestCase
+class PayoutActionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -33,7 +33,7 @@ class PayoutActionTest extends \PHPUnit_Framework_TestCase
     {
         $action = new PayoutAction();
 
-        $request = new Payout($this->getMock('ArrayAccess'));
+        $request = new Payout($this->createMock('ArrayAccess'));
 
         $this->assertTrue($action->supports($request));
     }
@@ -64,11 +64,10 @@ class PayoutActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
     public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
         $action = new PayoutAction();
 
         $action->execute(new \stdClass());
@@ -90,7 +89,7 @@ class PayoutActionTest extends \PHPUnit_Framework_TestCase
 
         $action->execute($request);
 
-        $this->assertTrue(isset($details[Constants::FIELD_STATUS]));
+        $this->assertArrayHasKey(Constants::FIELD_STATUS, $details);
         $this->assertEquals(Constants::STATUS_PENDING, $details[Constants::FIELD_STATUS]);
     }
 
@@ -111,7 +110,7 @@ class PayoutActionTest extends \PHPUnit_Framework_TestCase
 
         $action->execute($request);
 
-        $this->assertTrue(isset($details[Constants::FIELD_STATUS]));
+        $this->assertArrayHasKey(Constants::FIELD_STATUS, $details);
         $this->assertEquals(Constants::STATUS_PENDING, $details[Constants::FIELD_STATUS]);
     }
 
@@ -132,7 +131,7 @@ class PayoutActionTest extends \PHPUnit_Framework_TestCase
 
         $action->execute($request);
 
-        $this->assertTrue(isset($details[Constants::FIELD_STATUS]));
+        $this->assertArrayHasKey(Constants::FIELD_STATUS, $details);
         $this->assertEquals(Constants::STATUS_PAYEDOUT, $details[Constants::FIELD_STATUS]);
     }
 }

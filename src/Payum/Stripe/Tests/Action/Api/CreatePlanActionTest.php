@@ -7,7 +7,7 @@ use Payum\Stripe\Action\Api\CreatePlanAction;
 use Payum\Stripe\Keys;
 use Payum\Stripe\Request\Api\CreatePlan;
 
-class CreatePlanActionTest extends \PHPUnit_Framework_TestCase
+class CreatePlanActionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -49,11 +49,10 @@ class CreatePlanActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\UnsupportedApiException
      */
     public function throwNotSupportedApiIfNotKeysGivenAsApi()
     {
+        $this->expectException(\Payum\Core\Exception\UnsupportedApiException::class);
         $action = new CreatePlanAction();
 
         $action->setApi('not keys instance');
@@ -91,12 +90,11 @@ class CreatePlanActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
-     * @expectedExceptionMessage Action CreatePlanAction is not supported the request stdClass.
      */
     public function throwRequestNotSupportedIfNotSupportedGiven()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
+        $this->expectExceptionMessage('Action CreatePlanAction is not supported the request stdClass.');
         $action = new CreatePlanAction();
 
         $action->execute(new \stdClass());

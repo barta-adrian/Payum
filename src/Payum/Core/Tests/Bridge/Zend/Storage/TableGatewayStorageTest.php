@@ -2,9 +2,10 @@
 namespace Payum\Core\Tests\Bridge\Zend\Storage;
 
 use Payum\Core\Bridge\Zend\Storage\TableGatewayStorage;
+use PHPUnit\Framework\TestCase;
 use Zend\Db\TableGateway\TableGateway;
 
-class TableGatewayStorageTest extends \PHPUnit_Framework_TestCase
+class TableGatewayStorageTest extends TestCase
 {
     /**
      * @test
@@ -26,12 +27,11 @@ class TableGatewayStorageTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage Method is not supported by the storage.
      */
     public function throwIfTryToUseNotSupportedFindByMethod()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('Method is not supported by the storage.');
         $storage = new TableGatewayStorage($this->createTableGatewayMock(), 'stdClass');
 
         $storage->findBy(array());
@@ -42,6 +42,6 @@ class TableGatewayStorageTest extends \PHPUnit_Framework_TestCase
      */
     protected function createTableGatewayMock()
     {
-        return $this->getMock('Zend\Db\TableGateway\TableGateway', array(), array(), '', false);
+        return $this->createMock('Zend\Db\TableGateway\TableGateway', array(), array(), '', false);
     }
 }

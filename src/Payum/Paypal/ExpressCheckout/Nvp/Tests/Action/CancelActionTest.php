@@ -10,7 +10,7 @@ use Payum\Paypal\ExpressCheckout\Nvp\Action\CancelAction;
 use Payum\Paypal\ExpressCheckout\Nvp\Api;
 use Payum\Paypal\ExpressCheckout\Nvp\Request\Api\DoVoid;
 
-class CancelActionTest extends \PHPUnit_Framework_TestCase
+class CancelActionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -124,11 +124,10 @@ class CancelActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
     public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
         $action = new CancelAction();
 
         $action->execute(new \stdClass());
@@ -183,6 +182,6 @@ class CancelActionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createGatewayMock()
     {
-        return $this->getMock(GatewayInterface::class);
+        return $this->createMock(GatewayInterface::class);
     }
 }

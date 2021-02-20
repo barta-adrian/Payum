@@ -6,7 +6,7 @@ use Payum\Core\ApiAwareInterface;
 use Payum\Paypal\ExpressCheckout\Nvp\Action\Api\CreateBillingAgreementAction;
 use Payum\Paypal\ExpressCheckout\Nvp\Request\Api\CreateBillingAgreement;
 
-class CreateBillingAgreementActionTest extends \PHPUnit_Framework_TestCase
+class CreateBillingAgreementActionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -43,7 +43,7 @@ class CreateBillingAgreementActionTest extends \PHPUnit_Framework_TestCase
     {
         $action = new CreateBillingAgreementAction();
 
-        $this->assertTrue($action->supports(new CreateBillingAgreement($this->getMock('ArrayAccess'))));
+        $this->assertTrue($action->supports(new CreateBillingAgreement($this->createMock('ArrayAccess'))));
     }
 
     /**
@@ -58,11 +58,10 @@ class CreateBillingAgreementActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
     public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
         $action = new CreateBillingAgreementAction();
 
         $action->execute(new \stdClass());
@@ -70,12 +69,11 @@ class CreateBillingAgreementActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage TOKEN must be set. Have you run SetExpressCheckoutAction?
      */
     public function throwIfTokenNotSetInModel()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('TOKEN must be set. Have you run SetExpressCheckoutAction?');
         $action = new CreateBillingAgreementAction();
 
         $action->execute(new CreateBillingAgreement(array()));
@@ -150,6 +148,6 @@ class CreateBillingAgreementActionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createApiMock()
     {
-        return $this->getMock('Payum\Paypal\ExpressCheckout\Nvp\Api', array(), array(), '', false);
+        return $this->createMock('Payum\Paypal\ExpressCheckout\Nvp\Api', array(), array(), '', false);
     }
 }

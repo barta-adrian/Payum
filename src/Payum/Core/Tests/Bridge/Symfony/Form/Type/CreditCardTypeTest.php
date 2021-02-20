@@ -2,9 +2,11 @@
 namespace Payum\Core\Tests\Bridge\Symfony\Form\Type;
 
 use Payum\Core\Bridge\Symfony\Form\Type\CreditCardType;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class CreditCardTypeTest extends \PHPUnit_Framework_TestCase
+class CreditCardTypeTest extends TestCase
 {
     /**
      * @test
@@ -29,11 +31,9 @@ class CreditCardTypeTest extends \PHPUnit_Framework_TestCase
      */
     public function shouldExtendFormType()
     {
-        $this->markTestSkipped('Undo mark skipp when minimum supported version of Symfony will be 2.8');
-
         $type = new CreditCardType();
 
-        $this->assertEquals('form', $type->getParent());
+        $this->assertEquals(FormType::class, $type->getParent());
     }
 
     /**

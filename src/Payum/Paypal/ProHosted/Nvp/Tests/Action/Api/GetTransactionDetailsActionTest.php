@@ -5,7 +5,7 @@ use Payum\Core\ApiAwareInterface;
 use Payum\Paypal\ProHosted\Nvp\Action\Api\GetTransactionDetailsAction;
 use Payum\Paypal\ProHosted\Nvp\Request\Api\GetTransactionDetails;
 
-class GetTransactionDetailsActionTest extends \PHPUnit_Framework_TestCase
+class GetTransactionDetailsActionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -32,7 +32,7 @@ class GetTransactionDetailsActionTest extends \PHPUnit_Framework_TestCase
     {
         $action = new GetTransactionDetailsAction();
 
-        $request = new GetTransactionDetails($this->getMock('ArrayAccess'));
+        $request = new GetTransactionDetails($this->createMock('ArrayAccess'));
 
         $this->assertTrue($action->supports($request));
     }
@@ -49,11 +49,10 @@ class GetTransactionDetailsActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
     public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
         $action = new GetTransactionDetailsAction();
 
         $action->execute(new \stdClass());
@@ -61,12 +60,11 @@ class GetTransactionDetailsActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage TRANSACTIONID must be set.
      */
     public function throwIfZeroPaymentRequestTransactionIdNotSetInModel()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('TRANSACTIONID must be set.');
         $action = new GetTransactionDetailsAction();
 
         $request = new GetTransactionDetails(array());
@@ -109,6 +107,6 @@ class GetTransactionDetailsActionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createApiMock()
     {
-        return $this->getMock('Payum\Paypal\ProHosted\Nvp\Api', array(), array(), '', false);
+        return $this->createMock('Payum\Paypal\ProHosted\Nvp\Api', array(), array(), '', false);
     }
 }

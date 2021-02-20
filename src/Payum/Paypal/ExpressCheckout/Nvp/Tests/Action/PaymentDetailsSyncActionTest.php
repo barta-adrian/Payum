@@ -8,7 +8,7 @@ use Payum\Paypal\ExpressCheckout\Nvp\Api;
 use Payum\Paypal\ExpressCheckout\Nvp\Request\Api\GetExpressCheckoutDetails;
 use Payum\Paypal\ExpressCheckout\Nvp\Request\Api\GetTransactionDetails;
 
-class PaymentDetailsSyncActionTest extends \PHPUnit_Framework_TestCase
+class PaymentDetailsSyncActionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -72,11 +72,10 @@ class PaymentDetailsSyncActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
     public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
         $action = new PaymentDetailsSyncAction();
 
         $action->execute(new \stdClass());
@@ -220,6 +219,6 @@ class PaymentDetailsSyncActionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createGatewayMock()
     {
-        return $this->getMock('Payum\Core\GatewayInterface');
+        return $this->createMock('Payum\Core\GatewayInterface');
     }
 }

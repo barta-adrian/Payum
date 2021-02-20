@@ -7,7 +7,7 @@ use Payum\Core\Request\Sync;
 use Payum\Paypal\ProHosted\Nvp\Action\SyncAction;
 use Payum\Paypal\ProHosted\Nvp\Request\Api\GetTransactionDetails;
 
-class SyncActionTest extends \PHPUnit_Framework_TestCase
+class SyncActionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -81,11 +81,10 @@ class SyncActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
     public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
         $action = new SyncAction();
 
         $action->execute(new \stdClass());
@@ -130,6 +129,6 @@ class SyncActionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createGatewayMock()
     {
-        return $this->getMock('Payum\Core\GatewayInterface');
+        return $this->createMock('Payum\Core\GatewayInterface');
     }
 }

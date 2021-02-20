@@ -8,7 +8,7 @@ use Payum\Sofort\Action\Api\GetTransactionDataAction;
 use Payum\Sofort\Request\Api\GetTransactionData;
 use Payum\Sofort\Api;
 
-class GetTransactionDataActionTest extends \PHPUnit_Framework_TestCase
+class GetTransactionDataActionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -45,7 +45,7 @@ class GetTransactionDataActionTest extends \PHPUnit_Framework_TestCase
     {
         $action = new GetTransactionDataAction();
 
-        $this->assertTrue($action->supports(new GetTransactionData($this->getMock('ArrayAccess'))));
+        $this->assertTrue($action->supports(new GetTransactionData($this->createMock('ArrayAccess'))));
     }
 
     /**
@@ -60,11 +60,10 @@ class GetTransactionDataActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
     public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
         $action = new GetTransactionDataAction($this->createApiMock());
 
         $action->execute(new \stdClass());
@@ -72,12 +71,11 @@ class GetTransactionDataActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The parameter "transaction_id" must be set. Have you run CreateTransactionAction?
      */
     public function throwIfTransactionIdParameterIsNotSet()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The parameter "transaction_id" must be set. Have you run CreateTransactionAction?');
         $action = new GetTransactionDataAction();
 
         $request = new GetTransactionData(array());
@@ -89,6 +87,6 @@ class GetTransactionDataActionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createApiMock()
     {
-        return $this->getMock(Api::class, array(), array(), '', false);
+        return $this->createMock(Api::class, array(), array(), '', false);
     }
 }

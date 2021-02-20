@@ -2,8 +2,9 @@
 namespace Payum\Core\Tests\Model;
 
 use Payum\Core\Model\ArrayObject;
+use PHPUnit\Framework\TestCase;
 
-class ArrayObjectTest extends \PHPUnit_Framework_TestCase
+class ArrayObjectTest extends TestCase
 {
     /**
      * @test
@@ -54,7 +55,7 @@ class ArrayObjectTest extends \PHPUnit_Framework_TestCase
 
         $model['foo'] = 'theFoo';
 
-        $this->assertTrue(isset($model['foo']));
+        $this->assertArrayHasKey('foo', $model);
     }
 
     /**
@@ -64,7 +65,7 @@ class ArrayObjectTest extends \PHPUnit_Framework_TestCase
     {
         $model = new ArrayObject();
 
-        $this->assertFalse(isset($model['foo']));
+        $this->assertArrayNotHasKey('foo', $model);
     }
 
     /**
@@ -77,11 +78,11 @@ class ArrayObjectTest extends \PHPUnit_Framework_TestCase
         $model['foo'] = 'theFoo';
 
         //guard
-        $this->assertTrue(isset($model['foo']));
+        $this->assertArrayHasKey('foo', $model);
 
         unset($model['foo']);
 
-        $this->assertFalse(isset($model['foo']));
+        $this->assertArrayNotHasKey('foo', $model);
     }
 
     /**

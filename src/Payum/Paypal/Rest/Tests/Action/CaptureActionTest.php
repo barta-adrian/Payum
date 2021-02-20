@@ -10,7 +10,7 @@ use Payum\Paypal\Rest\Action\CaptureAction;
 use Payum\Paypal\Rest\Model\PaymentDetails;
 use Payum\Core\Request\Capture;
 
-class CaptureActionTest extends \PHPUnit_Framework_TestCase
+class CaptureActionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -48,11 +48,10 @@ class CaptureActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
     public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
         $action = new CaptureAction();
 
         $action->execute(new \stdClass());
@@ -75,7 +74,7 @@ class CaptureActionTest extends \PHPUnit_Framework_TestCase
     {
         $action = new CaptureAction();
 
-        $request = new Capture($this->getMock(PaypalPayment::class));
+        $request = new Capture($this->createMock(PaypalPayment::class));
 
         $this->assertTrue($action->supports($request));
     }
@@ -88,7 +87,7 @@ class CaptureActionTest extends \PHPUnit_Framework_TestCase
         $action = new CaptureAction();
 
         /** @var OAuthTokenCredential $tokenMock */
-        $tokenMock = $this->getMock(OAuthTokenCredential::class, [], [], '', false);
+        $tokenMock = $this->createMock(OAuthTokenCredential::class, [], [], '', false);
 
         $apiContext = new ApiContext($tokenMock);
 
@@ -97,11 +96,10 @@ class CaptureActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\UnsupportedApiException
      */
     public function throwIfNotSupportedApiContext()
     {
+        $this->expectException(\Payum\Core\Exception\UnsupportedApiException::class);
         $action = new CaptureAction();
 
         $action->setApi(new \stdClass());

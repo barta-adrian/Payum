@@ -52,11 +52,10 @@ class NotifyActionTest extends GenericActionTest
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\UnsupportedApiException
      */
     public function throwIfUnsupportedApiGiven()
     {
+        $this->expectException(\Payum\Core\Exception\UnsupportedApiException::class);
         $action = new NotifyAction();
 
         $action->setApi(new \stdClass());
@@ -194,7 +193,7 @@ class NotifyActionTest extends GenericActionTest
      */
     protected function createApiMock()
     {
-        return $this->getMock(Api::class, ['verifyHash'], [], '', false);
+        return $this->createMock(Api::class, ['verifyHash'], [], '', false);
     }
 
     /**
@@ -202,6 +201,6 @@ class NotifyActionTest extends GenericActionTest
      */
     protected function createGatewayMock()
     {
-        return $this->getMock(GatewayInterface::class);
+        return $this->createMock(GatewayInterface::class);
     }
 }

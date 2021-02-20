@@ -7,7 +7,7 @@ use Payum\Core\HttpClientInterface;
 use Payum\Paypal\Ipn\Api;
 use Psr\Http\Message\RequestInterface;
 
-class ApiTest extends \PHPUnit_Framework_TestCase
+class ApiTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -21,12 +21,11 @@ class ApiTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\InvalidArgumentException
-     * @expectedExceptionMessage The boolean sandbox option must be set.
      */
     public function throwIfSandboxOptionNotSetInConstructor()
     {
+        $this->expectException(\Payum\Core\Exception\InvalidArgumentException::class);
+        $this->expectExceptionMessage('The boolean sandbox option must be set.');
         new Api(array(), $this->createHttpClientMock(), $this->createHttpMessageFactory());
     }
 
@@ -56,12 +55,11 @@ class ApiTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\Http\HttpException
-     * @expectedExceptionMessage Client error response
      */
     public function throwIfResponseStatusNotOk()
     {
+        $this->expectException(\Payum\Core\Exception\Http\HttpException::class);
+        $this->expectExceptionMessage('Client error response');
         $clientMock = $this->createHttpClientMock();
         $clientMock
             ->expects($this->once())
@@ -185,7 +183,7 @@ class ApiTest extends \PHPUnit_Framework_TestCase
      */
     protected function createHttpClientMock()
     {
-        return $this->getMock('Payum\Core\HttpClientInterface', array('send'));
+        return $this->createMock('Payum\Core\HttpClientInterface', array('send'));
     }
 
     /**
@@ -203,7 +201,6 @@ class ApiTest extends \PHPUnit_Framework_TestCase
     {
         $clientMock = $this->createHttpClientMock();
         $clientMock
-            ->expects($this->any())
             ->method('send')
             ->will($this->returnCallback(function (RequestInterface $request) {
                 return new Response(200);

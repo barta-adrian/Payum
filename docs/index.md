@@ -1,3 +1,12 @@
+<h2 align="center">Supporting Payum</h2>
+
+Payum is an MIT-licensed open source project with its ongoing development made possible entirely by the support of community and our customers. If you'd like to join them, please consider:
+
+- [Become a sponsor](https://www.patreon.com/makasim)
+- [Become our client](http://forma-pro.com/)
+
+---
+
 # Payum docs
 
 * ### General
@@ -82,6 +91,7 @@
     * [Storages](symfony/storages.md)
     * [Done action](symfony/purchase-done-action.md)
     * [Configure payment in backend](symfony/configure-payment-in-backend.md)
+    * [Encrypt gateway configs stored in database](symfony/encrypt-gateway-configs-stored-in-database.md)
     * [Custom action usage](symfony/custom-action-usage.md)
     * [Custom api usage](symfony/custom-api-usage.md)
     * [Custom purchase examples](symfony/custom-purchase-examples.md)

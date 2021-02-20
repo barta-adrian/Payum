@@ -1,3 +1,12 @@
+<h2 align="center">Supporting Payum</h2>
+
+Payum is an MIT-licensed open source project with its ongoing development made possible entirely by the support of community and our customers. If you'd like to join them, please consider:
+
+- [Become a sponsor](https://www.patreon.com/makasim)
+- [Become our client](http://forma-pro.com/)
+
+---
+
 # Event Dispatcher
 
 The EventDispatcherExtensions provides a Bridge to the [Symfony EventDispatcher Component](http://symfony.com/doc/current/components/event_dispatcher/index.html). The EventDispatcherComponent allows you to add behaviour without changing Payum.
@@ -49,6 +58,7 @@ If you use Symfony Full-Stack Framework and the PayumBundle you can add the Even
 services:
     app.payum.extension.event_dispatcher:
         class: Payum\Core\Bridge\Symfony\Extension\EventDispatcherExtension
+        public: true
         arguments: ["@event_dispatcher"]
         tags:
             - { name: payum.extension, all: true, prepend: false }

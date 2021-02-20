@@ -24,12 +24,11 @@ class MasspayActionTest extends GenericActionTest
     
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage Payout has already been acknowledged
      */
     public function throwIfPayoutAlreadyAcknowledged()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('Payout has already been acknowledged');
         $action = new MasspayAction();
 
         $action->execute(new Masspay(['ACK' => 'foo'], 0));
@@ -92,6 +91,6 @@ class MasspayActionTest extends GenericActionTest
      */
     protected function createApiMock()
     {
-        return $this->getMock(Api::class, [], [], '', false);
+        return $this->createMock(Api::class, [], [], '', false);
     }
 }

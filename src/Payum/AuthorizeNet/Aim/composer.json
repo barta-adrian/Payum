@@ -3,7 +3,7 @@
     "type": "library",
     "description": "The Payum extension. It provides Authorize.Net AIM payment integration.",
     "keywords": ["payment", "authorize.net", "authorizenet"],
-    "homepage": "http://payum.org",
+    "homepage": "https://payum.forma-pro.com",
     "license": "MIT",
     "authors": [
         {
@@ -12,7 +12,7 @@
         },
         {
             "name":     "Payum project",
-            "homepage": "http://payum.org/"
+            "homepage": "https://payum.forma-pro.com/"
         },
         {
             "name":     "Community contributions",
@@ -20,13 +20,13 @@
         }
     ],
     "require": {
-        "payum/core": "^1.3",
-        "authorizenet/authorizenet": "^1.8"
+        "payum/core": "^1.5",
+        "authorizenet/authorizenet": "^1.8.1"
     },
     "require-dev": {
-        "payum/core": "^1.3@dev",
-        "phpunit/phpunit": "~4.0",
-        "symfony/phpunit-bridge": "~2.8|~3.0"
+        "payum/core": "^1.5",
+        "phpunit/phpunit": "^5.7",
+        "symfony/phpunit-bridge": "^3.1|^4"
     },
     "config": {
         "bin-dir": "bin"
@@ -37,7 +37,7 @@
     "target-dir": "Payum/AuthorizeNet/Aim",
     "extra": {
         "branch-alias": {
-            "dev-master": "1.4-dev"
+            "dev-master": "1.6-dev"
         }
     }
 }

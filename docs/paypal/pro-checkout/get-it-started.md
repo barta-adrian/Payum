@@ -1,6 +1,18 @@
+<h2 align="center">Supporting Payum</h2>
+
+Payum is an MIT-licensed open source project with its ongoing development made possible entirely by the support of community and our customers. If you'd like to join them, please consider:
+
+- [Become a sponsor](https://www.patreon.com/makasim)
+- [Become our client](http://forma-pro.com/)
+
+---
+
 # Paypal Pro Checkout. Get it started.
 
 In this chapter we are going to talk about the most common task: purchase of a product using [Paypal Pro Checkout](https://www.paypal.com/webapps/mpp/paypal-payments-pro).
+
+Please note: To make a testing account please look [here](https://developer.paypal.com/docs/classic/payflow/test_hosted_pages/?mark=payflow%20sandbox#create-a-test-only-payflow-gateway-account) and follow the steps to create a test account - you can then use these same credentials in your config.
+
 We assume you already read basic [get it started](../../get-it-started.md).
 Here we just show you modifications you have to put to the files shown there.
 
@@ -31,6 +43,7 @@ $payum = (new PayumBuilder())
         'password' => 'REPLACE IT',
         'partner' => 'REPLACE IT',
         'vendor' => 'REPLACE IT',
+        'tender' => 'REPLACE IT'
         'sandbox' => true
     ])
 

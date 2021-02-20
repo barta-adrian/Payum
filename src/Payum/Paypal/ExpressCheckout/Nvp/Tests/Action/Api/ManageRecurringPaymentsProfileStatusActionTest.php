@@ -6,7 +6,7 @@ use Payum\Core\ApiAwareInterface;
 use Payum\Paypal\ExpressCheckout\Nvp\Action\Api\ManageRecurringPaymentsProfileStatusAction;
 use Payum\Paypal\ExpressCheckout\Nvp\Request\Api\ManageRecurringPaymentsProfileStatus;
 
-class ManageRecurringPaymentsProfileStatusActionTest extends \PHPUnit_Framework_TestCase
+class ManageRecurringPaymentsProfileStatusActionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -44,7 +44,7 @@ class ManageRecurringPaymentsProfileStatusActionTest extends \PHPUnit_Framework_
         $action = new ManageRecurringPaymentsProfileStatusAction();
 
         $this->assertTrue(
-            $action->supports(new ManageRecurringPaymentsProfileStatus($this->getMock('ArrayAccess')))
+            $action->supports(new ManageRecurringPaymentsProfileStatus($this->createMock('ArrayAccess')))
         );
     }
 
@@ -60,11 +60,10 @@ class ManageRecurringPaymentsProfileStatusActionTest extends \PHPUnit_Framework_
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
     public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
         $action = new ManageRecurringPaymentsProfileStatusAction();
 
         $action->execute(new \stdClass());
@@ -72,12 +71,11 @@ class ManageRecurringPaymentsProfileStatusActionTest extends \PHPUnit_Framework_
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The PROFILEID, ACTION fields are required.
      */
     public function throwIfProfileIdNotSetInModel()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The PROFILEID, ACTION fields are required.');
         $action = new ManageRecurringPaymentsProfileStatusAction();
 
         $request = new ManageRecurringPaymentsProfileStatus(array());
@@ -87,12 +85,11 @@ class ManageRecurringPaymentsProfileStatusActionTest extends \PHPUnit_Framework_
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The ACTION fields are required.
      */
     public function throwIfTokenNotSetInModel()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The ACTION fields are required.');
         $action = new ManageRecurringPaymentsProfileStatusAction();
 
         $request = new ManageRecurringPaymentsProfileStatus(array(
@@ -177,6 +174,6 @@ class ManageRecurringPaymentsProfileStatusActionTest extends \PHPUnit_Framework_
      */
     protected function createApiMock()
     {
-        return $this->getMock('Payum\Paypal\ExpressCheckout\Nvp\Api', array(), array(), '', false);
+        return $this->createMock('Payum\Paypal\ExpressCheckout\Nvp\Api', array(), array(), '', false);
     }
 }

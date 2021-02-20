@@ -3,7 +3,7 @@ namespace Payum\Paypal\ExpressCheckout\Nvp\Tests;
 
 use Payum\Paypal\ExpressCheckout\Nvp\PaypalExpressCheckoutGatewayFactory;
 
-class PaypalExpressCheckoutGatewayFactoryTest extends \PHPUnit_Framework_TestCase
+class PaypalExpressCheckoutGatewayFactoryTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -38,7 +38,7 @@ class PaypalExpressCheckoutGatewayFactoryTest extends \PHPUnit_Framework_TestCas
      */
     public function shouldUseCoreGatewayFactoryPassedAsSecondArgument()
     {
-        $coreGatewayFactory = $this->getMock('Payum\Core\GatewayFactoryInterface');
+        $coreGatewayFactory = $this->createMock('Payum\Core\GatewayFactoryInterface');
 
         $factory = new PaypalExpressCheckoutGatewayFactory(array(), $coreGatewayFactory);
 
@@ -157,12 +157,11 @@ class PaypalExpressCheckoutGatewayFactoryTest extends \PHPUnit_Framework_TestCas
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The username, password, signature fields are required.
      */
     public function shouldThrowIfRequiredOptionsNotPassed()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The username, password, signature fields are required.');
         $factory = new PaypalExpressCheckoutGatewayFactory();
 
         $factory->create();
@@ -185,10 +184,10 @@ class PaypalExpressCheckoutGatewayFactoryTest extends \PHPUnit_Framework_TestCas
 
         $this->assertArrayHasKey('PayumCore', $config['payum.paths']);
         $this->assertStringEndsWith('Resources/views', $config['payum.paths']['PayumCore']);
-        $this->assertTrue(file_exists($config['payum.paths']['PayumCore']));
+        $this->assertFileExists($config['payum.paths']['PayumCore']);
 
         $this->assertArrayHasKey('PayumPaypalExpressCheckout', $config['payum.paths']);
         $this->assertStringEndsWith('Resources/views', $config['payum.paths']['PayumPaypalExpressCheckout']);
-        $this->assertTrue(file_exists($config['payum.paths']['PayumPaypalExpressCheckout']));
+        $this->assertFileExists($config['payum.paths']['PayumPaypalExpressCheckout']);
     }
 }

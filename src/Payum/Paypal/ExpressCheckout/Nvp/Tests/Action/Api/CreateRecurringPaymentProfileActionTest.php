@@ -6,7 +6,7 @@ use Payum\Core\ApiAwareInterface;
 use Payum\Paypal\ExpressCheckout\Nvp\Action\Api\CreateRecurringPaymentProfileAction;
 use Payum\Paypal\ExpressCheckout\Nvp\Request\Api\CreateRecurringPaymentProfile;
 
-class CreateRecurringPaymentProfileActionTest extends \PHPUnit_Framework_TestCase
+class CreateRecurringPaymentProfileActionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -43,7 +43,7 @@ class CreateRecurringPaymentProfileActionTest extends \PHPUnit_Framework_TestCas
     {
         $action = new CreateRecurringPaymentProfileAction();
 
-        $this->assertTrue($action->supports(new CreateRecurringPaymentProfile($this->getMock('ArrayAccess'))));
+        $this->assertTrue($action->supports(new CreateRecurringPaymentProfile($this->createMock('ArrayAccess'))));
     }
 
     /**
@@ -58,11 +58,10 @@ class CreateRecurringPaymentProfileActionTest extends \PHPUnit_Framework_TestCas
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
     public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
         $action = new CreateRecurringPaymentProfileAction();
 
         $action->execute(new \stdClass());
@@ -70,12 +69,11 @@ class CreateRecurringPaymentProfileActionTest extends \PHPUnit_Framework_TestCas
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The TOKEN, PROFILESTARTDATE, DESC, BILLINGPERIOD, BILLINGFREQUENCY, AMT, CURRENCYCODE fields are required.
      */
     public function throwIfTokenNotSetInModel()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The TOKEN, PROFILESTARTDATE, DESC, BILLINGPERIOD, BILLINGFREQUENCY, AMT, CURRENCYCODE fields are required.');
         $action = new CreateRecurringPaymentProfileAction();
 
         $action->execute(new CreateRecurringPaymentProfile(array()));
@@ -83,12 +81,11 @@ class CreateRecurringPaymentProfileActionTest extends \PHPUnit_Framework_TestCas
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The PROFILESTARTDATE, DESC, BILLINGPERIOD, BILLINGFREQUENCY, AMT, CURRENCYCODE fields are required.
      */
     public function throwIfRequiredFieldMissing()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The PROFILESTARTDATE, DESC, BILLINGPERIOD, BILLINGFREQUENCY, AMT, CURRENCYCODE fields are required.');
         $action = new CreateRecurringPaymentProfileAction();
 
         $action->execute(new CreateRecurringPaymentProfile(array(
@@ -219,6 +216,6 @@ class CreateRecurringPaymentProfileActionTest extends \PHPUnit_Framework_TestCas
      */
     protected function createApiMock()
     {
-        return $this->getMock('Payum\Paypal\ExpressCheckout\Nvp\Api', array(), array(), '', false);
+        return $this->createMock('Payum\Paypal\ExpressCheckout\Nvp\Api', array(), array(), '', false);
     }
 }

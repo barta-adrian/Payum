@@ -1,13 +1,11 @@
 <?php
 namespace Payum\Klarna\Invoice\Tests\Action\Api;
 
-use Payum\Core\Tests\SkipOnPhp7Trait;
 use Payum\Klarna\Invoice\Config;
+use PHPUnit\Framework\TestCase;
 
-class BaseApiAwareActionTest extends \PHPUnit_Framework_TestCase
+class BaseApiAwareActionTest extends TestCase
 {
-    use SkipOnPhp7Trait;
-
     /**
      * @test
      */
@@ -52,12 +50,11 @@ class BaseApiAwareActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\UnsupportedApiException
-     * @expectedExceptionMessage Not supported api given. It must be an instance of Payum\Klarna\Invoice\Config
      */
     public function throwApiNotSupportedIfNotConfigGivenAsApi()
     {
+        $this->expectException(\Payum\Core\Exception\UnsupportedApiException::class);
+        $this->expectExceptionMessage('Not supported api given. It must be an instance of Payum\Klarna\Invoice\Config');
         $action = $this->getMockForAbstractClass('Payum\Klarna\Invoice\Action\Api\BaseApiAwareAction');
 
         $action->setApi(new \stdClass());

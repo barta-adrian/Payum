@@ -1,3 +1,12 @@
+<h2 align="center">Supporting Payum</h2>
+
+Payum is an MIT-licensed open source project with its ongoing development made possible entirely by the support of community and our customers. If you'd like to join them, please consider:
+
+- [Become a sponsor](https://www.patreon.com/makasim)
+- [Become our client](http://forma-pro.com/)
+
+---
+
 # Paypal Rest. Get it started.
 
 In this chapter we are going to talk about the most common task: purchasing a product.
@@ -30,6 +39,30 @@ $payum = (new PayumBuilder())
         'client_id' => 'REPLACE IT',
         'client_secret' => 'REPLACE IT',
         'config_path' => 'REPLACE IT',
+    ])
+
+    ->getPayum()
+;
+```
+alternatively, set configuration via the `config` option. See PayPal's `sdk_config.ini` for available options.
+```php
+<?php
+//config.php
+
+use Payum\Core\PayumBuilder;
+use Payum\Core\Payum;
+
+/** @var Payum $payum */
+$payum = (new PayumBuilder())
+    ->addDefaultStorages()
+    ->addGateway('gatewayName', [
+        'factory' => 'paypal_rest',
+        'client_id' => 'REPLACE IT',
+        'client_secret' => 'REPLACE IT',
+        'config' => [
+            'option1' => 'value1',
+            'option2' => 'value2',
+        ],
     ])
 
     ->getPayum()

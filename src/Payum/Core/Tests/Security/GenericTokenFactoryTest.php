@@ -5,8 +5,9 @@ use Payum\Core\Model\Token;
 use Payum\Core\Security\GenericTokenFactory;
 use Payum\Core\Security\GenericTokenFactoryInterface;
 use Payum\Core\Security\TokenFactoryInterface;
+use PHPUnit\Framework\TestCase;
 
-class GenericTokenFactoryTest extends \PHPUnit_Framework_TestCase
+class GenericTokenFactoryTest extends TestCase
 {
     /**
      * @test
@@ -112,12 +113,11 @@ class GenericTokenFactoryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The path "capture" is not found. Possible paths are foo, bar
      */
     public function throwIfCapturePathNotConfigured()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The path "capture" is not found. Possible paths are foo, bar');
         $gatewayName = 'theGatewayName';
         $model = new \stdClass();
         $afterPath = 'theAfterPath';
@@ -202,12 +202,11 @@ class GenericTokenFactoryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The path "authorize" is not found. Possible paths are foo, bar
      */
     public function throwIfAuthorizePathNotConfigured()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The path "authorize" is not found. Possible paths are foo, bar');
         $gatewayName = 'theGatewayName';
         $model = new \stdClass();
         $afterPath = 'theAfterPath';
@@ -292,12 +291,11 @@ class GenericTokenFactoryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The path "refund" is not found. Possible paths are foo, bar
      */
     public function throwIfRefundPathNotConfigured()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The path "refund" is not found. Possible paths are foo, bar');
         $gatewayName = 'theGatewayName';
         $model = new \stdClass();
         $afterPath = 'theAfterPath';
@@ -417,12 +415,11 @@ class GenericTokenFactoryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The path "cancel" is not found. Possible paths are foo, bar
      */
     public function throwIfCancelPathNotConfigured()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The path "cancel" is not found. Possible paths are foo, bar');
         $gatewayName = 'theGatewayName';
         $model = new \stdClass();
         $afterPath = 'theAfterPath';
@@ -542,12 +539,11 @@ class GenericTokenFactoryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The path "notify" is not found. Possible paths are foo, bar
      */
     public function throwIfNotifyPathNotConfigured()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The path "notify" is not found. Possible paths are foo, bar');
         $gatewayName = 'theGatewayName';
         $model = new \stdClass();
         $afterPath = 'theAfterPath';
@@ -641,12 +637,11 @@ class GenericTokenFactoryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The path "payout" is not found. Possible paths are foo, bar
      */
     public function throwIfPayoutPathNotConfigured()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The path "payout" is not found. Possible paths are foo, bar');
         $gatewayName = 'theGatewayName';
         $model = new \stdClass();
         $afterPath = 'theAfterPath';
@@ -734,6 +729,6 @@ class GenericTokenFactoryTest extends \PHPUnit_Framework_TestCase
      */
     protected function createTokenFactoryMock()
     {
-        return $this->getMock(TokenFactoryInterface::class);
+        return $this->createMock(TokenFactoryInterface::class);
     }
 }

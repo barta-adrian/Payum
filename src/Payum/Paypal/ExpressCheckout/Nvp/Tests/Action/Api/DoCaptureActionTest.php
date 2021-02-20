@@ -10,7 +10,7 @@ use Payum\Paypal\ExpressCheckout\Nvp\Api;
 use Payum\Paypal\ExpressCheckout\Nvp\Request\Api\DoCapture;
 use Payum\Paypal\ExpressCheckout\Nvp\Request\Api\GetTransactionDetails;
 
-class DoCaptureActionTest extends \PHPUnit_Framework_TestCase
+class DoCaptureActionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -72,11 +72,10 @@ class DoCaptureActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
     public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
         $action = new DoCaptureAction();
 
         $action->execute(new \stdClass());
@@ -84,12 +83,11 @@ class DoCaptureActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The AMT, COMPLETETYPE, AUTHORIZATIONID fields are required.
      */
     public function throwIfTransactionIdNorAuthorizationIdNotSetInModel()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The AMT, COMPLETETYPE, AUTHORIZATIONID fields are required.');
         $action = new DoCaptureAction();
 
         $action->execute(new DoCapture([], 0));
@@ -97,12 +95,11 @@ class DoCaptureActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The COMPLETETYPE fields are required.
      */
     public function throwIfCompleteTypeNotSet()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The COMPLETETYPE fields are required.');
         $action = new DoCaptureAction();
 
         $request = new DoCapture(array(
@@ -115,12 +112,11 @@ class DoCaptureActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The AMT fields are required.
      */
     public function throwIfAmtNotSet()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The AMT fields are required.');
         $action = new DoCaptureAction();
 
         $request = new DoCapture(array(
@@ -230,7 +226,7 @@ class DoCaptureActionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createApiMock()
     {
-        return $this->getMock(Api::class, [], [], '', false);
+        return $this->createMock(Api::class, [], [], '', false);
     }
 
     /**
@@ -238,6 +234,6 @@ class DoCaptureActionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createGatewayMock()
     {
-        return $this->getMock(GatewayInterface::class);
+        return $this->createMock(GatewayInterface::class);
     }
 }

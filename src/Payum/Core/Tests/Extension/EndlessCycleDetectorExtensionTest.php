@@ -4,8 +4,9 @@ namespace Payum\Core\Tests\Extension;
 use Payum\Core\Extension\Context;
 use Payum\Core\Extension\EndlessCycleDetectorExtension;
 use Payum\Core\GatewayInterface;
+use PHPUnit\Framework\TestCase;
 
-class EndlessCycleDetectorExtensionTest extends \PHPUnit_Framework_TestCase
+class EndlessCycleDetectorExtensionTest extends TestCase
 {
     /**
      * @test
@@ -47,12 +48,11 @@ class EndlessCycleDetectorExtensionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage Possible endless cycle detected. ::onPreExecute was called 2 times before reach the limit.
      */
     public function throwIfCycleCounterMoreOrEqualsToNumberOfPreviousRequest()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('Possible endless cycle detected. ::onPreExecute was called 2 times before reach the limit.');
         $gatewayMock = $this->createGatewayMock();
 
         $context = new Context($gatewayMock, new \stdClass(), array(
@@ -89,6 +89,6 @@ class EndlessCycleDetectorExtensionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createGatewayMock()
     {
-        return $this->getMock('Payum\Core\GatewayInterface');
+        return $this->createMock('Payum\Core\GatewayInterface');
     }
 }

@@ -6,8 +6,9 @@ use Payum\Core\Gateway;
 use Payum\Core\GatewayFactory;
 use Payum\Core\GatewayFactoryInterface;
 use Payum\Klarna\Checkout\KlarnaCheckoutGatewayFactory;
+use PHPUnit\Framework\TestCase;
 
-class KlarnaCheckoutGatewayFactoryTest extends \PHPUnit_Framework_TestCase
+class KlarnaCheckoutGatewayFactoryTest extends TestCase
 {
     /**
      * @test
@@ -42,7 +43,7 @@ class KlarnaCheckoutGatewayFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function shouldUseCoreGatewayFactoryPassedAsSecondArgument()
     {
-        $coreGatewayFactory = $this->getMock(GatewayFactoryInterface::class);
+        $coreGatewayFactory = $this->createMock(GatewayFactoryInterface::class);
 
         $factory = new KlarnaCheckoutGatewayFactory(array(), $coreGatewayFactory);
 
@@ -163,12 +164,11 @@ class KlarnaCheckoutGatewayFactoryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The merchant_id, secret fields are required.
      */
     public function shouldThrowIfRequiredOptionsNotPassed()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The merchant_id, secret fields are required.');
         $factory = new KlarnaCheckoutGatewayFactory();
 
         $factory->create();
@@ -191,10 +191,10 @@ class KlarnaCheckoutGatewayFactoryTest extends \PHPUnit_Framework_TestCase
 
         $this->assertArrayHasKey('PayumCore', $config['payum.paths']);
         $this->assertStringEndsWith('Resources/views', $config['payum.paths']['PayumCore']);
-        $this->assertTrue(file_exists($config['payum.paths']['PayumCore']));
+        $this->assertFileExists($config['payum.paths']['PayumCore']);
 
         $this->assertArrayHasKey('PayumKlarnaCheckout', $config['payum.paths']);
         $this->assertStringEndsWith('Resources/views', $config['payum.paths']['PayumKlarnaCheckout']);
-        $this->assertTrue(file_exists($config['payum.paths']['PayumKlarnaCheckout']));
+        $this->assertFileExists($config['payum.paths']['PayumKlarnaCheckout']);
     }
 }

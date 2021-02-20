@@ -5,8 +5,9 @@ use Payum\Core\Security\CryptedInterface;
 use Payum\Core\Security\CypherInterface;
 use Payum\Core\Storage\CryptoStorageDecorator;
 use Payum\Core\Storage\StorageInterface;
+use PHPUnit\Framework\TestCase;
 
-class CryptoStorageDecoratorTest extends \PHPUnit_Framework_TestCase
+class CryptoStorageDecoratorTest extends TestCase
 {
     public function testShouldImplementStorageInterface()
     {
@@ -59,7 +60,8 @@ class CryptoStorageDecoratorTest extends \PHPUnit_Framework_TestCase
 
         $storage = new CryptoStorageDecorator($decoratedStorage, $this->createCypherMock());
 
-        $this->setExpectedException(\LogicException::class, 'The model stdClass must implement Payum\Core\Security\CryptedInterface interface.');
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('The model stdClass must implement Payum\Core\Security\CryptedInterface interface.');
         $storage->create();
     }
 
@@ -172,7 +174,8 @@ class CryptoStorageDecoratorTest extends \PHPUnit_Framework_TestCase
     {
         $storage = new CryptoStorageDecorator($this->createStorageMock(), $this->createCypherMock());
 
-        $this->setExpectedException(\LogicException::class, 'The model stdClass must implement Payum\Core\Security\CryptedInterface interface.');
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('The model stdClass must implement Payum\Core\Security\CryptedInterface interface.');
         $storage->update(new \stdClass());
     }
 
@@ -216,7 +219,8 @@ class CryptoStorageDecoratorTest extends \PHPUnit_Framework_TestCase
 
         $storage = new CryptoStorageDecorator($decoratedStorage, $this->createCypherMock());
 
-        $this->setExpectedException(\LogicException::class, 'The model stdClass must implement Payum\Core\Security\CryptedInterface interface.');
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('The model stdClass must implement Payum\Core\Security\CryptedInterface interface.');
         $storage->find('anId');
     }
 
@@ -260,7 +264,8 @@ class CryptoStorageDecoratorTest extends \PHPUnit_Framework_TestCase
 
         $storage = new CryptoStorageDecorator($decoratedStorage, $this->createCypherMock());
 
-        $this->setExpectedException(\LogicException::class, 'The model stdClass must implement Payum\Core\Security\CryptedInterface interface.');
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('The model stdClass must implement Payum\Core\Security\CryptedInterface interface.');
         $storage->findBy([]);
     }
 
@@ -269,7 +274,7 @@ class CryptoStorageDecoratorTest extends \PHPUnit_Framework_TestCase
      */
     private function createStorageMock()
     {
-        return $this->getMock(StorageInterface::class);
+        return $this->createMock(StorageInterface::class);
     }
 
     /**
@@ -277,7 +282,7 @@ class CryptoStorageDecoratorTest extends \PHPUnit_Framework_TestCase
      */
     private function createCypherMock()
     {
-        return $this->getMock(CypherInterface::class);
+        return $this->createMock(CypherInterface::class);
     }
 }
 

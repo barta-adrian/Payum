@@ -7,7 +7,7 @@ use Payum\Core\HttpClientInterface;
 use Payum\Paypal\ProCheckout\Nvp\Api;
 use Psr\Http\Message\RequestInterface;
 
-class ApiTest extends \PHPUnit_Framework_TestCase
+class ApiTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -31,23 +31,21 @@ class ApiTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The username, password, partner, vendor fields are required.
      */
     public function throwIfRequiredOptionsNotSetInConstructor()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The username, password, partner, vendor fields are required.');
         new Api(array(), $this->createHttpClientMock(), $this->createHttpMessageFactory());
     }
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The boolean sandbox option must be set.
      */
     public function throwIfSandboxOptionsNotBooleanInConstructor()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The boolean sandbox option must be set.');
         new Api(array(
             'username' => 'aUsername',
             'password' => 'aPassword',
@@ -223,7 +221,7 @@ class ApiTest extends \PHPUnit_Framework_TestCase
      */
     protected function createHttpClientMock()
     {
-        return $this->getMock('Payum\Core\HttpClientInterface');
+        return $this->createMock('Payum\Core\HttpClientInterface');
     }
 
     /**
@@ -241,7 +239,6 @@ class ApiTest extends \PHPUnit_Framework_TestCase
     {
         $clientMock = $this->createHttpClientMock();
         $clientMock
-            ->expects($this->any())
             ->method('send')
             ->will($this->returnCallback(function (RequestInterface $request) {
                 return new Response(200, [], $request->getBody());

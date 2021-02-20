@@ -1,3 +1,12 @@
+<h2 align="center">Supporting Payum</h2>
+
+Payum is an MIT-licensed open source project with its ongoing development made possible entirely by the support of community and our customers. If you'd like to join them, please consider:
+
+- [Become a sponsor](https://www.patreon.com/makasim)
+- [Become our client](http://forma-pro.com/)
+
+---
+
 # Develop a custom Payum gateway.
 
 This chapter could be useful for a developer who wants to create a gateway on top of payum.
@@ -30,6 +39,14 @@ $payum = (new PayumBuilder)
 
     ->getPayum()
 ;
+```
+Or, if your are working on the bases of Symfony, you can define it in a service that way :
+```yml
+    acme.paypal_gateway_factory:
+        class: Payum\Core\Bridge\Symfony\Builder\GatewayFactoryBuilder
+        arguments: [Acme\Paypal\PaypalGatewayFactory]
+        tags:
+            - { name: payum.gateway_factory_builder, factory: paypal }
 ```
 
 5. While using the gateway implement all method where you get `Not implemented` exception:

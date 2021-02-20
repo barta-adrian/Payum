@@ -4,8 +4,9 @@ namespace Payum\Be2Bill\Tests;
 use Http\Message\MessageFactory\GuzzleMessageFactory;
 use Payum\Be2Bill\Api;
 use Payum\Core\HttpClientInterface;
+use PHPUnit\Framework\TestCase;
 
-class ApiTest extends \Phpunit_Framework_TestCase
+class ApiTest extends TestCase
 {
     /**
      * @test
@@ -27,23 +28,21 @@ class ApiTest extends \Phpunit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The identifier, password fields are required.
      */
     public function throwIfRequiredOptionsNotSetInConstructor()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The identifier, password fields are required.');
         new Api(array(), $this->createHttpClientMock(), $this->createHttpMessageFactory());
     }
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The boolean sandbox option must be set.
      */
     public function throwIfSandboxOptionsNotBooleanInConstructor()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The boolean sandbox option must be set.');
         new Api(array(
             'identifier' => 'anId',
             'password' => 'aPass',
@@ -204,7 +203,7 @@ class ApiTest extends \Phpunit_Framework_TestCase
      */
     protected function createHttpClientMock()
     {
-        return $this->getMock('Payum\Core\HttpClientInterface');
+        return $this->createMock('Payum\Core\HttpClientInterface');
     }
 
     /**

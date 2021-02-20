@@ -11,7 +11,7 @@ use Payum\Stripe\Action\Api\ObtainTokenAction;
 use Payum\Stripe\Keys;
 use Payum\Stripe\Request\Api\ObtainToken;
 
-class ObtainTokenActionTest extends \PHPUnit_Framework_TestCase
+class ObtainTokenActionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -53,11 +53,10 @@ class ObtainTokenActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\UnsupportedApiException
      */
     public function throwNotSupportedApiIfNotKeysGivenAsApi()
     {
+        $this->expectException(\Payum\Core\Exception\UnsupportedApiException::class);
         $action = new ObtainTokenAction('aTemplateName');
 
         $action->setApi('not keys instance');
@@ -95,12 +94,11 @@ class ObtainTokenActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
-     * @expectedExceptionMessage Action ObtainTokenAction is not supported the request stdClass.
      */
     public function throwRequestNotSupportedIfNotSupportedGiven()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
+        $this->expectExceptionMessage('Action ObtainTokenAction is not supported the request stdClass.');
         $action = new ObtainTokenAction('aTemplateName');
 
         $action->execute(new \stdClass());
@@ -108,12 +106,11 @@ class ObtainTokenActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The token has already been set.
      */
     public function throwIfModelAlreadyHaveTokenSet()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The token has already been set.');
         $action = new ObtainTokenAction('aTemplateName');
 
         $action->execute(new ObtainToken(array(
@@ -242,6 +239,6 @@ class ObtainTokenActionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createGatewayMock()
     {
-        return $this->getMock(GatewayInterface::class);
+        return $this->createMock(GatewayInterface::class);
     }
 }

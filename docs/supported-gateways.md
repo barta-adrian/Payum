@@ -1,3 +1,12 @@
+<h2 align="center">Supporting Payum</h2>
+
+Payum is an MIT-licensed open source project with its ongoing development made possible entirely by the support of community and our customers. If you'd like to join them, please consider:
+
+- [Become a sponsor](https://www.patreon.com/makasim)
+- [Become our client](http://forma-pro.com/)
+
+---
+
 # Supported gateways.
 
 ## Official
@@ -30,7 +39,7 @@
 * [invit/payum-sofortueberweisung (abandoned)](https://github.com/invit/payum-sofortueberweisung)
 * [wiseape/payum-sofortuberweisung (abandoned)](https://github.com/wiseape/payum-sofortuberweisung)
 * [wiseape/payum-paymill](https://github.com/wiseape/payum-paymill)
-* [JakubKohout/BraintreePayum](https://github.com/JakubKohout/BraintreePayum)
+* [gdaws/payum_braintree](https://github.com/gdaws/payum_braintree)
 * [peterfox/Payum-Bitpay](https://github.com/peterfox/Payum-Bitpay)
 * [winzou/payum-limonetik](https://github.com/winzou/payum-limonetik)
 * [ekipower/payum-nganluong](https://github.com/ekipower/payum-nganluong)
@@ -51,6 +60,9 @@
 * [artkonekt/payum-otp-hungary](https://github.com/artkonekt/payum-otp-hungary)
 * [sourcefabric/payum-mollie](https://github.com/sourcefabric/payum-mollie)
 * [sourcefabric/payum-mbe4](https://github.com/sourcefabric/payum-mbe4)
+* [valiton/payum-payone](https://github.com/valiton/payum-payone)
+* [Setono/payum-quickpay](https://github.com/Setono/payum-quickpay)
+* [ilcleme/payum-tinkl](https://github.com/ilCleme/payum-tinkl)
 
 ## Omnipay gateways.
 

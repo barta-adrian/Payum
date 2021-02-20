@@ -1,5 +1,5 @@
 <?php
-namespace Payum\Paypal\ProCheckout\Nvp\Tests\Action\Api;
+namespace Payum\Paypal\ProCheckout\Nvp\Tests\Action;
 
 use Payum\Core\Model\PaymentInterface;
 use Payum\Core\Request\GetCurrency;
@@ -14,26 +14,22 @@ class ConvertPaymentActionTest extends GenericActionTest
 
     protected $requestClass = 'Payum\Core\Request\Convert';
 
-    public function provideSupportedRequests()
+    public function provideSupportedRequests(): \Iterator
     {
-        return array(
-            array(new $this->requestClass(new Payment(), 'array')),
-            array(new $this->requestClass($this->getMock(PaymentInterface::class), 'array')),
-            array(new $this->requestClass(new Payment(), 'array', $this->getMock('Payum\Core\Security\TokenInterface'))),
-        );
+        yield array(new $this->requestClass(new Payment(), 'array'));
+        yield array(new $this->requestClass($this->createMock(PaymentInterface::class), 'array'));
+        yield array(new $this->requestClass(new Payment(), 'array', $this->createMock('Payum\Core\Security\TokenInterface')));
     }
 
-    public function provideNotSupportedRequests()
+    public function provideNotSupportedRequests(): \Iterator
     {
-        return array(
-            array('foo'),
-            array(array('foo')),
-            array(new \stdClass()),
-            array($this->getMockForAbstractClass('Payum\Core\Request\Generic', array(array()))),
-            array(new $this->requestClass(new \stdClass(), 'array')),
-            array(new $this->requestClass(new Payment(), 'foobar')),
-            array(new $this->requestClass($this->getMock(PaymentInterface::class), 'foobar')),
-        );
+        yield array('foo');
+        yield array(array('foo'));
+        yield array(new \stdClass());
+        yield array($this->getMockForAbstractClass('Payum\Core\Request\Generic', array(array())));
+        yield array(new $this->requestClass(new \stdClass(), 'array'));
+        yield array(new $this->requestClass(new Payment(), 'foobar'));
+        yield array(new $this->requestClass($this->createMock(PaymentInterface::class), 'foobar'));
     }
 
     /**
@@ -41,7 +37,7 @@ class ConvertPaymentActionTest extends GenericActionTest
      */
     public function shouldCorrectlyConvertOrderToDetailsAndSetItBack()
     {
-        $gatewayMock = $this->getMock('Payum\Core\GatewayInterface');
+        $gatewayMock = $this->createMock('Payum\Core\GatewayInterface');
         $gatewayMock
             ->expects($this->once())
             ->method('execute')
@@ -84,7 +80,7 @@ class ConvertPaymentActionTest extends GenericActionTest
      */
     public function shouldNotOverwriteAlreadySetExtraDetails()
     {
-        $gatewayMock = $this->getMock('Payum\Core\GatewayInterface');
+        $gatewayMock = $this->createMock('Payum\Core\GatewayInterface');
         $gatewayMock
             ->expects($this->once())
             ->method('execute')

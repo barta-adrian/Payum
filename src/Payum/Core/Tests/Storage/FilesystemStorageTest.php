@@ -2,8 +2,9 @@
 namespace Payum\Core\Tests\Storage;
 
 use Payum\Core\Storage\FilesystemStorage;
+use PHPUnit\Framework\TestCase;
 
-class FilesystemStorageTest extends \PHPUnit_Framework_TestCase
+class FilesystemStorageTest extends TestCase
 {
     /**
      * @test
@@ -157,12 +158,11 @@ class FilesystemStorageTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The model must be persisted before usage of this method
      */
     public function throwIfTryGetIdentifierOfNotPersistedModel()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The model must be persisted before usage of this method');
         $storage = new FilesystemStorage(
             sys_get_temp_dir(),
             'Payum\Core\Tests\Mocks\Model\TestModel',
@@ -219,12 +219,11 @@ class FilesystemStorageTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage Method is not supported by the storage.
      */
     public function throwIfTryToUseNotSupportedFindByMethod()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('Method is not supported by the storage.');
         $storage = new FilesystemStorage(
             sys_get_temp_dir(),
             'Payum\Core\Tests\Mocks\Model\TestModel',

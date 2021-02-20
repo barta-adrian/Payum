@@ -20,9 +20,9 @@ class GetTokenActionTest extends GenericActionTest
      */
     protected $action;
 
-    protected function setUp()
+    protected function setUp(): void
     {
-        $this->action = new $this->actionClass($this->getMock(StorageInterface::class));
+        $this->action = new $this->actionClass($this->createMock(StorageInterface::class));
     }
 
     /**
@@ -33,21 +33,17 @@ class GetTokenActionTest extends GenericActionTest
         //overwrite
     }
 
-    public function provideSupportedRequests()
+    public function provideSupportedRequests(): \Iterator
     {
-        return array(
-            array(new $this->requestClass('aHash')),
-        );
+        yield array(new $this->requestClass('aHash'));
     }
 
-    public function provideNotSupportedRequests()
+    public function provideNotSupportedRequests(): \Iterator
     {
-        return array(
-            array('foo'),
-            array(array('foo')),
-            array(new \stdClass()),
-            array($this->getMockForAbstractClass(Generic::class, array(array()))),
-        );
+        yield array('foo');
+        yield array(array('foo'));
+        yield array(new \stdClass());
+        yield array($this->getMockForAbstractClass(Generic::class, array(array())));
     }
 
     /**
@@ -56,9 +52,9 @@ class GetTokenActionTest extends GenericActionTest
     public function shouldSetFoundToken()
     {
         $hash = 'theHash';
-        $token = $this->getMock(TokenInterface::class);
+        $token = $this->createMock(TokenInterface::class);
 
-        $tokenStorage = $this->getMock(StorageInterface::class);
+        $tokenStorage = $this->createMock(StorageInterface::class);
         $tokenStorage
             ->expects($this->once())
             ->method('find')
@@ -77,15 +73,14 @@ class GetTokenActionTest extends GenericActionTest
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The token theHash could not be found
      */
     public function throwIfTokenNotFound()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The token theHash could not be found');
         $hash = 'theHash';
 
-        $tokenStorage = $this->getMock(StorageInterface::class);
+        $tokenStorage = $this->createMock(StorageInterface::class);
         $tokenStorage
             ->expects($this->once())
             ->method('find')

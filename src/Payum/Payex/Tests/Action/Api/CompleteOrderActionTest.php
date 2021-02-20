@@ -4,7 +4,7 @@ namespace Payum\Payex\Tests\Action\Api;
 use Payum\Payex\Action\Api\CompleteOrderAction;
 use Payum\Payex\Request\Api\CompleteOrder;
 
-class CompleteOrderActionTest extends \PHPUnit_Framework_TestCase
+class CompleteOrderActionTest extends \PHPUnit\Framework\TestCase
 {
     protected $requiredFields = array(
         'orderRef' => 'aRef',
@@ -54,7 +54,7 @@ class CompleteOrderActionTest extends \PHPUnit_Framework_TestCase
      */
     public function shouldAllowSetOrderApiAsApi()
     {
-        $orderApi = $this->getMock('Payum\Payex\Api\OrderApi', array(), array(), '', false);
+        $orderApi = $this->createMock('Payum\Payex\Api\OrderApi', array(), array(), '', false);
 
         $action = new CompleteOrderAction();
 
@@ -65,12 +65,11 @@ class CompleteOrderActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\UnsupportedApiException
-     * @expectedExceptionMessage Not supported api given. It must be an instance of Payum\Payex\Api\OrderApi
      */
     public function throwOnTryingSetNotOrderApiAsApi()
     {
+        $this->expectException(\Payum\Core\Exception\UnsupportedApiException::class);
+        $this->expectExceptionMessage('Not supported api given. It must be an instance of Payum\Payex\Api\OrderApi');
         $action = new CompleteOrderAction();
 
         $action->setApi(new \stdClass());
@@ -83,7 +82,7 @@ class CompleteOrderActionTest extends \PHPUnit_Framework_TestCase
     {
         $action = new CompleteOrderAction();
 
-        $this->assertTrue($action->supports(new CompleteOrder($this->getMock('ArrayAccess'))));
+        $this->assertTrue($action->supports(new CompleteOrder($this->createMock('ArrayAccess'))));
     }
 
     /**
@@ -108,11 +107,10 @@ class CompleteOrderActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
     public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
         $action = new CompleteOrderAction($this->createApiMock());
 
         $action->execute(new \stdClass());
@@ -122,11 +120,10 @@ class CompleteOrderActionTest extends \PHPUnit_Framework_TestCase
      * @test
      *
      * @dataProvider provideRequiredFields
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
      */
     public function throwIfTryInitializeWithRequiredFieldNotPresent($requiredField)
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
         unset($this->requiredFields[$requiredField]);
 
         $action = new CompleteOrderAction();
@@ -164,6 +161,6 @@ class CompleteOrderActionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createApiMock()
     {
-        return $this->getMock('Payum\Payex\Api\OrderApi', array(), array(), '', false);
+        return $this->createMock('Payum\Payex\Api\OrderApi', array(), array(), '', false);
     }
 }

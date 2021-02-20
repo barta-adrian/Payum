@@ -2,8 +2,9 @@
 namespace Payum\Core\Tests\Request;
 
 use Payum\Core\Request\RenderTemplate;
+use PHPUnit\Framework\TestCase;
 
-class RenderTemplateTest extends \PHPUnit_Framework_TestCase
+class RenderTemplateTest extends TestCase
 {
     /**
      * @test
@@ -45,12 +46,10 @@ class RenderTemplateTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('theResult', $request->getResult());
     }
 
-    public function provideParameters()
+    public function provideParameters(): \Iterator
     {
-        return array(
-            array('foo', 'fooVal'),
-            array('bar', 'barVal'),
-        );
+        yield array('foo', 'fooVal');
+        yield array('bar', 'barVal');
     }
 
     /**
@@ -64,7 +63,7 @@ class RenderTemplateTest extends \PHPUnit_Framework_TestCase
     {
         $request = new RenderTemplate('aTemplate', array());
 
-        $this->assertFalse(array_key_exists($name, $request->getParameters()));
+        $this->assertArrayNotHasKey($name, $request->getParameters());
 
         $request->setParameter($name, $value);
 
@@ -84,7 +83,7 @@ class RenderTemplateTest extends \PHPUnit_Framework_TestCase
     {
         $request = new RenderTemplate('aTemplate', array());
 
-        $this->assertFalse(array_key_exists($name, $request->getParameters()));
+        $this->assertArrayNotHasKey($name, $request->getParameters());
 
         $request->addParameter($name, $value);
 
@@ -109,10 +108,10 @@ class RenderTemplateTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     * @expectedException \InvalidArgumentException
      */
     public function shouldThrowExceptionIfParameterExistsOnAddParameter()
     {
+        $this->expectException(\InvalidArgumentException::class);
         $request = new RenderTemplate('aTemplate', array());
 
         $request->addParameter('foo', 'fooVal');

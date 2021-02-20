@@ -1,3 +1,12 @@
+<h2 align="center">Supporting Payum</h2>
+
+Payum is an MIT-licensed open source project with its ongoing development made possible entirely by the support of community and our customers. If you'd like to join them, please consider:
+
+- [Become a sponsor](https://www.patreon.com/makasim)
+- [Become our client](http://forma-pro.com/)
+
+---
+
 # Payum
 
 [![Join the chat at https://gitter.im/Payum/Payum](https://badges.gitter.im/Payum/Payum.svg)](https://gitter.im/Payum/Payum?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
@@ -5,7 +14,7 @@
 [![Total Downloads](https://poser.pugx.org/payum/payum/d/total.png)](https://packagist.org/packages/payum/payum)
 [![Latest Stable Version](https://poser.pugx.org/payum/payum/version.png)](https://packagist.org/packages/payum/payum)
 
-Payum offers everything you need to work with payments. From simplest use cases to very advanced ones.
+Reduce Your Development Time with Payum integrating more than 50 payment services simultaneously. Payum is one of the most popular bug-free solution that has over 1 000 000 downloads already. It is friendly for all top PHP frameworks and was successfully installed and tested by thousands of developers worldwide
 
 ## Resources
 

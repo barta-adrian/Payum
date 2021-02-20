@@ -6,7 +6,7 @@ use Payum\Core\GatewayInterface;
 use Payum\Core\Request\GetBinaryStatus;
 use Payum\Payex\Action\AgreementDetailsStatusAction;
 
-class AgreementDetailsStatusActionTest extends \PHPUnit_Framework_TestCase
+class AgreementDetailsStatusActionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -33,18 +33,18 @@ class AgreementDetailsStatusActionTest extends \PHPUnit_Framework_TestCase
     {
         $action = new AgreementDetailsStatusAction();
 
-        $array = $this->getMock('ArrayAccess');
+        $array = $this->createMock('ArrayAccess');
         $array
             ->expects($this->at(0))
             ->method('offsetExists')
             ->with('agreementRef')
-            ->will($this->returnValue(true))
+            ->willReturn(true)
         ;
         $array
             ->expects($this->at(1))
             ->method('offsetExists')
             ->with('orderId')
-            ->will($this->returnValue(false))
+            ->willReturn(false)
         ;
 
         $this->assertTrue($action->supports(new GetBinaryStatus($array)));
@@ -57,18 +57,18 @@ class AgreementDetailsStatusActionTest extends \PHPUnit_Framework_TestCase
     {
         $action = new AgreementDetailsStatusAction();
 
-        $array = $this->getMock('ArrayAccess');
+        $array = $this->createMock('ArrayAccess');
         $array
             ->expects($this->at(0))
             ->method('offsetExists')
             ->with('agreementRef')
-            ->will($this->returnValue(true))
+            ->willReturn(true)
         ;
         $array
             ->expects($this->at(1))
             ->method('offsetExists')
             ->with('orderId')
-            ->will($this->returnValue(true))
+            ->willReturn(true)
         ;
 
         $this->assertFalse($action->supports(new GetBinaryStatus($array)));
@@ -96,11 +96,10 @@ class AgreementDetailsStatusActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
     public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
         $action = new AgreementDetailsStatusAction();
 
         $action->execute(new \stdClass());
@@ -210,6 +209,6 @@ class AgreementDetailsStatusActionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createGatewayMock()
     {
-        return $this->getMock('Payum\Core\GatewayInterface');
+        return $this->createMock('Payum\Core\GatewayInterface');
     }
 }

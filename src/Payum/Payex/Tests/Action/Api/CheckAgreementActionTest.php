@@ -5,7 +5,7 @@ use Payum\Payex\Action\Api\CheckAgreementAction;
 use Payum\Payex\Api\AgreementApi;
 use Payum\Payex\Request\Api\CheckAgreement;
 
-class CheckAgreementActionTest extends \PHPUnit_Framework_TestCase
+class CheckAgreementActionTest extends \PHPUnit\Framework\TestCase
 {
     protected $requiredNotEmptyFields = array(
         'agreementRef' => 'anAgreementRef',
@@ -55,7 +55,7 @@ class CheckAgreementActionTest extends \PHPUnit_Framework_TestCase
      */
     public function shouldAllowSetAgreementApiAsApi()
     {
-        $agreementApi = $this->getMock('Payum\Payex\Api\AgreementApi', array(), array(), '', false);
+        $agreementApi = $this->createMock('Payum\Payex\Api\AgreementApi', array(), array(), '', false);
 
         $action = new CheckAgreementAction();
 
@@ -66,12 +66,11 @@ class CheckAgreementActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\UnsupportedApiException
-     * @expectedExceptionMessage Not supported api given. It must be an instance of Payum\Payex\Api\AgreementApi
      */
     public function throwOnTryingSetNotAgreementApiAsApi()
     {
+        $this->expectException(\Payum\Core\Exception\UnsupportedApiException::class);
+        $this->expectExceptionMessage('Not supported api given. It must be an instance of Payum\Payex\Api\AgreementApi');
         $action = new CheckAgreementAction();
 
         $action->setApi(new \stdClass());
@@ -84,7 +83,7 @@ class CheckAgreementActionTest extends \PHPUnit_Framework_TestCase
     {
         $action = new CheckAgreementAction();
 
-        $this->assertTrue($action->supports(new CheckAgreement($this->getMock('ArrayAccess'))));
+        $this->assertTrue($action->supports(new CheckAgreement($this->createMock('ArrayAccess'))));
     }
 
     /**
@@ -109,11 +108,10 @@ class CheckAgreementActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
     public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
         $action = new CheckAgreementAction($this->createApiMock());
 
         $action->execute(new \stdClass());
@@ -123,11 +121,10 @@ class CheckAgreementActionTest extends \PHPUnit_Framework_TestCase
      * @test
      *
      * @dataProvider provideRequiredNotEmptyFields
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
      */
     public function throwIfTryInitializeWithRequiredFieldEmpty($requiredField)
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
         $fields = $this->requiredNotEmptyFields;
 
         $fields[$requiredField] = '';
@@ -167,6 +164,6 @@ class CheckAgreementActionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createApiMock()
     {
-        return $this->getMock('Payum\Payex\Api\AgreementApi', array(), array(), '', false);
+        return $this->createMock('Payum\Payex\Api\AgreementApi', array(), array(), '', false);
     }
 }

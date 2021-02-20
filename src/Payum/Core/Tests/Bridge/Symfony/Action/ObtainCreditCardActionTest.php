@@ -9,12 +9,13 @@ use Payum\Core\Model\CreditCard;
 use Payum\Core\GatewayInterface;
 use Payum\Core\Request\ObtainCreditCard;
 use Payum\Core\Request\RenderTemplate;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\HttpFoundation\Request;
 
-class ObtainCreditCardActionTest extends \PHPUnit_Framework_TestCase
+class ObtainCreditCardActionTest extends TestCase
 {
     /**
      * @test
@@ -56,12 +57,11 @@ class ObtainCreditCardActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
-     * @expectedExceptionMessage Action ObtainCreditCardAction is not supported the request stdClass.
      */
     public function throwIfNotObtainCreditCardRequestGivenOnExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
+        $this->expectExceptionMessage('Action ObtainCreditCardAction is not supported the request stdClass.');
         $action = new ObtainCreditCardAction($this->createFormFactoryMock(), 'aTemplate');
 
         $action->execute(new \stdClass());
@@ -69,12 +69,11 @@ class ObtainCreditCardActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The action can be run only when http request is set.
      */
     public function throwIfNotSetBeforeExecute()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The action can be run only when http request is set.');
         $action = new ObtainCreditCardAction($this->createFormFactoryMock(), 'aTemplate');
 
         $action->execute(new ObtainCreditCard());
@@ -380,7 +379,7 @@ class ObtainCreditCardActionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createFormFactoryMock()
     {
-        return $this->getMock('Symfony\Component\Form\FormFactoryInterface');
+        return $this->createMock('Symfony\Component\Form\FormFactoryInterface');
     }
 
     /**
@@ -388,7 +387,7 @@ class ObtainCreditCardActionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createFormMock()
     {
-        return $this->getMock('Symfony\Component\Form\Form', array(), array(), '', false);
+        return $this->createMock('Symfony\Component\Form\Form', array(), array(), '', false);
     }
 
     /**
@@ -396,6 +395,6 @@ class ObtainCreditCardActionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createGatewayMock()
     {
-        return $this->getMock('Payum\Core\GatewayInterface');
+        return $this->createMock('Payum\Core\GatewayInterface');
     }
 }

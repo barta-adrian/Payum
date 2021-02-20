@@ -17,15 +17,12 @@ class PayoutPayoutActionTest extends GenericActionTest
 
     protected $actionClass = PayoutPayoutAction::class;
 
-    public function provideSupportedRequests()
+    public function provideSupportedRequests(): \Iterator
     {
-        $payout = new $this->requestClass($this->getMock(TokenInterface::class));
-        $payout->setModel($this->getMock(PayoutInterface::class));
-
-        return array(
-            array(new $this->requestClass(new PayoutModel())),
-            array($payout),
-        );
+        $payout = new $this->requestClass($this->createMock(TokenInterface::class));
+        $payout->setModel($this->createMock(PayoutInterface::class));
+        yield array(new $this->requestClass(new PayoutModel()));
+        yield array($payout);
     }
 
     /**
@@ -248,7 +245,7 @@ class PayoutPayoutActionTest extends GenericActionTest
         $action = new PayoutPayoutAction();
         $action->setGateway($gatewayMock);
 
-        $this->setExpectedException('Exception');
+        $this->expectException('Exception');
         $action->execute($payout = new Payout($payoutModel));
 
         $this->assertSame($payoutModel, $payout->getFirstModel());

@@ -6,7 +6,7 @@ use Payum\Paypal\Rest\Action\StatusAction;
 use Payum\Paypal\Rest\Model\PaymentDetails;
 use Payum\Core\Request\GetBinaryStatus;
 
-class StatusActionTest extends \PHPUnit_Framework_TestCase
+class StatusActionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -50,11 +50,10 @@ class StatusActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
     public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
         $action = new StatusAction();
 
         $action->execute(new \stdClass());

@@ -8,6 +8,7 @@ use Payum\Core\Exception\RequestNotSupportedException;
 use Payum\Core\GatewayAwareInterface;
 use Payum\Core\Model\CreditCard;
 use Payum\Core\GatewayInterface;
+use Payum\Core\Reply\HttpResponse;
 use Payum\Core\Request\Capture;
 use Payum\Be2Bill\Action\CaptureAction;
 use Payum\Core\Request\ObtainCreditCard;
@@ -65,11 +66,10 @@ class CaptureActionTest extends GenericActionTest
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\UnsupportedApiException
      */
     public function throwIfUnsupportedApiGiven()
     {
+        $this->expectException(\Payum\Core\Exception\UnsupportedApiException::class);
         $action = new CaptureAction();
 
         $action->setApi(new \stdClass());
@@ -77,12 +77,11 @@ class CaptureActionTest extends GenericActionTest
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage Credit card details has to be set explicitly or there has to be an action that supports ObtainCreditCard request.
      */
     public function throwIfCreditCardNotSetExplicitlyAndObtainRequestNotSupportedOnCapture()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('Credit card details has to be set explicitly or there has to be an action that supports ObtainCreditCard request.');
         $gatewayMock = $this->createGatewayMock();
         $gatewayMock
             ->expects($this->once())
@@ -120,7 +119,7 @@ class CaptureActionTest extends GenericActionTest
         $apiMock = $this->createApiMock();
         $apiMock
             ->expects($this->never())
-            ->method('gateway')
+            ->method('payment')
         ;
 
         $action = new CaptureAction();
@@ -343,12 +342,23 @@ class CaptureActionTest extends GenericActionTest
         $action->execute($capture);
     }
 
+    public function testShouldThrowHttpResponseIfExecCode3DSecureRequired()
+    {
+        $action = new CaptureAction();
+
+        $this->expectException(HttpResponse::class);
+        $action->execute($status = new Capture([
+            '3DSECUREHTML' => base64_encode('<html>foo</html>'),
+            'EXECCODE' => Api::EXECCODE_3DSECURE_IDENTIFICATION_REQUIRED,
+        ]));
+    }
+
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|Api
      */
     protected function createApiMock()
     {
-        return $this->getMock(Api::class, array(), array(), '', false);
+        return $this->createMock(Api::class, array(), array(), '', false);
     }
 
     /**
@@ -356,6 +366,6 @@ class CaptureActionTest extends GenericActionTest
      */
     protected function createGatewayMock()
     {
-        return $this->getMock(GatewayInterface::class);
+        return $this->createMock(GatewayInterface::class);
     }
 }

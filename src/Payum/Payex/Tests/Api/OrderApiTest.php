@@ -4,7 +4,7 @@ namespace Payum\Payex\Tests\Api;
 use Payum\Payex\Api\OrderApi;
 use Payum\Payex\Api\SoapClientFactory;
 
-class OrderApiTest extends \PHPUnit_Framework_TestCase
+class OrderApiTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -18,23 +18,21 @@ class OrderApiTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\InvalidArgumentException
-     * @expectedExceptionMessage The account_number option must be set.
      */
     public function throwIfAccountNumberOptionNotSet()
     {
+        $this->expectException(\Payum\Core\Exception\InvalidArgumentException::class);
+        $this->expectExceptionMessage('The account_number option must be set.');
         new OrderApi(new SoapClientFactory(), array());
     }
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\InvalidArgumentException
-     * @expectedExceptionMessage The encryption_key option must be set.
      */
     public function throwIfEncryptionKeyOptionNotSet()
     {
+        $this->expectException(\Payum\Core\Exception\InvalidArgumentException::class);
+        $this->expectExceptionMessage('The encryption_key option must be set.');
         new OrderApi(
             new SoapClientFactory(),
             array(
@@ -45,12 +43,11 @@ class OrderApiTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\InvalidArgumentException
-     * @expectedExceptionMessage The boolean sandbox option must be set.
      */
     public function throwIfNotBoolSandboxOptionGiven()
     {
+        $this->expectException(\Payum\Core\Exception\InvalidArgumentException::class);
+        $this->expectExceptionMessage('The boolean sandbox option must be set.');
         new OrderApi(
             new SoapClientFactory(),
             array(
@@ -84,7 +81,7 @@ class OrderApiTest extends \PHPUnit_Framework_TestCase
         $response = new \stdClass();
         $response->Initialize8Result = '<foo>fooValue</foo>';
 
-        $soapClientMock = $this->getMock('SoapClient', array('Initialize8'), array(), '', false);
+        $soapClientMock = $this->createSoapClientMock();
         $soapClientMock
             ->expects($this->once())
             ->method('Initialize8')
@@ -92,11 +89,11 @@ class OrderApiTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($response))
         ;
 
-        $clientFactoryMock = $this->getMock('Payum\Payex\Api\SoapClientFactory', array('createWsdlClient'));
+        $clientFactoryMock = $this->createMock('Payum\Payex\Api\SoapClientFactory', array('createWsdlClient'));
         $clientFactoryMock
             ->expects($this->atLeastOnce())
             ->method('createWsdlClient')
-            ->will($this->returnValue($soapClientMock))
+            ->willReturn($soapClientMock)
         ;
 
         $orderApi = new OrderApi(
@@ -121,7 +118,7 @@ class OrderApiTest extends \PHPUnit_Framework_TestCase
         $response = new \stdClass();
         $response->CompleteResult = '<foo>fooValue</foo>';
 
-        $soapClientMock = $this->getMock('SoapClient', array('Complete'), array(), '', false);
+        $soapClientMock = $this->createSoapClientMock();
         $soapClientMock
             ->expects($this->once())
             ->method('Complete')
@@ -129,11 +126,11 @@ class OrderApiTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($response))
         ;
 
-        $clientFactoryMock = $this->getMock('Payum\Payex\Api\SoapClientFactory', array('createWsdlClient'));
+        $clientFactoryMock = $this->createMock('Payum\Payex\Api\SoapClientFactory', array('createWsdlClient'));
         $clientFactoryMock
             ->expects($this->atLeastOnce())
             ->method('createWsdlClient')
-            ->will($this->returnValue($soapClientMock))
+            ->willReturn($soapClientMock)
         ;
 
         $orderApi = new OrderApi(
@@ -158,7 +155,7 @@ class OrderApiTest extends \PHPUnit_Framework_TestCase
         $response = new \stdClass();
         $response->Check2Result = '<foo>fooValue</foo>';
 
-        $soapClientMock = $this->getMock('SoapClient', array('Check2'), array(), '', false);
+        $soapClientMock = $this->createSoapClientMock();
         $soapClientMock
             ->expects($this->once())
             ->method('Check2')
@@ -166,11 +163,11 @@ class OrderApiTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($response))
         ;
 
-        $clientFactoryMock = $this->getMock('Payum\Payex\Api\SoapClientFactory', array('createWsdlClient'));
+        $clientFactoryMock = $this->createMock('Payum\Payex\Api\SoapClientFactory', array('createWsdlClient'));
         $clientFactoryMock
             ->expects($this->atLeastOnce())
             ->method('createWsdlClient')
-            ->will($this->returnValue($soapClientMock))
+            ->willReturn($soapClientMock)
         ;
 
         $orderApi = new OrderApi(
@@ -186,4 +183,20 @@ class OrderApiTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(array('fooValue'), $result);
     }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|\SoapClient
+     */
+    private function createSoapClientMock()
+    {
+        return $this->createMock(OrderSoapClient::class);
+    }
 }
+
+class OrderSoapClient extends \SoapClient {
+    public function __construct() {}
+
+    public function Initialize8() {}
+    public function Complete() {}
+    public function Check2() {}
+};

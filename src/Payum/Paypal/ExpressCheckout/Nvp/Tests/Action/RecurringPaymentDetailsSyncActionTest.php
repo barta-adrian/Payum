@@ -5,7 +5,7 @@ use Payum\Core\GatewayAwareInterface;
 use Payum\Core\Request\Sync;
 use Payum\Paypal\ExpressCheckout\Nvp\Action\RecurringPaymentDetailsSyncAction;
 
-class RecurringPaymentDetailsSyncActionTest extends \PHPUnit_Framework_TestCase
+class RecurringPaymentDetailsSyncActionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -53,11 +53,10 @@ class RecurringPaymentDetailsSyncActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
     public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
         $action = new RecurringPaymentDetailsSyncAction();
 
         $action->execute(new \stdClass());
@@ -110,6 +109,6 @@ class RecurringPaymentDetailsSyncActionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createGatewayMock()
     {
-        return $this->getMock('Payum\Core\GatewayInterface');
+        return $this->createMock('Payum\Core\GatewayInterface');
     }
 }

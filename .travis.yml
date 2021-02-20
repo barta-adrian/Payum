@@ -1,8 +1,8 @@
 language: php
 
-#env:
-#  global:
-#      - SYMFONY_DEPRECATIONS_HELPER=weak
+env:
+  global:
+    - SYMFONY_DEPRECATIONS_HELPER=weak
 
 git:
     depth: 10
@@ -15,35 +15,27 @@ cache:
 
 matrix:
   include:
-    - php: 5.5
-      env: SYMFONY_VERSION=2.8.*
-    - php: 5.6
-      env: SYMFONY_VERSION=2.8.*
-    - php: 7.0
-      env: SYMFONY_VERSION=2.8.*
-    - php: 5.5
-      env: SYMFONY_VERSION=3.0.* SYMFONY_DEPRECATIONS_HELPER=weak
-    - php: 5.6
-      env: SYMFONY_VERSION=3.0.* SYMFONY_DEPRECATIONS_HELPER=weak
-    - php: 7.0
-      env: SYMFONY_VERSION=3.0.* SYMFONY_DEPRECATIONS_HELPER=weak
-    - php: hhvm
-      env: SYMFONY_VERSION=2.8.*
-  allow_failures:
-    - php: hhvm
-
-services: mongodb
+    - php: 7.2
+    - php: 7.3
+    - php: 7.4
+    - php: 8.0
+      before_install:
+        - composer req --dev league/uri-components:2.x-dev omnipay/common:3.0.x-dev alcohol/iso4217:4.x-dev
+    - php: 7.2
+      env:
+        - COMPOSER_FLAGS="--prefer-lowest --prefer-stable"
+    - php: 7.2
+      before_install:
+        - pecl install mongodb
+        - composer require doctrine/mongodb-odm
+      services:
+        - mongodb
 
 before_install:
-    - composer self-update
-    - if [[ "$TRAVIS_PHP_VERSION" != "hhvm" ]]; then INI_FILE=~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini; else INI_FILE=/etc/hhvm/php.ini; fi;
-    - if [[ "$TRAVIS_PHP_VERSION" = 5.* ]]; then echo "extension = mongo.so" >> $INI_FILE; fi;
+    - composer global require --no-progress --no-scripts --no-plugins symfony/flex
 
 install:
-    - if [[ "$SYMFONY_VERSION" = "3.0.*" ]]; then composer remove payum/omnipay-bridge omnipay/common omnipay/dummy omnipay/stripe omnipay/paypal --no-interaction; fi;
-    - if [[ "$TRAVIS_PHP_VERSION" = 5.* ]]; then composer require "doctrine/mongodb-odm:^1.0" --no-interaction --no-update; fi;
-    - composer require symfony/symfony:${SYMFONY_VERSION} --no-update
-    - composer install --prefer-source
+    - composer update $COMPOSER_FLAGS
 
 script:
     - bin/phpunit

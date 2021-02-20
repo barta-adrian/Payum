@@ -1,5 +1,5 @@
 <?php
-namespace Payum\Stripe\Tests\Action\Api;
+namespace Payum\Stripe\Tests\Action;
 
 use Payum\Core\Bridge\Spl\ArrayObject;
 use Payum\Core\GatewayAwareInterface;
@@ -211,6 +211,6 @@ class CaptureActionTest extends GenericActionTest
      */
     protected function createGatewayMock()
     {
-        return $this->getMock(GatewayInterface::class);
+        return $this->createMock(GatewayInterface::class);
     }
 }

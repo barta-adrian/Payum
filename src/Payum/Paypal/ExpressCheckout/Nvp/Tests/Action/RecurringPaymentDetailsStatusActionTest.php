@@ -5,7 +5,7 @@ use Payum\Paypal\ExpressCheckout\Nvp\Action\RecurringPaymentDetailsStatusAction;
 use Payum\Core\Request\GetBinaryStatus;
 use Payum\Paypal\ExpressCheckout\Nvp\Api;
 
-class RecurringPaymentDetailsStatusActionTest extends \PHPUnit_Framework_TestCase
+class RecurringPaymentDetailsStatusActionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -65,11 +65,10 @@ class RecurringPaymentDetailsStatusActionTest extends \PHPUnit_Framework_TestCas
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
     public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
         $action = new RecurringPaymentDetailsStatusAction();
 
         $action->execute(new \stdClass());

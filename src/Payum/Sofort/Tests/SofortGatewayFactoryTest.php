@@ -7,7 +7,7 @@ use Payum\Core\GatewayFactory;
 use Payum\Core\GatewayFactoryInterface;
 use Payum\Sofort\SofortGatewayFactory;
 
-class SofortGatewayFactoryTest extends \PHPUnit_Framework_TestCase
+class SofortGatewayFactoryTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -42,7 +42,7 @@ class SofortGatewayFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function shouldUseCoreGatewayFactoryPassedAsSecondArgument()
     {
-        $coreGatewayFactory = $this->getMock(GatewayFactoryInterface::class);
+        $coreGatewayFactory = $this->createMock(GatewayFactoryInterface::class);
 
         $factory = new SofortGatewayFactory([], $coreGatewayFactory);
 
@@ -159,12 +159,11 @@ class SofortGatewayFactoryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The config_key fields are required.
      */
     public function shouldThrowIfRequiredOptionsNotPassed()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The config_key fields are required.');
         $factory = new SofortGatewayFactory();
 
         $factory->create();

@@ -4,8 +4,9 @@ namespace Payum\Core\Tests\Request;
 use Payum\Core\Model\CreditCardInterface;
 use Payum\Core\Request\Generic;
 use Payum\Core\Request\ObtainCreditCard;
+use PHPUnit\Framework\TestCase;
 
-class ObtainCreditCardTest extends \PHPUnit_Framework_TestCase
+class ObtainCreditCardTest extends TestCase
 {
     /**
      * @test
@@ -57,7 +58,7 @@ class ObtainCreditCardTest extends \PHPUnit_Framework_TestCase
     {
         $request = new ObtainCreditCard();
 
-        $request->set($this->getMock(CreditCardInterface::class));
+        $request->set($this->createMock(CreditCardInterface::class));
     }
 
     /**
@@ -67,7 +68,7 @@ class ObtainCreditCardTest extends \PHPUnit_Framework_TestCase
     {
         $request = new ObtainCreditCard();
 
-        $card = $this->getMock(CreditCardInterface::class);
+        $card = $this->createMock(CreditCardInterface::class);
 
         $request->set($card);
 
@@ -76,12 +77,11 @@ class ObtainCreditCardTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage Credit card could not be obtained. It has to be set before obtain.
      */
     public function throwIfObtainCalledBeforeCreditCardSet()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('Credit card could not be obtained. It has to be set before obtain.');
         $request = new ObtainCreditCard();
 
         $request->obtain();

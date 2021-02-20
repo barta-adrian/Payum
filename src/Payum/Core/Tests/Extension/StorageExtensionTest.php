@@ -6,9 +6,12 @@ use Payum\Core\Extension\Context;
 use Payum\Core\Extension\StorageExtension;
 use Payum\Core\GatewayInterface;
 use Payum\Core\Model\Identity;
+use Payum\Core\Model\ModelAggregateInterface;
+use Payum\Core\Model\ModelAwareInterface;
 use Payum\Core\Storage\StorageInterface;
+use PHPUnit\Framework\TestCase;
 
-class StorageExtensionTest extends \PHPUnit_Framework_TestCase
+class StorageExtensionTest extends TestCase
 {
     /**
      * @test
@@ -68,11 +71,10 @@ class StorageExtensionTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(null))
         ;
 
-        $requestMock = $this->getMock('Payum\Core\Model\ModelAggregateInterface');
+        $requestMock = $this->createMock(ModelAggregateAndAwareInterface::class);
         $requestMock
-            ->expects($this->any())
             ->method('getModel')
-            ->will($this->returnValue($identity))
+            ->willReturn($identity)
         ;
         $requestMock
             ->expects($this->never())
@@ -102,11 +104,10 @@ class StorageExtensionTest extends \PHPUnit_Framework_TestCase
             ->method('find')
         ;
 
-        $requestMock = $this->getMock('Payum\Core\Model\ModelAggregateInterface');
+        $requestMock = $this->createMock(ModelAggregateAndAwareInterface::class);
         $requestMock
-            ->expects($this->any())
             ->method('getModel')
-            ->will($this->returnValue(new \stdClass()))
+            ->willReturn(new \stdClass())
         ;
         $requestMock
             ->expects($this->never())
@@ -135,7 +136,7 @@ class StorageExtensionTest extends \PHPUnit_Framework_TestCase
             ->method('find')
         ;
 
-        $requestMock = $this->getMock('Payum\Core\Request\RequestInterface');
+        $requestMock = $this->createMock(\stdClass::class);
 
         $context = new Context($this->createGatewayMock(), $requestMock, array());
 
@@ -161,14 +162,12 @@ class StorageExtensionTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($expectedModel))
         ;
 
-        $requestMock = $this->getMock('Payum\Core\Request\Generic', array(), array(), '', false);
+        $requestMock = $this->createMock(ModelAggregateAndAwareInterface::class);
         $requestMock
-            ->expects($this->any())
             ->method('getModel')
-            ->will($this->returnValue($identity))
+            ->willReturn($identity)
         ;
         $requestMock
-            ->expects($this->any())
             ->method('setModel')
             ->with($this->identicalTo($expectedModel))
         ;
@@ -199,11 +198,10 @@ class StorageExtensionTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(true))
         ;
 
-        $requestMock = $this->getMock('Payum\Core\Model\ModelAggregateInterface', array('getModel', 'setModel'));
+        $requestMock = $this->createMock(ModelAggregateInterface::class);
         $requestMock
-            ->expects($this->any())
             ->method('getModel')
-            ->will($this->returnValue($model))
+            ->willReturn($model)
         ;
 
         $extension = new StorageExtension($storageMock);
@@ -237,11 +235,10 @@ class StorageExtensionTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(true))
         ;
 
-        $requestMock = $this->getMock('Payum\Core\Model\ModelAggregateInterface', array('getModel', 'setModel'));
+        $requestMock = $this->createMock(ModelAggregateInterface::class);
         $requestMock
-            ->expects($this->any())
             ->method('getModel')
-            ->will($this->returnValue($model))
+            ->willReturn($model)
         ;
 
         $context = new Context($this->createGatewayMock(), $requestMock, array(
@@ -280,11 +277,10 @@ class StorageExtensionTest extends \PHPUnit_Framework_TestCase
             ->with($this->identicalTo($expectedModel))
         ;
 
-        $requestMock = $this->getMock('Payum\Core\Model\ModelAggregateInterface');
+        $requestMock = $this->createMock(ModelAggregateInterface::class);
         $requestMock
-            ->expects($this->any())
             ->method('getModel')
-            ->will($this->returnValue($expectedModel))
+            ->willReturn($expectedModel)
         ;
 
         $extension = new StorageExtension($storageMock);
@@ -322,11 +318,10 @@ class StorageExtensionTest extends \PHPUnit_Framework_TestCase
             ->with($this->identicalTo($expectedModel))
         ;
 
-        $requestMock = $this->getMock('Payum\Core\Model\ModelAggregateInterface');
+        $requestMock = $this->createMock(ModelAggregateInterface::class);
         $requestMock
-            ->expects($this->any())
             ->method('getModel')
-            ->will($this->returnValue($expectedModel))
+            ->willReturn($expectedModel)
         ;
 
         $extension = new StorageExtension($storageMock);
@@ -346,11 +341,10 @@ class StorageExtensionTest extends \PHPUnit_Framework_TestCase
 
     protected function createModelRequestWithModel($model)
     {
-        $modelRequestMock = $this->getMock('Payum\Core\Model\ModelAggregateInterface', array('setModel', 'getModel'));
+        $modelRequestMock = $this->createMock(ModelAggregateAndAwareInterface::class);
         $modelRequestMock
-            ->expects($this->any())
             ->method('getModel')
-            ->will($this->returnValue($model))
+            ->willReturn($model)
         ;
 
         return $modelRequestMock;
@@ -361,7 +355,7 @@ class StorageExtensionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createStorageMock()
     {
-        return $this->getMock('Payum\Core\Storage\StorageInterface');
+        return $this->createMock('Payum\Core\Storage\StorageInterface');
     }
 
     /**
@@ -369,7 +363,7 @@ class StorageExtensionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createActionMock()
     {
-        return $this->getMock('Payum\Core\Action\ActionInterface');
+        return $this->createMock('Payum\Core\Action\ActionInterface');
     }
 
     /**
@@ -377,6 +371,10 @@ class StorageExtensionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createGatewayMock()
     {
-        return $this->getMock('Payum\Core\GatewayInterface');
+        return $this->createMock('Payum\Core\GatewayInterface');
     }
+}
+
+interface ModelAggregateAndAwareInterface extends ModelAwareInterface, ModelAggregateInterface
+{
 }

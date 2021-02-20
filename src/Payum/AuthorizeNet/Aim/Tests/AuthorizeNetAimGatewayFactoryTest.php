@@ -2,12 +2,10 @@
 namespace Payum\AuthorizeNet\Aim\Tests;
 
 use Payum\AuthorizeNet\Aim\AuthorizeNetAimGatewayFactory;
-use Payum\Core\Tests\SkipOnPhp7Trait;
+use PHPUnit\Framework\TestCase;
 
-class AuthorizeNetAimGatewayFactoryTest extends \PHPUnit_Framework_TestCase
+class AuthorizeNetAimGatewayFactoryTest extends TestCase
 {
-    use SkipOnPhp7Trait;
-
     /**
      * @test
      */
@@ -41,7 +39,7 @@ class AuthorizeNetAimGatewayFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function shouldUseCoreGatewayFactoryPassedAsSecondArgument()
     {
-        $coreGatewayFactory = $this->getMock('Payum\Core\GatewayFactory');
+        $coreGatewayFactory = $this->createMock('Payum\Core\GatewayFactory');
 
         $factory = new AuthorizeNetAimGatewayFactory(array(), $coreGatewayFactory);
 
@@ -153,12 +151,11 @@ class AuthorizeNetAimGatewayFactoryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The login_id, transaction_key fields are required.
      */
     public function shouldThrowIfRequiredOptionsNotPassed()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The login_id, transaction_key fields are required.');
         $factory = new AuthorizeNetAimGatewayFactory();
 
         $factory->create();

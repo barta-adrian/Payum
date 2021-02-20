@@ -6,7 +6,7 @@ use Payum\Core\ApiAwareInterface;
 use Payum\Paypal\ExpressCheckout\Nvp\Action\Api\GetTransactionDetailsAction;
 use Payum\Paypal\ExpressCheckout\Nvp\Request\Api\GetTransactionDetails;
 
-class GetTransactionDetailsActionTest extends \PHPUnit_Framework_TestCase
+class GetTransactionDetailsActionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -43,7 +43,7 @@ class GetTransactionDetailsActionTest extends \PHPUnit_Framework_TestCase
     {
         $action = new GetTransactionDetailsAction();
 
-        $request = new GetTransactionDetails($this->getMock('ArrayAccess'), $paymentRequestN = 5);
+        $request = new GetTransactionDetails($this->createMock('ArrayAccess'), $paymentRequestN = 5);
 
         $this->assertTrue($action->supports($request));
     }
@@ -60,11 +60,10 @@ class GetTransactionDetailsActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
     public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
         $action = new GetTransactionDetailsAction();
 
         $action->execute(new \stdClass());
@@ -72,12 +71,11 @@ class GetTransactionDetailsActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage PAYMENTREQUEST_5_TRANSACTIONID must be set.
      */
     public function throwIfZeroPaymentRequestTransactionIdNotSetInModel()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('PAYMENTREQUEST_5_TRANSACTIONID must be set.');
         $action = new GetTransactionDetailsAction();
 
         $request = new GetTransactionDetails(array(), $paymentRequestN = 5);
@@ -150,6 +148,6 @@ class GetTransactionDetailsActionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createApiMock()
     {
-        return $this->getMock('Payum\Paypal\ExpressCheckout\Nvp\Api', array(), array(), '', false);
+        return $this->createMock('Payum\Paypal\ExpressCheckout\Nvp\Api', array(), array(), '', false);
     }
 }

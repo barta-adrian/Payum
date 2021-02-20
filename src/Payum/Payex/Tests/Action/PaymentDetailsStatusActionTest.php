@@ -6,7 +6,7 @@ use Payum\Core\Request\GetHumanStatus;
 use Payum\Payex\Action\PaymentDetailsStatusAction;
 use Payum\Payex\Api\OrderApi;
 
-class PaymentDetailsStatusActionTest extends \PHPUnit_Framework_TestCase
+class PaymentDetailsStatusActionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -95,11 +95,10 @@ class PaymentDetailsStatusActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
     public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
         $action = new PaymentDetailsStatusAction();
 
         $action->execute(new \stdClass());

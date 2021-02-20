@@ -2,8 +2,9 @@
 namespace Payum\Klarna\Checkout\Tests\Action\Api;
 
 use Payum\Klarna\Checkout\Config;
+use PHPUnit\Framework\TestCase;
 
-class BaseApiAwareActionTest extends \PHPUnit_Framework_TestCase
+class BaseApiAwareActionTest extends TestCase
 {
     /**
      * @test
@@ -51,11 +52,10 @@ class BaseApiAwareActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\UnsupportedApiException
      */
     public function throwIfUnsupportedApiGiven()
     {
+        $this->expectException(\Payum\Core\Exception\UnsupportedApiException::class);
         $action = $this->getMockForAbstractClass('Payum\Klarna\Checkout\Action\Api\BaseApiAwareAction');
 
         $action->setApi(new \stdClass());
@@ -66,6 +66,6 @@ class BaseApiAwareActionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createConnectorMock()
     {
-        return $this->getMock('Klarna_Checkout_ConnectorInterface');
+        return $this->createMock('Klarna_Checkout_ConnectorInterface');
     }
 }

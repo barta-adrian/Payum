@@ -2,18 +2,19 @@
 namespace Payum\Core\Tests\Functional\Bridge\Symfony\Form\Type;
 
 use Payum\Core\Bridge\Symfony\Form\Type\GatewayFactoriesChoiceType;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Form\Forms;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class GatewayFactoriesChoiceTypeTest extends \PHPUnit_Framework_TestCase
+class GatewayFactoriesChoiceTypeTest extends TestCase
 {
     /**
      * @var  FormFactory
      */
     protected $formFactory;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->formFactory = Forms::createFormFactoryBuilder()
             ->addType(new GatewayFactoriesChoiceType(array(

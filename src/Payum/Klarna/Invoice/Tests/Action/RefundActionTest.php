@@ -5,8 +5,9 @@ use Payum\Core\GatewayAwareInterface;
 use Payum\Core\GatewayInterface;
 use Payum\Core\Request\Refund;
 use Payum\Klarna\Invoice\Action\RefundAction;
+use PHPUnit\Framework\TestCase;
 
-class RefundActionTest extends \PHPUnit_Framework_TestCase
+class RefundActionTest extends TestCase
 {
     /**
      * @test
@@ -58,11 +59,10 @@ class RefundActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
     public function throwIfNotSupportedRequestGivenAsArgumentOnExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
         $action = new RefundAction();
 
         $action->execute(new \stdClass());
@@ -114,12 +114,11 @@ class RefundActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The invoice_number fields are required.
      */
     public function shouldThrowsIfDetailsNotHaveInvoiceNumber()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The invoice_number fields are required.');
         $gatewayMock = $this->createGatewayMock();
         $gatewayMock
             ->expects($this->never())
@@ -139,6 +138,6 @@ class RefundActionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createGatewayMock()
     {
-        return $this->getMock('Payum\Core\GatewayInterface');
+        return $this->createMock('Payum\Core\GatewayInterface');
     }
 }

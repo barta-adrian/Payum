@@ -3,8 +3,9 @@ namespace Payum\Core\Tests\Bridge\Propel\Storage;
 
 use Payum\Core\Bridge\Propel2\Storage\Propel2Storage as PropelStorage;
 use Payum\Core\Tests\Mocks\Model\Propel2ModelQuery;
+use PHPUnit\Framework\TestCase;
 
-class Propel2StorageTest extends \PHPUnit_Framework_TestCase
+class Propel2StorageTest extends TestCase
 {
     /**
      * @test
@@ -42,12 +43,10 @@ class Propel2StorageTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($model->getId());
     }
 
-    /**
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage Save method was triggered.
-     */
     public function throwForModelClassSaveOnUpdateModel()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('Save method was triggered.');
         $storage = new PropelStorage('Payum\Core\Tests\Mocks\Model\Propel2Model');
 
         $model = $storage->create();

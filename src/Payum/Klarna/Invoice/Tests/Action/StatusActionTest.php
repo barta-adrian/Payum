@@ -3,8 +3,9 @@ namespace Payum\Klarna\Invoice\Tests\Action;
 
 use Payum\Core\Request\GetHumanStatus;
 use Payum\Klarna\Invoice\Action\StatusAction;
+use PHPUnit\Framework\TestCase;
 
-class StatusActionTest extends \PHPUnit_Framework_TestCase
+class StatusActionTest extends TestCase
 {
     /**
      * @test
@@ -56,11 +57,10 @@ class StatusActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
     public function throwIfNotSupportedRequestGivenAsArgumentOnExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
         $action = new StatusAction();
 
         $action->execute(new \stdClass());

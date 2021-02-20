@@ -3,7 +3,7 @@ namespace Payum\Paypal\ProCheckout\Nvp\Tests;
 
 use Payum\Paypal\ProCheckout\Nvp\PaypalProCheckoutGatewayFactory;
 
-class PaypalProCheckoutGatewayFactoryTest extends \PHPUnit_Framework_TestCase
+class PaypalProCheckoutGatewayFactoryTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -38,7 +38,7 @@ class PaypalProCheckoutGatewayFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function shouldUseCoreGatewayFactoryPassedAsSecondArgument()
     {
-        $coreGatewayFactory = $this->getMock('Payum\Core\GatewayFactoryInterface');
+        $coreGatewayFactory = $this->createMock('Payum\Core\GatewayFactoryInterface');
 
         $factory = new PaypalProCheckoutGatewayFactory(array(), $coreGatewayFactory);
 
@@ -156,12 +156,11 @@ class PaypalProCheckoutGatewayFactoryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The username, password, partner, vendor, tender fields are required.
      */
     public function shouldThrowIfRequiredOptionsNotPassed()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The username, password, partner, vendor, tender fields are required.');
         $factory = new PaypalProCheckoutGatewayFactory();
 
         $factory->create();

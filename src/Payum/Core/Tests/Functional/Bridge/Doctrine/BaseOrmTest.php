@@ -1,20 +1,21 @@
 <?php
 namespace Payum\Core\Tests\Functional\Bridge\Doctrine;
 
-use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
+use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\ORM\Configuration;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\SchemaTool;
+use PHPUnit\Framework\TestCase;
 
-abstract class BaseOrmTest extends \PHPUnit_Framework_TestCase
+abstract class BaseOrmTest extends TestCase
 {
     /**
      * @var EntityManager
      */
     protected $em;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         if (false == class_exists('Doctrine\ORM\Version', $autoload = true)) {
             throw new \PHPUnit_Framework_SkippedTestError('Doctrine ORM lib not installed. Have you run composer with --dev option?');
@@ -24,7 +25,7 @@ abstract class BaseOrmTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->setUpEntityManager();
         $this->setUpDatabase();

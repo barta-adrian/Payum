@@ -2,8 +2,9 @@
 namespace Payum\Core\Tests\Security;
 
 use Payum\Core\Security\SensitiveValue;
+use PHPUnit\Framework\TestCase;
 
-class SensitiveValueTest extends \PHPUnit_Framework_TestCase
+class SensitiveValueTest extends TestCase
 {
     /**
      * @test
@@ -112,12 +113,11 @@ class SensitiveValueTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage It is not permitted to close this object.
      */
     public function throwIfTryToCloneValue()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('It is not permitted to close this object.');
         $sensitiveValue = new SensitiveValue('cardNumber');
 
         clone $sensitiveValue;

@@ -8,7 +8,7 @@ use Payum\Core\GatewayFactory;
 use Payum\Core\GatewayFactoryInterface;
 use Payum\Paypal\Rest\PaypalRestGatewayFactory;
 
-class PaypalRestGatewayFactoryTest extends \PHPUnit_Framework_TestCase
+class PaypalRestGatewayFactoryTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -43,7 +43,7 @@ class PaypalRestGatewayFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function shouldUseCoreGatewayFactoryPassedAsSecondArgument()
     {
-        $coreGatewayFactory = $this->getMock(GatewayFactoryInterface::class);
+        $coreGatewayFactory = $this->createMock(GatewayFactoryInterface::class);
 
         $factory = new PaypalRestGatewayFactory([], $coreGatewayFactory);
 
@@ -70,6 +70,44 @@ class PaypalRestGatewayFactoryTest extends \PHPUnit_Framework_TestCase
 
         $extensions = $this->readAttribute($gateway, 'extensions');
         $this->assertAttributeNotEmpty('extensions', $extensions);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldAllowCreateGatewayWithCustomConfig()
+    {
+        $factory = new PaypalRestGatewayFactory();
+
+        $givenConfig = [
+            'log.LogLevel' => 'DEBUG',
+            'mode' => 'live',
+            'log.FileName' => '/foo/bar.log',
+            'http.ConnectionTimeOut' => '10',
+        ];
+
+        $gateway = $factory->create([
+            'client_id' => 'cId',
+            'client_secret' => 'cSecret',
+            'config' => $givenConfig,
+        ]);
+
+        $apis = $this->readAttribute($gateway, 'apis');
+        $apiContext = null;
+        foreach ($apis as $api) {
+            if ($api instanceof \PayPal\Rest\ApiContext) {
+                $apiContext = $api;
+                break;
+            }
+        }
+
+        $this->assertNotNull($apiContext);
+
+        $apiContextConfig = $apiContext->getConfig();
+        foreach ($givenConfig as $k => $v) {
+            $this->assertArrayHasKey($k, $apiContextConfig);
+            $this->assertSame($v, $apiContextConfig[$k]);
+        }
     }
 
     /**
@@ -136,7 +174,7 @@ class PaypalRestGatewayFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertInternalType('array', $config);
 
         $this->assertArrayHasKey('payum.default_options', $config);
-        $this->assertEquals(['client_id' => '', 'client_secret' => '', 'config_path' => ''], $config['payum.default_options']);
+        $this->assertEquals(['client_id' => '', 'client_secret' => '', 'config_path' => '', 'config' => []], $config['payum.default_options']);
     }
 
     /**
@@ -159,12 +197,11 @@ class PaypalRestGatewayFactoryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The client_id, client_secret, config_path fields are required.
      */
     public function shouldThrowIfRequiredOptionsNotPassed()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The client_id, client_secret fields are required.');
         $factory = new PaypalRestGatewayFactory();
 
         $factory->create();
@@ -172,12 +209,11 @@ class PaypalRestGatewayFactoryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\InvalidArgumentException
-     * @expectedExceptionMessageRegExp /Given \"config_path\" is invalid. \w+/
      */
     public function shouldThrowIfConfigPathOptionsNotEqualPaypalPath()
     {
+        $this->expectException(\Payum\Core\Exception\InvalidArgumentException::class);
+        $this->expectExceptionMessageRegExp('/Given \"config_path\" is invalid. \w+/');
         $factory = new PaypalRestGatewayFactory();
         $factory->create([
             'client_id' => 'cId',

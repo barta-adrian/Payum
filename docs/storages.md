@@ -1,3 +1,12 @@
+<h2 align="center">Supporting Payum</h2>
+
+Payum is an MIT-licensed open source project with its ongoing development made possible entirely by the support of community and our customers. If you'd like to join them, please consider:
+
+- [Become a sponsor](https://www.patreon.com/makasim)
+- [Become our client](http://forma-pro.com/)
+
+---
+
 # Storages
 
 Storage allow you save,fetch payment related information. 
@@ -157,7 +166,7 @@ $tokenStorage = new DoctrineStorage(
 ### Doctrine MongoODM.
 
 ```
-php composer.phar install "doctrine/mongodb": "1.0.*@dev" "doctrine/mongodb-odm": "1.0.*@dev"
+php composer.phar require "doctrine/mongodb-odm:^2.1"
 ```
 
 ```php
@@ -202,14 +211,13 @@ next, you have to create an entity manager and Payum's storage:
 <?php
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Cache\ArrayCache;
-use Doctrine\Common\Persistence\Mapping\Driver\MappingDriverChain;
-use Doctrine\Common\Persistence\Mapping\Driver\SymfonyFileLocator;
+use Doctrine\Persistence\Mapping\Driver\MappingDriverChain;
+use Doctrine\Persistence\Mapping\Driver\SymfonyFileLocator;
 use Doctrine\ODM\MongoDB\Types\Type;
 use Doctrine\ODM\MongoDB\Mapping\Driver\AnnotationDriver;
 use Doctrine\ODM\MongoDB\Mapping\Driver\XmlDriver;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ODM\MongoDB\Configuration;
-use Doctrine\MongoDB\Connection;
 use Payum\Core\Bridge\Doctrine\Storage\DoctrineStorage;
 
 Type::addType('object', 'Payum\Core\Bridge\Doctrine\Types\ObjectType');
@@ -228,7 +236,6 @@ $driver->addDriver(
 );
 
 // your models
-AnnotationDriver::registerAnnotationClasses();
 $driver->addDriver(
     new AnnotationDriver(new AnnotationReader(), array(
         'path/to/Acme/Document',
@@ -245,17 +252,10 @@ $config->setMetadataDriverImpl($driver);
 $config->setMetadataCacheImpl(new ArrayCache());
 $config->setDefaultDB('payum_tests');
 
-$connection = new Connection(null, array(), $config);
+$documentManager = DocumentManager::create(null, $config);
 
-$orderStorage = new DoctrineStorage(
-    DocumentManager::create($connection, $config),
-    'Acme\Document\Payment'
-);
-
-$tokenStorage = new DoctrineStorage(
-    DocumentManager::create($connection, $config),
-    'Acme\Document\SecurityToken'
-);
+$orderStorage = new DoctrineStorage($documentManager, 'Acme\Document\Payment');
+$tokenStorage = new DoctrineStorage($documentManager, 'Acme\Document\SecurityToken');
 ```        
 
 ## Filesystem.

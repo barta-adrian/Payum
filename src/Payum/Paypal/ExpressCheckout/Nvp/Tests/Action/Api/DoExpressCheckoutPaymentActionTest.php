@@ -6,7 +6,7 @@ use Payum\Core\ApiAwareInterface;
 use Payum\Paypal\ExpressCheckout\Nvp\Action\Api\DoExpressCheckoutPaymentAction;
 use Payum\Paypal\ExpressCheckout\Nvp\Request\Api\DoExpressCheckoutPayment;
 
-class DoExpressCheckoutPaymentActionTest extends \PHPUnit_Framework_TestCase
+class DoExpressCheckoutPaymentActionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -43,7 +43,7 @@ class DoExpressCheckoutPaymentActionTest extends \PHPUnit_Framework_TestCase
     {
         $action = new DoExpressCheckoutPaymentAction();
 
-        $this->assertTrue($action->supports(new DoExpressCheckoutPayment($this->getMock('ArrayAccess'))));
+        $this->assertTrue($action->supports(new DoExpressCheckoutPayment($this->createMock('ArrayAccess'))));
     }
 
     /**
@@ -58,11 +58,10 @@ class DoExpressCheckoutPaymentActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
     public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
     {
+        $this->expectException(\Payum\Core\Exception\RequestNotSupportedException::class);
         $action = new DoExpressCheckoutPaymentAction();
 
         $action->execute(new \stdClass());
@@ -70,12 +69,11 @@ class DoExpressCheckoutPaymentActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage TOKEN must be set. Have you run SetExpressCheckoutAction?
      */
     public function throwIfTokenNotSetInModel()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('TOKEN must be set. Have you run SetExpressCheckoutAction?');
         $action = new DoExpressCheckoutPaymentAction();
 
         $action->execute(new DoExpressCheckoutPayment(array()));
@@ -83,12 +81,11 @@ class DoExpressCheckoutPaymentActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage PAYERID must be set.
      */
     public function throwIfPayerIdNotSetInModel()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('PAYERID must be set.');
         $action = new DoExpressCheckoutPaymentAction();
 
         $request = new DoExpressCheckoutPayment(array(
@@ -100,12 +97,11 @@ class DoExpressCheckoutPaymentActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage PAYMENTREQUEST_0_PAYMENTACTION must be set.
      */
     public function throwIfZeroPaymentRequestActionNotSet()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('PAYMENTREQUEST_0_PAYMENTACTION must be set.');
         $action = new DoExpressCheckoutPaymentAction();
 
         $request = new DoExpressCheckoutPayment(array(
@@ -118,12 +114,11 @@ class DoExpressCheckoutPaymentActionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage PAYMENTREQUEST_0_AMT must be set.
      */
     public function throwIfZeroPaymentRequestAmtNotSet()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('PAYMENTREQUEST_0_AMT must be set.');
         $action = new DoExpressCheckoutPaymentAction();
 
         $request = new DoExpressCheckoutPayment(array(
@@ -219,6 +214,6 @@ class DoExpressCheckoutPaymentActionTest extends \PHPUnit_Framework_TestCase
      */
     protected function createApiMock()
     {
-        return $this->getMock('Payum\Paypal\ExpressCheckout\Nvp\Api', array(), array(), '', false);
+        return $this->createMock('Payum\Paypal\ExpressCheckout\Nvp\Api', array(), array(), '', false);
     }
 }

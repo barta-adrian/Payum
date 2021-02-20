@@ -3,7 +3,7 @@ namespace Payum\Payex\Tests;
 
 use Payum\Payex\PayexGatewayFactory;
 
-class PayexGatewayFactoryTest extends \PHPUnit_Framework_TestCase
+class PayexGatewayFactoryTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -38,7 +38,7 @@ class PayexGatewayFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function shouldUseCoreGatewayFactoryPassedAsSecondArgument()
     {
-        $coreGatewayFactory = $this->getMock('Payum\Core\GatewayFactoryInterface');
+        $coreGatewayFactory = $this->createMock('Payum\Core\GatewayFactoryInterface');
 
         $factory = new PayexGatewayFactory(array(), $coreGatewayFactory);
 
@@ -154,12 +154,11 @@ class PayexGatewayFactoryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The account_number, encryption_key fields are required.
      */
     public function shouldThrowIfRequiredOptionsNotPassed()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The account_number, encryption_key fields are required.');
         $factory = new PayexGatewayFactory();
 
         $factory->create();

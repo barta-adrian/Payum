@@ -1,14 +1,15 @@
 <?php
-namespace Payum\Core\Bridge\Symfony;
+namespace Payum\Core\Tests\Bridge\Symfony;
 
 use Payum\Core\Bridge\Symfony\Reply\HttpResponse as SymfonyHttpResponse;
 use Payum\Core\Bridge\Symfony\ReplyToSymfonyResponseConverter;
 use Payum\Core\Reply\HttpPostRedirect;
 use Payum\Core\Reply\HttpRedirect;
 use Payum\Core\Reply\HttpResponse;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
 
-class ReplyToSymfonyResponseConverterTest extends \PHPUnit_Framework_TestCase
+class ReplyToSymfonyResponseConverterTest extends TestCase
 {
     /**
      * @test
@@ -112,13 +113,12 @@ class ReplyToSymfonyResponseConverterTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage Cannot convert reply Mock_Base_
      */
     public function shouldChangeReplyToLogicExceptionIfNotSupported()
     {
-        $notSupportedReply = $this->getMock('Payum\Core\Reply\Base');
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('Cannot convert reply Mock_Base_');
+        $notSupportedReply = $this->createMock('Payum\Core\Reply\Base');
 
         $listener = new ReplyToSymfonyResponseConverter();
 

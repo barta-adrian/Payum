@@ -3,7 +3,7 @@ namespace Payum\Paypal\ProHosted\Nvp\Tests;
 
 use Payum\Paypal\ProHosted\Nvp\PaypalProHostedGatewayFactory;
 
-class PaypalProHostedGatewayFactoryTest extends \PHPUnit_Framework_TestCase
+class PaypalProHostedGatewayFactoryTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -38,7 +38,7 @@ class PaypalProHostedGatewayFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function shouldUseCoreGatewayFactoryPassedAsSecondArgument()
     {
-        $coreGatewayFactory = $this->getMock('Payum\Core\GatewayFactoryInterface');
+        $coreGatewayFactory = $this->createMock('Payum\Core\GatewayFactoryInterface');
 
         $factory = new PaypalProHostedGatewayFactory(array(), $coreGatewayFactory);
 
@@ -159,13 +159,11 @@ class PaypalProHostedGatewayFactoryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The username, password, signature
-     * fields are required.
      */
     public function shouldThrowIfRequiredOptionsNotPassed()
     {
+        $this->expectException(\Payum\Core\Exception\LogicException::class);
+        $this->expectExceptionMessage('The username, password, signature fields are required.');
         $factory = new PaypalProHostedGatewayFactory();
 
         $factory->create();
