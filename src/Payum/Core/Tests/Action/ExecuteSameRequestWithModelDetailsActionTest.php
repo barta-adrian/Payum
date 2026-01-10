@@ -1,44 +1,43 @@
 <?php
+
 namespace Payum\Core\Tests\Action;
 
+use ArrayAccess;
+use Iterator;
+use LogicException;
 use Payum\Core\Action\ExecuteSameRequestWithModelDetailsAction;
 use Payum\Core\GatewayAwareInterface;
+use Payum\Core\GatewayInterface;
 use Payum\Core\Model\DetailsAggregateInterface;
 use Payum\Core\Model\DetailsAwareInterface;
 use Payum\Core\Model\ModelAggregateInterface;
 use Payum\Core\Model\ModelAwareInterface;
 use Payum\Core\Tests\GenericActionTest;
+use ReflectionClass;
+use stdClass;
 
 class ExecuteSameRequestWithModelDetailsActionTest extends GenericActionTest
 {
-    protected $actionClass = 'Payum\Core\Action\ExecuteSameRequestWithModelDetailsAction';
+    protected $actionClass = ExecuteSameRequestWithModelDetailsAction::class;
 
-    protected $requestClass = 'Payum\Core\Tests\Action\ModelAggregateAwareRequest';
+    protected $requestClass = ModelAggregateAwareRequest::class;
 
-    public function provideSupportedRequests()
+    public function provideSupportedRequests(): Iterator
     {
-        return array(
-            array(new $this->requestClass(new DetailsAggregateAndAwareModel())),
-            array(new $this->requestClass(new DetailsAggregateModel())),
-        );
+        yield [new $this->requestClass(new DetailsAggregateAndAwareModel())];
+        yield [new $this->requestClass(new DetailsAggregateModel())];
     }
 
-    /**
-     * @test
-     */
-    public function shouldImplementGatewayAwareInterface()
+    public function testShouldImplementGatewayAwareInterface(): void
     {
-        $rc = new \ReflectionClass($this->actionClass);
+        $rc = new ReflectionClass($this->actionClass);
 
         $this->assertTrue($rc->implementsInterface(GatewayAwareInterface::class));
     }
 
-    /**
-     * @test
-     */
-    public function shouldExecuteSameRequestWithModelDetails()
+    public function testShouldExecuteSameRequestWithModelDetails(): void
     {
-        $expectedDetails = new \stdClass();
+        $expectedDetails = new stdClass();
 
         $model = new DetailsAggregateModel();
         $model->details = $expectedDetails;
@@ -47,14 +46,14 @@ class ExecuteSameRequestWithModelDetailsActionTest extends GenericActionTest
 
         $testCase = $this;
 
-        $gatewayMock = $this->getMock('Payum\Core\GatewayInterface');
+        $gatewayMock = $this->createMock(GatewayInterface::class);
         $gatewayMock
             ->expects($this->once())
             ->method('execute')
             ->with($this->identicalTo($request))
-            ->will($this->returnCallback(function ($request) use ($expectedDetails, $testCase) {
+            ->willReturnCallback(function ($request) use ($expectedDetails, $testCase): void {
                 $testCase->assertSame($expectedDetails, $request->getModel());
-            }))
+            })
         ;
 
         $action = new ExecuteSameRequestWithModelDetailsAction();
@@ -65,33 +64,31 @@ class ExecuteSameRequestWithModelDetailsActionTest extends GenericActionTest
         $this->assertSame($expectedDetails, $model->getDetails());
     }
 
-    /**
-     * @test
-     */
-    public function shouldWrapArrayDetailsToArrayObjectAndExecute()
+    public function testShouldWrapArrayDetailsToArrayObjectAndExecute(): void
     {
-        $expectedDetails = array('foo' => 'fooVal', 'bar' => 'barVal');
+        $expectedDetails = [
+            'foo' => 'fooVal',
+            'bar' => 'barVal',
+        ];
 
         $model = new DetailsAggregateModel();
         $model->details = $expectedDetails;
 
         $request = new ModelAggregateAwareRequest($model);
 
-        $testCase = $this;
-
-        $gatewayMock = $this->getMock('Payum\Core\GatewayInterface');
+        $gatewayMock = $this->createMock(GatewayInterface::class);
         $gatewayMock
             ->expects($this->once())
             ->method('execute')
             ->with($this->identicalTo($request))
-            ->will($this->returnCallback(function ($request) use ($expectedDetails, $testCase) {
+            ->willReturnCallback(function ($request) use ($expectedDetails): void {
                 $details = $request->getModel();
 
-                $testCase->assertInstanceOf('ArrayAccess', $details);
-                $testCase->assertSame($expectedDetails, iterator_to_array($details));
+                $this->assertInstanceOf(ArrayAccess::class, $details);
+                $this->assertSame($expectedDetails, (array) $details);
 
                 $details['baz'] = 'bazVal';
-            }))
+            })
         ;
 
         $action = new ExecuteSameRequestWithModelDetailsAction();
@@ -100,15 +97,15 @@ class ExecuteSameRequestWithModelDetailsActionTest extends GenericActionTest
         $action->execute($request);
 
         $details = $model->getDetails();
-        $this->assertEquals($details, $model->getDetails());
+        $this->assertSame($details, $model->getDetails());
     }
 
-    /**
-     * @test
-     */
-    public function shouldWrapArrayDetailsToArrayObjectAndSetDetailsBackAfterExecution()
+    public function testShouldWrapArrayDetailsToArrayObjectAndSetDetailsBackAfterExecution(): void
     {
-        $expectedDetails = array('foo' => 'fooVal', 'bar' => 'barVal');
+        $expectedDetails = [
+            'foo' => 'fooVal',
+            'bar' => 'barVal',
+        ];
 
         $model = new DetailsAggregateAndAwareModel();
         $model->details = $expectedDetails;
@@ -117,19 +114,19 @@ class ExecuteSameRequestWithModelDetailsActionTest extends GenericActionTest
 
         $testCase = $this;
 
-        $gatewayMock = $this->getMock('Payum\Core\GatewayInterface');
+        $gatewayMock = $this->createMock(GatewayInterface::class);
         $gatewayMock
             ->expects($this->once())
             ->method('execute')
             ->with($this->identicalTo($request))
-            ->will($this->returnCallback(function ($request) use ($expectedDetails, $testCase) {
+            ->willReturnCallback(function ($request) use ($expectedDetails, $testCase): void {
                 $details = $request->getModel();
 
-                $testCase->assertInstanceOf('ArrayAccess', $details);
-                $testCase->assertSame($expectedDetails, iterator_to_array($details));
+                $testCase->assertInstanceOf(ArrayAccess::class, $details);
+                $testCase->assertSame($expectedDetails, (array) $details);
 
                 $details['baz'] = 'bazVal';
-            }))
+            })
         ;
 
         $action = new ExecuteSameRequestWithModelDetailsAction();
@@ -138,19 +135,23 @@ class ExecuteSameRequestWithModelDetailsActionTest extends GenericActionTest
         $action->execute($request);
 
         $details = $model->getDetails();
-        $testCase->assertInstanceOf('ArrayAccess', $details);
+        $testCase->assertInstanceOf(ArrayAccess::class, $details);
         $testCase->assertSame(
-            array('foo' => 'fooVal', 'bar' => 'barVal', 'baz' => 'bazVal'),
-            iterator_to_array($details)
+            [
+                'foo' => 'fooVal',
+                'bar' => 'barVal',
+                'baz' => 'bazVal',
+            ],
+            (array) $details
         );
     }
 
-    /**
-     * @test
-     */
-    public function shouldWrapArrayDetailsToArrayObjectAndSetDetailsBackEvenOnException()
+    public function testShouldWrapArrayDetailsToArrayObjectAndSetDetailsBackEvenOnException(): void
     {
-        $expectedDetails = array('foo' => 'fooVal', 'bar' => 'barVal');
+        $expectedDetails = [
+            'foo' => 'fooVal',
+            'bar' => 'barVal',
+        ];
 
         $model = new DetailsAggregateAndAwareModel();
         $model->details = $expectedDetails;
@@ -159,21 +160,21 @@ class ExecuteSameRequestWithModelDetailsActionTest extends GenericActionTest
 
         $testCase = $this;
 
-        $gatewayMock = $this->getMock('Payum\Core\GatewayInterface');
+        $gatewayMock = $this->createMock(GatewayInterface::class);
         $gatewayMock
             ->expects($this->once())
             ->method('execute')
             ->with($this->identicalTo($request))
-            ->will($this->returnCallback(function ($request) use ($expectedDetails, $testCase) {
+            ->willReturnCallback(function ($request) use ($expectedDetails, $testCase): void {
                 $details = $request->getModel();
 
-                $testCase->assertInstanceOf('ArrayAccess', $details);
-                $testCase->assertSame($expectedDetails, iterator_to_array($details));
+                $testCase->assertInstanceOf(ArrayAccess::class, $details);
+                $testCase->assertSame($expectedDetails, (array) $details);
 
                 $details['baz'] = 'bazVal';
 
-                throw new \LogicException('The exception');
-            }))
+                throw new LogicException('The exception');
+            })
         ;
 
         $action = new ExecuteSameRequestWithModelDetailsAction();
@@ -181,12 +182,16 @@ class ExecuteSameRequestWithModelDetailsActionTest extends GenericActionTest
 
         try {
             $action->execute($request);
-        } catch (\LogicException $e) {
+        } catch (LogicException) {
             $details = $model->getDetails();
-            $testCase->assertInstanceOf('ArrayAccess', $details);
+            $testCase->assertInstanceOf(ArrayAccess::class, $details);
             $testCase->assertSame(
-                array('foo' => 'fooVal', 'bar' => 'barVal', 'baz' => 'bazVal'),
-                iterator_to_array($details)
+                [
+                    'foo' => 'fooVal',
+                    'bar' => 'barVal',
+                    'baz' => 'bazVal',
+                ],
+                (array) $details
             );
 
             return;
@@ -210,7 +215,7 @@ class ModelAggregateAwareRequest implements ModelAwareInterface, ModelAggregateI
         return $this->model;
     }
 
-    public function setModel($model)
+    public function setModel($model): void
     {
         $this->model = $model;
     }
@@ -218,7 +223,7 @@ class ModelAggregateAwareRequest implements ModelAwareInterface, ModelAggregateI
 
 class DetailsAggregateModel implements DetailsAggregateInterface
 {
-    public $details = array();
+    public $details = [];
 
     public function getDetails()
     {
@@ -228,14 +233,14 @@ class DetailsAggregateModel implements DetailsAggregateInterface
 
 class DetailsAggregateAndAwareModel implements DetailsAggregateInterface, DetailsAwareInterface
 {
-    public $details = array();
+    public $details = [];
 
     public function getDetails()
     {
         return $this->details;
     }
 
-    public function setDetails($details)
+    public function setDetails($details): void
     {
         $this->details = $details;
     }

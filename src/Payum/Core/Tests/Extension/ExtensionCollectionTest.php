@@ -1,34 +1,24 @@
 <?php
+
 namespace Payum\Core\Tests\Extension;
 
 use Payum\Core\Extension\Context;
 use Payum\Core\Extension\ExtensionCollection;
 use Payum\Core\Extension\ExtensionInterface;
+use Payum\Core\Tests\TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionClass;
 
-class ExtensionCollectionTest extends \PHPUnit_Framework_TestCase
+class ExtensionCollectionTest extends TestCase
 {
-    /**
-     * @test
-     */
-    public function shouldImplementExtensionInterface()
+    public function testShouldImplementExtensionInterface(): void
     {
-        $rc = new \ReflectionClass('Payum\Core\Extension\ExtensionCollection');
+        $rc = new ReflectionClass(ExtensionCollection::class);
 
-        $this->assertTrue($rc->implementsInterface('Payum\Core\Extension\ExtensionInterface'));
+        $this->assertTrue($rc->implementsInterface(ExtensionInterface::class));
     }
 
-    /**
-     * @test
-     */
-    public function couldBeConstructedWithoutAnyArguments()
-    {
-        new ExtensionCollection();
-    }
-
-    /**
-     * @test
-     */
-    public function shouldAllowAddExtensionAppendByDefault()
+    public function testShouldAllowAddExtensionAppendByDefault(): void
     {
         $extensionFirst = $this->createExtensionMock();
         $extensionSecond = $this->createExtensionMock();
@@ -40,17 +30,14 @@ class ExtensionCollectionTest extends \PHPUnit_Framework_TestCase
 
         $addedExtensions = $this->readAttribute($collection, 'extensions');
 
-        $this->assertInternalType('array', $addedExtensions);
+        $this->assertIsArray($addedExtensions);
         $this->assertCount(2, $addedExtensions);
 
         $this->assertSame($extensionFirst, $addedExtensions[0]);
         $this->assertSame($extensionSecond, $addedExtensions[1]);
     }
 
-    /**
-     * @test
-     */
-    public function shouldAllowAddExtensionWithForcedPrepend()
+    public function testShouldAllowAddExtensionWithForcedPrepend(): void
     {
         $extensionFirst = $this->createExtensionMock();
         $extensionSecond = $this->createExtensionMock();
@@ -62,17 +49,14 @@ class ExtensionCollectionTest extends \PHPUnit_Framework_TestCase
 
         $addedExtensions = $this->readAttribute($collection, 'extensions');
 
-        $this->assertInternalType('array', $addedExtensions);
+        $this->assertIsArray($addedExtensions);
         $this->assertCount(2, $addedExtensions);
 
         $this->assertSame($extensionSecond, $addedExtensions[0]);
         $this->assertSame($extensionFirst, $addedExtensions[1]);
     }
 
-    /**
-     * @test
-     */
-    public function shouldCallOnPreExecuteForAllExtensionsInCollection()
+    public function testShouldCallOnPreExecuteForAllExtensionsInCollection(): void
     {
         $expectedContext = $this->createContextMock();
 
@@ -94,15 +78,10 @@ class ExtensionCollectionTest extends \PHPUnit_Framework_TestCase
         $collection->addExtension($extensionFirst);
         $collection->addExtension($extensionSecond);
 
-        $result = $collection->onPreExecute($expectedContext);
-
-        $this->assertNull($result);
+        $collection->onPreExecute($expectedContext);
     }
 
-    /**
-     * @test
-     */
-    public function shouldCallOnExecuteForAllExtensionsInCollection()
+    public function testShouldCallOnExecuteForAllExtensionsInCollection(): void
     {
         $expectedContext = $this->createContextMock();
 
@@ -124,15 +103,10 @@ class ExtensionCollectionTest extends \PHPUnit_Framework_TestCase
         $collection->addExtension($extensionFirst);
         $collection->addExtension($extensionSecond);
 
-        $result = $collection->onExecute($expectedContext);
-
-        $this->assertNull($result);
+        $collection->onExecute($expectedContext);
     }
 
-    /**
-     * @test
-     */
-    public function shouldCallOnPostExecuteForAllExtensionsInCollection()
+    public function testShouldCallOnPostExecuteForAllExtensionsInCollection(): void
     {
         $expectedContext = $this->createContextMock();
 
@@ -154,24 +128,22 @@ class ExtensionCollectionTest extends \PHPUnit_Framework_TestCase
         $collection->addExtension($extensionFirst);
         $collection->addExtension($extensionSecond);
 
-        $result = $collection->onPostExecute($expectedContext);
-
-        $this->assertNull($result);
+        $collection->onPostExecute($expectedContext);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|Context
+     * @return MockObject|Context
      */
     protected function createContextMock()
     {
-        return $this->getMock('Payum\Core\Extension\Context', array(), array(), '', false);
+        return $this->createMock(Context::class);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|ExtensionInterface
+     * @return MockObject|ExtensionInterface
      */
     protected function createExtensionMock()
     {
-        return $this->getMock('Payum\Core\Extension\ExtensionInterface');
+        return $this->createMock(ExtensionInterface::class);
     }
 }

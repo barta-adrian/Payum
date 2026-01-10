@@ -1,10 +1,16 @@
 <?php
+
 namespace Payum\Core\Bridge\Symfony\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+@trigger_error('The ' . __NAMESPACE__ . '\GatewayFactoriesChoiceType class is deprecated since version 2.0 and will be removed in 3.0. Use the same class from Payum/PayumBundle instead.', E_USER_DEPRECATED);
+
+/**
+ * @deprecated since 2.0. Use the same class from Payum/PayumBundle instead.
+ */
 class GatewayFactoriesChoiceType extends AbstractType
 {
     /**
@@ -20,19 +26,15 @@ class GatewayFactoriesChoiceType extends AbstractType
         $this->defaultChoices = $defaultChoices;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
-        $resolver->setDefaults(array(
+        $resolver->setDefaults([
             'choices' => $this->defaultChoices,
-            'choices_as_values' => true,
-        ));
+        ]);
     }
 
     /**
-     * {@inheritDoc}
+     * @return ?string
      */
     public function getParent()
     {

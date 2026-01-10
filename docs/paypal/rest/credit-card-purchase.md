@@ -1,9 +1,8 @@
-# Paypal Rest. Credit card purchase.
+# Credit Card Purchase
 
-In [get it started](get-it-started.md) chapter we showed how you can setup payment with authorization on the paypal side.
-Here we show how to purchase something using credit card provided by a user.
+In [get it started](get-it-started.md) chapter we showed how you can setup payment with authorization on the paypal side. Here we show how to purchase something using credit card provided by a user.
 
-## Prepare payment
+### Prepare payment
 
 ```php
 <?php
@@ -66,4 +65,10 @@ $captureToken = $payum->getTokenFactory()->createCaptureToken('paypalRest', $pay
 header("Location: ".$captureToken->getTargetUrl());
 ```
 
-Back to [index](../../index.md).
+***
+
+### Supporting Payum
+
+Payum is an MIT-licensed open source project with its ongoing development made possible entirely by the support of community and our customers. If you'd like to join them, please consider:
+
+* [Become a sponsor](https://github.com/sponsors/Payum)

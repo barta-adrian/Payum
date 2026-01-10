@@ -1,8 +1,6 @@
 # Your order integration
 
-In this chapter we would talk about purchase using Payment class.
-The Payment class is defined by you and have any possible methods.
-To simply things let's suppose it looks like this:
+In this chapter we would talk about purchase using Payment class. The Payment class is defined by you and have any possible methods. To simply things let's suppose it looks like this:
 
 ```php
 <?php
@@ -18,9 +16,7 @@ class Payment
 }
 ```
 
-To allow purchase using this Payment we have to create payum's action.
-The action is like a driver between your domain and a gateway.
-As an example we created a capture action that can capture order using foo gateway.
+To allow purchase using this Payment we have to create payum's action. The action is like a driver between your domain and a gateway. As an example we created a capture action that can capture order using foo gateway.
 
 ```php
 <?php
@@ -64,8 +60,7 @@ class CaptureOrderUsingFooAction implements ActionInterface, GatewayAwareInterfa
 }
 ```
 
-Now we have to add this action to gateway object. Also you have to register a storage that able to store Payment.
-You have to add to `config.php` that was described in [get it started](get-it-started.md) chapter.
+Now we have to add this action to gateway object. Also you have to register a storage that able to store Payment. You have to add to `config.php` that was described in [get it started](get-it-started.md) chapter.
 
 ```php
 <?php
@@ -104,4 +99,10 @@ $captureToken = $payum->getTokenFactory()->createCaptureToken('foo', $order, 'do
 header("Location: ".$captureToken->getTargetUrl());
 ```
 
-Back to [index](index.md).
+***
+
+### Supporting Payum
+
+Payum is an MIT-licensed open source project with its ongoing development made possible entirely by the support of community and our customers. If you'd like to join them, please consider:
+
+* [Become a sponsor](https://github.com/sponsors/Payum)

@@ -1,7 +1,6 @@
-# Paypal Express Checkout. Cancel recurring payment.
+# Cancel recurring payment
 
-In the chapter [recurring payments basics](recurring-payments-basics.md) we showed how to configure create a recurring.
-Here we show you how to cancel a recurring payment. 
+In the chapter [recurring payments basics](recurring-payments-basics.md) we showed how to configure create a recurring. Here we show you how to cancel a recurring payment.
 
 ```php
 <?php
@@ -24,5 +23,10 @@ if ($status->isCanceled()) {
 }
 ```
 
+***
 
-Back to [index](../../index.md).
+### Supporting Payum
+
+Payum is an MIT-licensed open source project with its ongoing development made possible entirely by the support of community and our customers. If you'd like to join them, please consider:
+
+* [Become a sponsor](https://github.com/sponsors/Payum)

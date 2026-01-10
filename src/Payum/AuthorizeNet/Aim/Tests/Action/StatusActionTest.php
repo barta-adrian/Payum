@@ -1,25 +1,23 @@
 <?php
+
 namespace Payum\AuthorizeNet\Aim\Tests\Action;
 
+use AuthorizeNetAIM_Response;
 use Payum\AuthorizeNet\Aim\Action\StatusAction;
 use Payum\Core\Bridge\Spl\ArrayObject;
 use Payum\Core\Request\GetBinaryStatus;
+use Payum\Core\Request\GetHumanStatus;
 use Payum\Core\Request\GetStatusInterface;
 use Payum\Core\Tests\GenericActionTest;
-use Payum\Core\Tests\SkipOnPhp7Trait;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class StatusActionTest extends GenericActionTest
 {
-    use SkipOnPhp7Trait;
+    protected $actionClass = StatusAction::class;
 
-    protected $actionClass = 'Payum\AuthorizeNet\Aim\Action\StatusAction';
+    protected $requestClass = GetHumanStatus::class;
 
-    protected $requestClass = 'Payum\Core\Request\GetHumanStatus';
-
-    /**
-     * @test
-     */
-    public function shouldMarkNewIfDetailsEmpty()
+    public function testShouldMarkNewIfDetailsEmpty(): void
     {
         $action = new StatusAction();
 
@@ -30,10 +28,7 @@ class StatusActionTest extends GenericActionTest
         $this->assertTrue($request->isNew());
     }
 
-    /**
-     * @test
-     */
-    public function shouldMarkNewIfResponseCodeNotSetInModel()
+    public function testShouldMarkNewIfResponseCodeNotSetInModel(): void
     {
         $action = new StatusAction();
 
@@ -44,10 +39,7 @@ class StatusActionTest extends GenericActionTest
         $this->assertTrue($request->isNew());
     }
 
-    /**
-     * @test
-     */
-    public function shouldMarkUnknownIfResponseCodeUnknown()
+    public function testShouldMarkUnknownIfResponseCodeUnknown(): void
     {
         $action = new StatusAction();
 
@@ -61,15 +53,12 @@ class StatusActionTest extends GenericActionTest
         $this->assertTrue($request->isUnknown());
     }
 
-    /**
-     * @test
-     */
-    public function shouldMarkCapturedStatusIfArrayObjectHasResponseCodeApproved()
+    public function testShouldMarkCapturedStatusIfArrayObjectHasResponseCodeApproved(): void
     {
         $action = new StatusAction();
 
         $model = new ArrayObject();
-        $model['response_code'] = \AuthorizeNetAIM_Response::APPROVED;
+        $model['response_code'] = AuthorizeNetAIM_Response::APPROVED;
 
         $request = new GetBinaryStatus($model);
 
@@ -78,15 +67,12 @@ class StatusActionTest extends GenericActionTest
         $this->assertTrue($request->isCaptured());
     }
 
-    /**
-     * @test
-     */
-    public function shouldMarkFailedStatusIfArrayObjectHasResponseCodeError()
+    public function testShouldMarkFailedStatusIfArrayObjectHasResponseCodeError(): void
     {
         $action = new StatusAction();
 
         $model = new ArrayObject();
-        $model['response_code'] = \AuthorizeNetAIM_Response::ERROR;
+        $model['response_code'] = AuthorizeNetAIM_Response::ERROR;
 
         $request = new GetBinaryStatus($model);
 
@@ -95,15 +81,12 @@ class StatusActionTest extends GenericActionTest
         $this->assertTrue($request->isFailed());
     }
 
-    /**
-     * @test
-     */
-    public function shouldMarkPendingStatusIfArrayObjectHasResponseCodeHeld()
+    public function testShouldMarkPendingStatusIfArrayObjectHasResponseCodeHeld(): void
     {
         $action = new StatusAction();
 
         $model = new ArrayObject();
-        $model['response_code'] = \AuthorizeNetAIM_Response::HELD;
+        $model['response_code'] = AuthorizeNetAIM_Response::HELD;
 
         $request = new GetBinaryStatus($model);
 
@@ -112,15 +95,12 @@ class StatusActionTest extends GenericActionTest
         $this->assertTrue($request->isPending());
     }
 
-    /**
-     * @test
-     */
-    public function shouldMarkCanceledStatusIfArrayObjectHasResponseCodeDeclined()
+    public function testShouldMarkCanceledStatusIfArrayObjectHasResponseCodeDeclined(): void
     {
         $action = new StatusAction();
 
         $model = new ArrayObject();
-        $model['response_code'] = \AuthorizeNetAIM_Response::DECLINED;
+        $model['response_code'] = AuthorizeNetAIM_Response::DECLINED;
 
         $request = new GetBinaryStatus($model);
 
@@ -130,16 +110,15 @@ class StatusActionTest extends GenericActionTest
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|GetStatusInterface
+     * @return MockObject|GetStatusInterface
      */
     protected function createGetStatusStub($model)
     {
-        $status = $this->getMock('Payum\Core\Request\GetStatusInterface');
+        $status = $this->createMock(GetStatusInterface::class);
 
         $status
-            ->expects($this->any())
             ->method('getModel')
-            ->will($this->returnValue($model))
+            ->willReturn($model)
         ;
 
         return $status;

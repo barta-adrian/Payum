@@ -1,104 +1,95 @@
 <?php
+
 namespace Payum\Klarna\Checkout\Tests\Action;
 
+use ArrayObject;
+use Iterator;
+use Klarna_Checkout_Order;
 use Payum\Core\ApiAwareInterface;
+use Payum\Core\Exception\UnsupportedApiException;
 use Payum\Core\GatewayAwareInterface;
 use Payum\Core\Request\Authorize;
+use Payum\Core\Request\Generic;
 use Payum\Core\Tests\GenericActionTest;
 use Payum\Klarna\Checkout\Action\AuthorizeRecurringAction;
 use Payum\Klarna\Checkout\Config;
 use Payum\Klarna\Checkout\Constants;
 use Payum\Klarna\Checkout\Request\Api\CreateOrder;
+use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionClass;
+use stdClass;
 
 class AuthorizeRecurringActionTest extends GenericActionTest
 {
     /**
      * @var Authorize
      */
-    protected $requestClass = 'Payum\Core\Request\Authorize';
+    protected $requestClass = Authorize::class;
 
     /**
      * @var AuthorizeRecurringAction
      */
-    protected $actionClass = 'Payum\Klarna\Checkout\Action\AuthorizeRecurringAction';
+    protected $actionClass = AuthorizeRecurringAction::class;
 
-    public function provideSupportedRequests()
+    public function provideSupportedRequests(): Iterator
     {
-        return array(
-            array(new $this->requestClass(array(
-                'recurring_token' => 'aToken',
-            ))),
-            array(new $this->requestClass(array(
-                'recurring' => false,
-                'recurring_token' => 'aToken',
-            ))),
-            array(new $this->requestClass(new \ArrayObject(array(
-                'recurring_token' => 'aToken',
-            )))),
-            array(new $this->requestClass(new \ArrayObject(array(
-                'recurring' => false,
-                'recurring_token' => 'aToken',
-            )))),
-        );
+        yield [new $this->requestClass([
+            'recurring_token' => 'aToken',
+        ])];
+        yield [new $this->requestClass([
+            'recurring' => false,
+            'recurring_token' => 'aToken',
+        ])];
+        yield [new $this->requestClass(new ArrayObject([
+            'recurring_token' => 'aToken',
+        ]))];
+        yield [new $this->requestClass(new ArrayObject([
+            'recurring' => false,
+            'recurring_token' => 'aToken',
+        ]))];
     }
 
-    public function provideNotSupportedRequests()
+    public function provideNotSupportedRequests(): Iterator
     {
-        return array(
-            array('foo'),
-            array(array('foo')),
-            array(new \stdClass()),
-            array(new $this->requestClass('foo')),
-            array(new $this->requestClass(new \stdClass())),
-            array($this->getMockForAbstractClass('Payum\Core\Request\Generic', array(array()))),
-            array(new $this->requestClass(array(
-                'recurring' => true,
-                'recurring_token' => 'aToken',
-            ))),
-            array(new $this->requestClass(array())),
-            array(new $this->requestClass(array(
-                'recurring' => false,
-            ))),
-        );
+        yield ['foo'];
+        yield [['foo']];
+        yield [new stdClass()];
+        yield [new $this->requestClass('foo')];
+        yield [new $this->requestClass(new stdClass())];
+        yield [$this->getMockForAbstractClass(Generic::class, [[]])];
+        yield [new $this->requestClass([
+            'recurring' => true,
+            'recurring_token' => 'aToken',
+        ])];
+        yield [new $this->requestClass([])];
+        yield [new $this->requestClass([
+            'recurring' => false,
+        ])];
     }
 
-    /**
-     * @test
-     */
-    public function shouldImplementGatewayAwareInterface()
+    public function testShouldImplementGatewayAwareInterface(): void
     {
-        $rc = new \ReflectionClass(AuthorizeRecurringAction::class);
+        $rc = new ReflectionClass(AuthorizeRecurringAction::class);
 
         $this->assertTrue($rc->implementsInterface(GatewayAwareInterface::class));
     }
 
-    /**
-     * @test
-     */
-    public function shouldImplementsApiAwareInterface()
+    public function testShouldImplementsApiAwareInterface(): void
     {
-        $rc = new \ReflectionClass(AuthorizeRecurringAction::class);
+        $rc = new ReflectionClass(AuthorizeRecurringAction::class);
 
         $this->assertTrue($rc->implementsInterface(ApiAwareInterface::class));
     }
 
-    public function testShouldAllowSetKlarnaConfigAsApi()
+    public function testThrowIfNotKlarnaConfigGivenAsApi(): void
     {
+        $this->expectException(UnsupportedApiException::class);
+        $this->expectExceptionMessage('Not supported api given. It must be an instance of Payum\Klarna\Checkout\Config');
         $action = new AuthorizeRecurringAction();
-        $action->setApi(new Config());
+        $action->setApi(new stdClass());
     }
 
-    /**
-     * @expectedException \Payum\Core\Exception\UnsupportedApiException
-     * @expectedExceptionMessage Not supported api given. It must be an instance of Payum\Klarna\Checkout\Config
-     */
-    public function testThrowIfNotKlarnaConfigGivenAsApi()
-    {
-        $action = new AuthorizeRecurringAction();
-        $action->setApi(new \stdClass());
-    }
-
-    public function testShouldDoNothingIfReservationAlreadySet()
+    public function testShouldDoNothingIfReservationAlreadySet(): void
     {
         $gatewayMock = $this->createGatewayMock();
         $gatewayMock
@@ -109,36 +100,36 @@ class AuthorizeRecurringActionTest extends GenericActionTest
         $action = new AuthorizeRecurringAction();
         $action->setGateway($gatewayMock);
 
-        $action->execute(new Authorize(array(
+        $action->execute(new Authorize([
             'reservation' => 'aReservation',
             'recurring_token' => 'aToken',
-        )));
+        ]));
     }
 
-    public function testShouldCreateOrderIfReservationNotSet()
+    public function testShouldCreateOrderIfReservationNotSet(): void
     {
         $orderMock = $this->createOrderMock();
         $orderMock
             ->expects($this->once())
             ->method('marshal')
-            ->will($this->returnValue(array(
+            ->willReturn([
                 'reservation' => 'theReservation',
-            )))
+            ])
         ;
 
         $gatewayMock = $this->createGatewayMock();
         $gatewayMock
             ->expects($this->once())
             ->method('execute')
-            ->with($this->isInstanceOf('Payum\Klarna\Checkout\Request\Api\CreateOrder'))
-            ->will($this->returnCallback(function (CreateOrder $request) use ($orderMock) {
+            ->with($this->isInstanceOf(CreateOrder::class))
+            ->willReturnCallback(function (CreateOrder $request) use ($orderMock): void {
                 $request->setOrder($orderMock);
-            }))
+            })
         ;
 
-        $model = new \ArrayObject(array(
+        $model = new ArrayObject([
             'recurring_token' => 'theToken',
-        ));
+        ]);
 
         $action = new AuthorizeRecurringAction();
         $action->setGateway($gatewayMock);
@@ -147,11 +138,11 @@ class AuthorizeRecurringActionTest extends GenericActionTest
         $action->execute(new Authorize($model));
 
         $this->assertEquals(false, $model['activate']);
-        $this->assertEquals('theReservation', $model['reservation']);
-        $this->assertEquals('theToken', $model['recurring_token']);
+        $this->assertSame('theReservation', $model['reservation']);
+        $this->assertSame('theToken', $model['recurring_token']);
     }
 
-    public function testShouldForceRecurringConfigAndRollbackBackAfterExecution()
+    public function testShouldForceRecurringConfigAndRollbackBackAfterExecution(): void
     {
         $config = new Config();
         $config->acceptHeader = 'anAcceptHeader';
@@ -164,9 +155,9 @@ class AuthorizeRecurringActionTest extends GenericActionTest
         $orderMock
             ->expects($this->once())
             ->method('marshal')
-            ->will($this->returnValue(array(
+            ->willReturn([
                 'reservation' => 'theReservation',
-            )))
+            ])
         ;
 
         $testCase = $this;
@@ -175,21 +166,21 @@ class AuthorizeRecurringActionTest extends GenericActionTest
         $gatewayMock
             ->expects($this->once())
             ->method('execute')
-            ->with($this->isInstanceOf('Payum\Klarna\Checkout\Request\Api\CreateOrder'))
-            ->will($this->returnCallback(function (CreateOrder $request) use ($orderMock, $config, $testCase) {
+            ->with($this->isInstanceOf(CreateOrder::class))
+            ->willReturnCallback(function (CreateOrder $request) use ($orderMock, $config, $testCase): void {
                 $request->setOrder($orderMock);
 
-                $testCase->assertEquals(Constants::ACCEPT_HEADER_RECURRING_ORDER_ACCEPTED_V1, $config->acceptHeader);
-                $testCase->assertEquals(Constants::CONTENT_TYPE_RECURRING_ORDER_V1, $config->contentType);
-                $testCase->assertEquals('https://checkout.testdrive.klarna.com/checkout/recurring/theToken/orders', $config->baseUri);
-                $testCase->assertEquals('aMerchantId', $config->merchantId);
-                $testCase->assertEquals('aSecret', $config->secret);
-            }))
+                $testCase->assertSame(Constants::ACCEPT_HEADER_RECURRING_ORDER_ACCEPTED_V1, $config->acceptHeader);
+                $testCase->assertSame(Constants::CONTENT_TYPE_RECURRING_ORDER_V1, $config->contentType);
+                $testCase->assertSame('https://checkout.testdrive.klarna.com/checkout/recurring/theToken/orders', $config->baseUri);
+                $testCase->assertSame('aMerchantId', $config->merchantId);
+                $testCase->assertSame('aSecret', $config->secret);
+            })
         ;
 
-        $model = new \ArrayObject(array(
+        $model = new ArrayObject([
             'recurring_token' => 'theToken',
-        ));
+        ]);
 
         $action = new AuthorizeRecurringAction();
         $action->setGateway($gatewayMock);
@@ -197,14 +188,14 @@ class AuthorizeRecurringActionTest extends GenericActionTest
 
         $action->execute(new Authorize($model));
 
-        $testCase->assertEquals('anAcceptHeader', $config->acceptHeader);
-        $testCase->assertEquals('aContentType', $config->contentType);
-        $testCase->assertEquals(Constants::BASE_URI_SANDBOX, $config->baseUri);
-        $testCase->assertEquals('aMerchantId', $config->merchantId);
-        $testCase->assertEquals('aSecret', $config->secret);
+        $testCase->assertSame('anAcceptHeader', $config->acceptHeader);
+        $testCase->assertSame('aContentType', $config->contentType);
+        $testCase->assertSame(Constants::BASE_URI_SANDBOX, $config->baseUri);
+        $testCase->assertSame('aMerchantId', $config->merchantId);
+        $testCase->assertSame('aSecret', $config->secret);
     }
 
-    public function testShouldUseLiveRecurringBaseUriIfConfigHasLiveBaseUri()
+    public function testShouldUseLiveRecurringBaseUriIfConfigHasLiveBaseUri(): void
     {
         $config = new Config();
         $config->acceptHeader = 'anAcceptHeader';
@@ -217,9 +208,9 @@ class AuthorizeRecurringActionTest extends GenericActionTest
         $orderMock
             ->expects($this->once())
             ->method('marshal')
-            ->will($this->returnValue(array(
+            ->willReturn([
                 'reservation' => 'theReservation',
-            )))
+            ])
         ;
 
         $testCase = $this;
@@ -228,17 +219,17 @@ class AuthorizeRecurringActionTest extends GenericActionTest
         $gatewayMock
             ->expects($this->once())
             ->method('execute')
-            ->with($this->isInstanceOf('Payum\Klarna\Checkout\Request\Api\CreateOrder'))
-            ->will($this->returnCallback(function (CreateOrder $request) use ($orderMock, $config, $testCase) {
+            ->with($this->isInstanceOf(CreateOrder::class))
+            ->willReturnCallback(function (CreateOrder $request) use ($orderMock, $config, $testCase): void {
                 $request->setOrder($orderMock);
 
-                $testCase->assertEquals('https://checkout.klarna.com/checkout/recurring/theToken/orders', $config->baseUri);
-            }))
+                $testCase->assertSame('https://checkout.klarna.com/checkout/recurring/theToken/orders', $config->baseUri);
+            })
         ;
 
-        $model = new \ArrayObject(array(
+        $model = new ArrayObject([
             'recurring_token' => 'theToken',
-        ));
+        ]);
 
         $action = new AuthorizeRecurringAction();
         $action->setGateway($gatewayMock);
@@ -246,18 +237,18 @@ class AuthorizeRecurringActionTest extends GenericActionTest
 
         $action->execute(new Authorize($model));
 
-        $testCase->assertEquals('anAcceptHeader', $config->acceptHeader);
-        $testCase->assertEquals('aContentType', $config->contentType);
-        $testCase->assertEquals(Constants::BASE_URI_LIVE, $config->baseUri);
-        $testCase->assertEquals('aMerchantId', $config->merchantId);
-        $testCase->assertEquals('aSecret', $config->secret);
+        $testCase->assertSame('anAcceptHeader', $config->acceptHeader);
+        $testCase->assertSame('aContentType', $config->contentType);
+        $testCase->assertSame(Constants::BASE_URI_LIVE, $config->baseUri);
+        $testCase->assertSame('aMerchantId', $config->merchantId);
+        $testCase->assertSame('aSecret', $config->secret);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\Klarna_Checkout_Order
+     * @return MockObject|Klarna_Checkout_Order
      */
     protected function createOrderMock()
     {
-        return $this->getMock('Klarna_Checkout_Order', array(), array(), '', false);
+        return $this->createMock(Klarna_Checkout_Order::class);
     }
 }

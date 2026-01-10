@@ -1,7 +1,6 @@
-# Develop a custom Payum gateway.
+# Develop a custom Payum gateway
 
-This chapter could be useful for a developer who wants to create a gateway on top of payum.
-The Payum provides a skeleton project which helps us a lots.
+This chapter could be useful for a developer who wants to create a gateway on top of payum. The Payum provides a skeleton project which helps us a lots.
 
 1. Create new project
 
@@ -32,6 +31,16 @@ $payum = (new PayumBuilder)
 ;
 ```
 
+Or, if your are working on the bases of Symfony, you can define it in a service that way :
+
+```yml
+    acme.paypal_gateway_factory:
+        class: Payum\Core\Bridge\Symfony\Builder\GatewayFactoryBuilder
+        arguments: [Acme\Paypal\PaypalGatewayFactory]
+        tags:
+            - { name: payum.gateway_factory_builder, factory: paypal }
+```
+
 5. While using the gateway implement all method where you get `Not implemented` exception:
 
 ```php
@@ -49,4 +58,10 @@ $model = new \ArrayObject([
 $paypal->execute(new Capture($model));
 ```
 
-Back to [index](index.md).
+***
+
+### Supporting Payum
+
+Payum is an MIT-licensed open source project with its ongoing development made possible entirely by the support of community and our customers. If you'd like to join them, please consider:
+
+* [Become a sponsor](https://github.com/sponsors/Payum)

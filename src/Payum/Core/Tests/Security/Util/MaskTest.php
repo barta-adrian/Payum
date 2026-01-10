@@ -1,59 +1,46 @@
 <?php
+
 namespace Payum\Core\Tests\Security\Util;
 
+use Iterator;
 use Payum\Core\Security\Util\Mask;
+use PHPUnit\Framework\TestCase;
 
-class MaskTest extends \PHPUnit_Framework_TestCase
+class MaskTest extends TestCase
 {
-    /**
-     * @test
-     */
-    public function provideValues()
+    public static function provideValues(): Iterator
     {
-        return array(
-            'just 16 numbers' => array("4567890123456789", "4XXXXXXXXXXX6789"),
-            'just 9 numbers' => array("498291842", "4XXXX1842"),
-            'numbers with dash' => array("3456-7890-1234-5678", "3XXX-XXXX-XXXX-5678"),
-            'numbers with a-z' => array("4928-abcd9012-3456", "4XXX-XXXXXXXX-3456"),
-            'english full name' => array("Mr. John Doe", "MXX XXXX Doe"),
-            'german full name' => array("Günther Doe", "GXXXXXX Doe"),
-            'russian full name' => array("Иван Петров", "ИXXX XXтров"),
-            'short name' => array("Bea", "BXX"),
-            'short name edge case' => array('Barbara', 'BXXXXXX'),
-            'short name that masked' => array('Beatrices', 'BXXXXices'),
-        );
+        yield 'just 16 numbers' => ['4567890123456789', '4XXXXXXXXXXX6789'];
+        yield 'just 9 numbers' => ['498291842', '4XXXX1842'];
+        yield 'numbers with dash' => ['3456-7890-1234-5678', '3XXX-XXXX-XXXX-5678'];
+        yield 'numbers with a-z' => ['4928-abcd9012-3456', '4XXX-XXXXXXXX-3456'];
+        yield 'english full name' => ['Mr. John Doe', 'MXX XXXX Doe'];
+        yield 'german full name' => ['Günther Doe', 'GXXXXXX Doe'];
+        yield 'russian full name' => ['Иван Петров', 'ИXXX XXтров'];
+        yield 'short name' => ['Bea', 'BXX'];
+        yield 'short name edge case' => ['Barbara', 'BXXXXXX'];
+        yield 'short name that masked' => ['Beatrices', 'BXXXXices'];
     }
 
     /**
-     * @test
-     *
      * @dataProvider provideValues
      */
-    public function shouldAllowGenerateToken($value, $expected)
+    public function testShouldAllowGenerateToken($value, $expected): void
     {
         $this->assertSame($expected, Mask::mask($value));
     }
 
-    /**
-     * @test
-     */
-    public function shouldAllowChangeMaskedSymbol()
+    public function testShouldAllowChangeMaskedSymbol(): void
     {
         $this->assertSame('1***-****-****-5678', Mask::mask('1234-5678-1234-5678', '*'));
     }
 
-    /**
-     * @test
-     */
-    public function shouldAllowChangeNumberOfLastShownSymbols()
+    public function testShouldAllowChangeNumberOfLastShownSymbols(): void
     {
         $this->assertSame('1XXX-XXXX-1234-5678', Mask::mask('1234-5678-1234-5678', null, 8));
     }
 
-    /**
-     * @test
-     */
-    public function shouldNotShowAnythingIfNegativeShowLastGiven()
+    public function testShouldNotShowAnythingIfNegativeShowLastGiven(): void
     {
         $this->assertSame('BXXXXXXXX', Mask::mask('Beatrices', null, -1));
     }

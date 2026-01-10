@@ -1,14 +1,16 @@
 <?php
+
 namespace Payum\Core\Bridge\Twig\Action;
 
 use Payum\Core\Action\ActionInterface;
 use Payum\Core\Exception\RequestNotSupportedException;
 use Payum\Core\Request\RenderTemplate;
+use Twig\Environment;
 
 class RenderTemplateAction implements ActionInterface
 {
     /**
-     * @var \Twig_Environment
+     * @var Environment
      */
     protected $twig;
 
@@ -18,32 +20,27 @@ class RenderTemplateAction implements ActionInterface
     protected $layout;
 
     /**
-     * @param \Twig_Environment $twig
-     * @param string            $layout
+     * @param string      $layout
      */
-    public function __construct(\Twig_Environment $twig, $layout)
+    public function __construct(Environment $twig, $layout)
     {
         $this->twig = $twig;
         $this->layout = $layout;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function execute($request)
+    public function execute($request): void
     {
-        /** @var $request RenderTemplate */
+        /** @var RenderTemplate $request */
         RequestNotSupportedException::assertSupports($this, $request);
 
         $request->setResult($this->twig->render($request->getTemplateName(), array_replace(
-            array('layout' => $this->layout),
+            [
+                'layout' => $this->layout,
+            ],
             $request->getParameters()
         )));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function supports($request)
     {
         return $request instanceof RenderTemplate;

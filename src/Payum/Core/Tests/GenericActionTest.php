@@ -1,15 +1,23 @@
 <?php
+
 namespace Payum\Core\Tests;
 
+use ArrayObject;
+use Iterator;
 use Payum\Core\Action\ActionInterface;
+use Payum\Core\Exception\RequestNotSupportedException;
 use Payum\Core\GatewayInterface;
 use Payum\Core\Request\Generic;
 use Payum\Core\Security\TokenInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use ReflectionClass;
+use stdClass;
 
-abstract class GenericActionTest extends \PHPUnit_Framework_TestCase
+abstract class GenericActionTest extends TestCase
 {
     /**
-     * @var Generic
+     * @var Generic|string
      */
     protected $requestClass;
 
@@ -23,94 +31,72 @@ abstract class GenericActionTest extends \PHPUnit_Framework_TestCase
      */
     protected $action;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->action = new $this->actionClass();
     }
 
-    public function provideSupportedRequests()
+    public function provideSupportedRequests(): Iterator
     {
-        return array(
-            array(new $this->requestClass(array())),
-            array(new $this->requestClass(new \ArrayObject())),
-        );
+        yield [new $this->requestClass([])];
+        yield [new $this->requestClass(new ArrayObject())];
     }
 
-    public function provideNotSupportedRequests()
+    public function provideNotSupportedRequests(): Iterator
     {
-        return array(
-            array('foo'),
-            array(array('foo')),
-            array(new \stdClass()),
-            array(new $this->requestClass('foo')),
-            array(new $this->requestClass(new \stdClass())),
-            array($this->getMockForAbstractClass(Generic::class, array(array()))),
-        );
+        yield ['foo'];
+        yield [['foo']];
+        yield [new stdClass()];
+        yield [new $this->requestClass('foo')];
+        yield [new $this->requestClass(new stdClass())];
+        yield [$this->getMockForAbstractClass(Generic::class, [[]])];
     }
 
-    /**
-     * @test
-     */
-    public function shouldImplementActionInterface()
+    public function testShouldImplementActionInterface(): void
     {
-        $rc = new \ReflectionClass($this->actionClass);
+        $rc = new ReflectionClass($this->actionClass);
 
         $this->assertTrue($rc->implementsInterface(ActionInterface::class));
     }
 
     /**
-     * @test
-     */
-    public function couldBeConstructedWithoutAnyArguments()
-    {
-        new $this->actionClass();
-    }
-
-    /**
-     * @test
-     *
      * @dataProvider provideSupportedRequests
      */
-    public function shouldSupportRequest($request)
+    public function testShouldSupportRequest($request): void
     {
         $this->assertTrue($this->action->supports($request));
     }
 
     /**
-     * @test
-     *
      * @dataProvider provideNotSupportedRequests
      */
-    public function shouldNotSupportRequest($request)
+    public function testShouldNotSupportRequest($request): void
     {
         $this->assertFalse($this->action->supports($request));
     }
 
     /**
-     * @test
-     *
      * @dataProvider provideNotSupportedRequests
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
      */
-    public function throwIfNotSupportedRequestGivenAsArgumentForExecute($request)
+    public function testThrowIfNotSupportedRequestGivenAsArgumentForExecute($request): void
     {
+        $this->expectException(RequestNotSupportedException::class);
         $this->action->execute($request);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|GatewayInterface
+     * @return MockObject|GatewayInterface
      */
     protected function createGatewayMock()
     {
-        return $this->getMock(GatewayInterface::class);
+        return $this->createMock(GatewayInterface::class);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|TokenInterface
+     * @return MockObject|TokenInterface
      */
     protected function createTokenMock()
     {
-        return $this->getMock(TokenInterface::class);
+        return $this->createMock(TokenInterface::class);
     }
 }

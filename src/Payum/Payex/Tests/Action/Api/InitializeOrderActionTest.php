@@ -1,14 +1,25 @@
 <?php
+
 namespace Payum\Payex\Tests\Action\Api;
 
+use ArrayAccess;
+use Payum\Core\Action\ActionInterface;
+use Payum\Core\ApiAwareInterface;
+use Payum\Core\Exception\LogicException;
+use Payum\Core\Exception\RequestNotSupportedException;
+use Payum\Core\Exception\UnsupportedApiException;
+use Payum\Core\Reply\HttpRedirect;
 use Payum\Payex\Action\Api\InitializeOrderAction;
 use Payum\Payex\Api\OrderApi;
 use Payum\Payex\Request\Api\InitializeOrder;
-use Payum\Core\Reply\HttpRedirect;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use ReflectionClass;
+use stdClass;
 
-class InitializeOrderActionTest extends \PHPUnit_Framework_TestCase
+class InitializeOrderActionTest extends TestCase
 {
-    protected $requiredFields = array(
+    protected $requiredFields = [
         'price' => 1000,
         'priceArgList' => '',
         'vat' => 0,
@@ -25,124 +36,75 @@ class InitializeOrderActionTest extends \PHPUnit_Framework_TestCase
         'clientIdentifier' => 'USER-AGENT=cli-php',
         'agreementRef' => '',
         'clientLanguage' => 'en-US',
-    );
+    ];
 
     public function provideRequiredFields()
     {
-        $fields = array();
+        $fields = [];
 
         foreach ($this->requiredFields as $name => $value) {
-            $fields[] = array($name);
+            $fields[] = [$name];
         }
 
         return $fields;
     }
 
-    /**
-     * @test
-     */
-    public function shouldImplementActionInterface()
+    public function testShouldImplementActionInterface(): void
     {
-        $rc = new \ReflectionClass('Payum\Payex\Action\Api\InitializeOrderAction');
+        $rc = new ReflectionClass(InitializeOrderAction::class);
 
-        $this->assertTrue($rc->isSubclassOf('Payum\Core\Action\ActionInterface'));
+        $this->assertTrue($rc->isSubclassOf(ActionInterface::class));
     }
 
-    /**
-     * @test
-     */
-    public function shouldImplementApiAwareInterface()
+    public function testShouldImplementApiAwareInterface(): void
     {
-        $rc = new \ReflectionClass('Payum\Payex\Action\Api\InitializeOrderAction');
+        $rc = new ReflectionClass(InitializeOrderAction::class);
 
-        $this->assertTrue($rc->isSubclassOf('Payum\Core\ApiAwareInterface'));
+        $this->assertTrue($rc->isSubclassOf(ApiAwareInterface::class));
     }
 
-    /**
-     * @test
-     */
-    public function couldBeConstructedWithoutAnyArguments()
+    public function testThrowOnTryingSetNotOrderApiAsApi(): void
     {
-        new InitializeOrderAction();
-    }
-
-    /**
-     * @test
-     */
-    public function shouldAllowSetOrderApiAsApi()
-    {
-        $orderApi = $this->getMock('Payum\Payex\Api\OrderApi', array(), array(), '', false);
-
+        $this->expectException(UnsupportedApiException::class);
+        $this->expectExceptionMessage('Not supported api given. It must be an instance of Payum\Payex\Api\OrderApi');
         $action = new InitializeOrderAction();
 
-        $action->setApi($orderApi);
-
-        $this->assertAttributeSame($orderApi, 'api', $action);
+        $action->setApi(new stdClass());
     }
 
-    /**
-     * @test
-     *
-     * @expectedException \Payum\Core\Exception\UnsupportedApiException
-     * @expectedExceptionMessage Not supported api given. It must be an instance of Payum\Payex\Api\OrderApi
-     */
-    public function throwOnTryingSetNotOrderApiAsApi()
+    public function testShouldSupportInitializeOrderRequestWithArrayAccessAsModel(): void
     {
         $action = new InitializeOrderAction();
 
-        $action->setApi(new \stdClass());
+        $this->assertTrue($action->supports(new InitializeOrder($this->createMock(ArrayAccess::class))));
     }
 
-    /**
-     * @test
-     */
-    public function shouldSupportInitializeOrderRequestWithArrayAccessAsModel()
+    public function testShouldNotSupportAnythingNotInitializeOrderRequest(): void
     {
         $action = new InitializeOrderAction();
 
-        $this->assertTrue($action->supports(new InitializeOrder($this->getMock('ArrayAccess'))));
+        $this->assertFalse($action->supports(new stdClass()));
     }
 
-    /**
-     * @test
-     */
-    public function shouldNotSupportAnythingNotInitializeOrderRequest()
+    public function testShouldNotSupportInitializeOrderRequestWithNotArrayAccessModel(): void
     {
         $action = new InitializeOrderAction();
 
-        $this->assertFalse($action->supports(new \stdClass()));
+        $this->assertFalse($action->supports(new InitializeOrder(new stdClass())));
     }
 
-    /**
-     * @test
-     */
-    public function shouldNotSupportInitializeOrderRequestWithNotArrayAccessModel()
+    public function testThrowIfNotSupportedRequestGivenAsArgumentForExecute(): void
     {
-        $action = new InitializeOrderAction();
-
-        $this->assertFalse($action->supports(new InitializeOrder(new \stdClass())));
-    }
-
-    /**
-     * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
-     */
-    public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
-    {
+        $this->expectException(RequestNotSupportedException::class);
         $action = new InitializeOrderAction($this->createApiMock());
 
-        $action->execute(new \stdClass());
+        $action->execute(new stdClass());
     }
 
-    /**
-     * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage The order has already been initialized.
-     */
-    public function throwIfTryInitializeAlreadyInitializedOrder()
+    public function testThrowIfTryInitializeAlreadyInitializedOrder(): void
     {
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('The order has already been initialized.');
         $apiMock = $this->createApiMock();
         $apiMock
             ->expects($this->never())
@@ -152,20 +114,17 @@ class InitializeOrderActionTest extends \PHPUnit_Framework_TestCase
         $action = new InitializeOrderAction();
         $action->setApi($apiMock);
 
-        $action->execute(new InitializeOrder(array(
+        $action->execute(new InitializeOrder([
             'orderRef' => 'aRef',
-        )));
+        ]));
     }
 
     /**
-     * @test
-     *
      * @dataProvider provideRequiredFields
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
      */
-    public function throwIfTryInitializeWithRequiredFieldNotPresent($requiredField)
+    public function testThrowIfTryInitializeWithRequiredFieldNotPresent($requiredField): void
     {
+        $this->expectException(LogicException::class);
         unset($this->requiredFields[$requiredField]);
 
         $action = new InitializeOrderAction();
@@ -173,19 +132,16 @@ class InitializeOrderActionTest extends \PHPUnit_Framework_TestCase
         $action->execute(new InitializeOrder($this->requiredFields));
     }
 
-    /**
-     * @test
-     */
-    public function shouldInitializePayment()
+    public function testShouldInitializePayment(): void
     {
         $apiMock = $this->createApiMock();
         $apiMock
             ->expects($this->once())
             ->method('initialize')
             ->with($this->requiredFields)
-            ->will($this->returnValue(array(
+            ->willReturn([
                 'orderRef' => 'theRef',
-            )));
+            ]);
 
         $action = new InitializeOrderAction();
         $action->setApi($apiMock);
@@ -195,22 +151,19 @@ class InitializeOrderActionTest extends \PHPUnit_Framework_TestCase
         $action->execute($request);
 
         $model = $request->getModel();
-        $this->assertEquals('theRef', $model['orderRef']);
+        $this->assertSame('theRef', $model['orderRef']);
     }
 
-    /**
-     * @test
-     */
-    public function shouldThrowHttpRedirectReplyIfRedirectUrlReturnedInResponse()
+    public function testShouldThrowHttpRedirectReplyIfRedirectUrlReturnedInResponse(): void
     {
         $apiMock = $this->createApiMock();
         $apiMock
             ->expects($this->once())
             ->method('initialize')
             ->with($this->requiredFields)
-            ->will($this->returnValue(array(
+            ->willReturn([
                 'redirectUrl' => 'http://example.com/theUrl',
-            )));
+            ]);
 
         $action = new InitializeOrderAction();
         $action->setApi($apiMock);
@@ -220,7 +173,7 @@ class InitializeOrderActionTest extends \PHPUnit_Framework_TestCase
         try {
             $action->execute($request);
         } catch (HttpRedirect $reply) {
-            $this->assertEquals('http://example.com/theUrl', $reply->getUrl());
+            $this->assertSame('http://example.com/theUrl', $reply->getUrl());
 
             return;
         }
@@ -229,10 +182,10 @@ class InitializeOrderActionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\Payum\Payex\Api\OrderApi
+     * @return MockObject|OrderApi
      */
     protected function createApiMock()
     {
-        return $this->getMock('Payum\Payex\Api\OrderApi', array(), array(), '', false);
+        return $this->createMock(OrderApi::class);
     }
 }

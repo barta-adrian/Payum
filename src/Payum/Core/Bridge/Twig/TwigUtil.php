@@ -1,40 +1,45 @@
 <?php
+
 namespace Payum\Core\Bridge\Twig;
+
+use SplObjectStorage;
+use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Loader\ChainLoader;
+use Twig\Loader\FilesystemLoader;
 
 class TwigUtil
 {
     /**
-     * @var \SplObjectStorage
+     * @var ?SplObjectStorage<object, mixed>
      */
-    protected static $storage;
-    
-    /**
-     * @param \Twig_Environment $twig
-     * @param string[] $paths
-     */
-    public static function registerPaths(\Twig_Environment $twig, array $paths)
-    {
-        if (false == static::$storage) {
-            static::$storage = new \SplObjectStorage();
-        }
-        
-        $storage = static::$storage;
+    protected static ?SplObjectStorage $storage = null;
 
-        /** @var \Twig_Loader_Filesystem $payumLoader */
-        $payumLoader = $twig && isset($storage[$twig]) ? $storage[$twig] : new \Twig_Loader_Filesystem();
+    /**
+     * @param string[] $paths
+     * @throws LoaderError
+     */
+    public static function registerPaths(Environment $twig, array $paths): void
+    {
+        if (! static::$storage) {
+            static::$storage = new SplObjectStorage();
+        }
+
+        /** @var FilesystemLoader $payumLoader */
+        $payumLoader = static::$storage[$twig] ?? new FilesystemLoader();
         foreach ($paths as $namespace => $path) {
             $payumLoader->addPath($path, $namespace);
         }
 
-        if (false == isset($storage[$twig])) {
+        if (! isset(static::$storage[$twig])) {
             $currentLoader = $twig->getLoader();
-            if ($currentLoader instanceof \Twig_Loader_Chain) {
+            if ($currentLoader instanceof ChainLoader) {
                 $currentLoader->addLoader($payumLoader);
             } else {
-                $twig->setLoader(new \Twig_Loader_Chain([$currentLoader, $payumLoader]));
+                $twig->setLoader(new ChainLoader([$currentLoader, $payumLoader]));
             }
 
-            $storage->attach($twig, $payumLoader);
+            static::$storage->attach($twig, $payumLoader);
         }
     }
 }

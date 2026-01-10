@@ -1,58 +1,62 @@
 <?php
+
 namespace Payum\Core\Tests\Functional\Bridge\Doctrine;
 
 use Doctrine\Common\Cache\ArrayCache;
-use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
-use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ODM\MongoDB\Configuration;
-use Doctrine\MongoDB\Connection;
+use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ODM\MongoDB\Types\Type;
-use Payum\Core\Tests\SkipOnPhp7Trait;
+use Doctrine\Persistence\Mapping\Driver\MappingDriver;
+use MongoDB\Client;
+use MongoDB\Driver\Manager;
+use Payum\Core\Bridge\Doctrine\Types\ObjectType;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use function sys_get_temp_dir;
 
-abstract class BaseMongoTest extends \PHPUnit_Framework_TestCase
+abstract class BaseMongoTest extends TestCase
 {
-    use SkipOnPhp7Trait;
-
     /**
      * @var DocumentManager
      */
     protected $dm;
 
-    public function setUp()
+    protected function setUp(): void
     {
-        $this->skipTestsIfPhp7();
-
-
-        if (false == (class_exists(\MongoId::class) && class_exists(Connection::class))) {
-            $this->markTestSkipped('Either mongo extension or\and doctrine\mongo-odm are not installed.');
+        if (! class_exists(Client::class) || ! class_exists(Manager::class)) {
+            $this->markTestSkipped('Either mongo extension or\and doctrine/mongodb-odm are not installed.');
         }
 
         Type::hasType('object') ?
-            Type::overrideType('object', 'Payum\Core\Bridge\Doctrine\Types\ObjectType') :
-            Type::addType('object', 'Payum\Core\Bridge\Doctrine\Types\ObjectType')
+            Type::overrideType('object', ObjectType::class) :
+            Type::addType('object', ObjectType::class)
         ;
 
         $config = new Configuration();
-        $config->setProxyDir(\sys_get_temp_dir());
+        $config->setProxyDir(sys_get_temp_dir());
         $config->setProxyNamespace('PayumTestsProxies');
-        $config->setHydratorDir(\sys_get_temp_dir());
+        $config->setHydratorDir(sys_get_temp_dir());
         $config->setHydratorNamespace('PayumTestsHydrators');
-        $config->setMetadataDriverImpl($this->getMetadataDriverImpl($config));
-        $config->setMetadataCacheImpl(new ArrayCache());
+        $config->setMetadataDriverImpl($this->getMetadataDriverImpl());
+
+        if (method_exists($config, 'setMetadataCache')) {
+            $config->setMetadataCache(new ArrayAdapter());
+        } else {
+            $config->setMetadataCacheImpl(new ArrayCache());
+        }
+
         $config->setDefaultDB('payum_tests');
 
-        $connection = new Connection(null, array(), $config);
+        $this->dm = DocumentManager::create(null, $config);
 
-        $this->dm = DocumentManager::create($connection, $config);
+        $mongoDatabase = $this->dm->getClient()->selectDatabase('payum_tests');
 
-        foreach ($this->dm->getConnection()->selectDatabase('payum_tests')->listCollections() as $collection) {
-            $collection->drop();
+        foreach ($mongoDatabase->listCollections() as $collection) {
+            $mongoDatabase->selectCollection($collection->getName())->drop();
         }
     }
 
     /**
-     * @param Configuration $config
-     *
      * @return MappingDriver
      */
     abstract protected function getMetadataDriverImpl();

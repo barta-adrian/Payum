@@ -1,83 +1,63 @@
 <?php
+
 namespace Payum\Offline\Tests\Action;
 
+use ArrayAccess;
+use Payum\Core\Action\ActionInterface;
 use Payum\Core\Bridge\Spl\ArrayObject;
+use Payum\Core\Exception\RequestNotSupportedException;
 use Payum\Core\Request\Payout;
 use Payum\Offline\Action\PayoutAction;
 use Payum\Offline\Constants;
+use PHPUnit\Framework\TestCase;
+use ReflectionClass;
+use stdClass;
 
-class PayoutActionTest extends \PHPUnit_Framework_TestCase
+class PayoutActionTest extends TestCase
 {
-    /**
-     * @test
-     */
-    public function shouldImplementActionInterface()
+    public function testShouldImplementActionInterface(): void
     {
-        $rc = new \ReflectionClass('Payum\Offline\Action\PayoutAction');
+        $rc = new ReflectionClass(PayoutAction::class);
 
-        $this->assertTrue($rc->implementsInterface('Payum\Core\Action\ActionInterface'));
+        $this->assertTrue($rc->implementsInterface(ActionInterface::class));
     }
 
-    /**
-     * @test
-     */
-    public function couldBeConstructedWithoutAnyArguments()
-    {
-        new PayoutAction();
-    }
-
-    /**
-     * @test
-     */
-    public function shouldSupportPayoutWithArrayAccessAsModel()
+    public function testShouldSupportPayoutWithArrayAccessAsModel(): void
     {
         $action = new PayoutAction();
 
-        $request = new Payout($this->getMock('ArrayAccess'));
+        $request = new Payout($this->createMock(ArrayAccess::class));
 
         $this->assertTrue($action->supports($request));
     }
 
-    /**
-     * @test
-     */
-    public function shouldNotSupportNotPayout()
+    public function testShouldNotSupportNotPayout(): void
     {
         $action = new PayoutAction();
 
-        $request = new \stdClass();
+        $request = new stdClass();
 
         $this->assertFalse($action->supports($request));
     }
 
-    /**
-     * @test
-     */
-    public function shouldNotSupportPayoutAndNotArrayAccessAsModel()
+    public function testShouldNotSupportPayoutAndNotArrayAccessAsModel(): void
     {
         $action = new PayoutAction();
 
-        $request = new Payout(new \stdClass());
+        $request = new Payout(new stdClass());
 
         $this->assertFalse($action->supports($request));
     }
 
-    /**
-     * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
-     */
-    public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
+    public function testThrowIfNotSupportedRequestGivenAsArgumentForExecute(): void
     {
+        $this->expectException(RequestNotSupportedException::class);
         $action = new PayoutAction();
 
-        $action->execute(new \stdClass());
+        $action->execute(new stdClass());
     }
 
-    /**
-     * @test
-     */
-    public function shouldSetStatusPendingIfPayoutNotSet()
+    public function testShouldSetStatusPendingIfPayoutNotSet(): void
     {
         $action = new PayoutAction();
 
@@ -90,14 +70,11 @@ class PayoutActionTest extends \PHPUnit_Framework_TestCase
 
         $action->execute($request);
 
-        $this->assertTrue(isset($details[Constants::FIELD_STATUS]));
-        $this->assertEquals(Constants::STATUS_PENDING, $details[Constants::FIELD_STATUS]);
+        $this->assertArrayHasKey(Constants::FIELD_STATUS, $details);
+        $this->assertSame(Constants::STATUS_PENDING, $details[Constants::FIELD_STATUS]);
     }
 
-    /**
-     * @test
-     */
-    public function shouldSetStatusPendingIfPayoutSetToFalse()
+    public function testShouldSetStatusPendingIfPayoutSetToFalse(): void
     {
         $action = new PayoutAction();
 
@@ -111,14 +88,11 @@ class PayoutActionTest extends \PHPUnit_Framework_TestCase
 
         $action->execute($request);
 
-        $this->assertTrue(isset($details[Constants::FIELD_STATUS]));
-        $this->assertEquals(Constants::STATUS_PENDING, $details[Constants::FIELD_STATUS]);
+        $this->assertArrayHasKey(Constants::FIELD_STATUS, $details);
+        $this->assertSame(Constants::STATUS_PENDING, $details[Constants::FIELD_STATUS]);
     }
 
-    /**
-     * @test
-     */
-    public function shouldSetStatusPayedoutIfPayoutSetToTrue()
+    public function testShouldSetStatusPayedoutIfPayoutSetToTrue(): void
     {
         $action = new PayoutAction();
 
@@ -132,7 +106,7 @@ class PayoutActionTest extends \PHPUnit_Framework_TestCase
 
         $action->execute($request);
 
-        $this->assertTrue(isset($details[Constants::FIELD_STATUS]));
-        $this->assertEquals(Constants::STATUS_PAYEDOUT, $details[Constants::FIELD_STATUS]);
+        $this->assertArrayHasKey(Constants::FIELD_STATUS, $details);
+        $this->assertSame(Constants::STATUS_PAYEDOUT, $details[Constants::FIELD_STATUS]);
     }
 }

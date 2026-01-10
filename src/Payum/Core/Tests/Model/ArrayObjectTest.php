@@ -1,93 +1,70 @@
 <?php
+
 namespace Payum\Core\Tests\Model;
 
+use ArrayAccess;
+use ArrayIterator;
+use IteratorAggregate;
 use Payum\Core\Model\ArrayObject;
+use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
-class ArrayObjectTest extends \PHPUnit_Framework_TestCase
+class ArrayObjectTest extends TestCase
 {
-    /**
-     * @test
-     */
-    public function shouldImplementArrayAccessInterface()
+    public function testShouldImplementArrayAccessInterface(): void
     {
-        $rc = new \ReflectionClass(ArrayObject::class);
+        $rc = new ReflectionClass(ArrayObject::class);
 
-        $this->assertTrue($rc->implementsInterface(\ArrayAccess::class));
+        $this->assertTrue($rc->implementsInterface(ArrayAccess::class));
     }
 
-    /**
-     * @test
-     */
-    public function shouldImplementIteratorAggregateInterface()
+    public function testShouldImplementIteratorAggregateInterface(): void
     {
-        $rc = new \ReflectionClass(ArrayObject::class);
+        $rc = new ReflectionClass(ArrayObject::class);
 
-        $this->assertTrue($rc->implementsInterface(\IteratorAggregate::class));
+        $this->assertTrue($rc->implementsInterface(IteratorAggregate::class));
     }
 
-    /**
-     * @test
-     */
-    public function couldBeConstructedWithoutAnyArguments()
-    {
-        new ArrayObject();
-    }
-
-    /**
-     * @test
-     */
-    public function shouldAllowAddElementToArray()
+    public function testShouldAllowAddElementToArray(): void
     {
         $model = new ArrayObject();
 
         $model['foo'] = 'theFoo';
 
-        $this->assertEquals('theFoo', $model['foo']);
+        $this->assertSame('theFoo', $model['foo']);
     }
 
-    /**
-     * @test
-     */
-    public function shouldReturnTrueIfElementSetOnIsset()
+    public function testShouldReturnTrueIfElementSetOnIsset(): void
     {
         $model = new ArrayObject();
 
         $model['foo'] = 'theFoo';
 
-        $this->assertTrue(isset($model['foo']));
+        $this->assertArrayHasKey('foo', $model);
     }
 
-    /**
-     * @test
-     */
-    public function shouldReturnFalseIfElementNotSetOnIsset()
+    public function testShouldReturnFalseIfElementNotSetOnIsset(): void
     {
         $model = new ArrayObject();
 
-        $this->assertFalse(isset($model['foo']));
+        $this->assertArrayNotHasKey('foo', $model);
     }
 
-    /**
-     * @test
-     */
-    public function shouldAllowUnsetElement()
+    public function testShouldAllowUnsetElement(): void
     {
         $model = new ArrayObject();
 
         $model['foo'] = 'theFoo';
 
         //guard
-        $this->assertTrue(isset($model['foo']));
+        $this->assertArrayHasKey('foo', $model);
 
         unset($model['foo']);
 
-        $this->assertFalse(isset($model['foo']));
+        $this->assertArrayNotHasKey('foo', $model);
     }
 
-    /**
-     * @test
-     */
-    public function shouldReturnArrayIteratorOnGetIterator()
+    public function testShouldReturnArrayIteratorOnGetIterator(): void
     {
         $model = new ArrayObject();
 
@@ -96,12 +73,12 @@ class ArrayObjectTest extends \PHPUnit_Framework_TestCase
 
         $iterator = $model->getIterator();
 
-        $this->assertInstanceOf('ArrayIterator', $iterator);
-        $this->assertEquals(
-            array(
+        $this->assertInstanceOf(ArrayIterator::class, $iterator);
+        $this->assertSame(
+            [
                 'foo' => 'theFoo',
                 'bar' => 'theBar',
-            ),
+            ],
             iterator_to_array($model)
         );
     }

@@ -1,8 +1,8 @@
-# Payout script.
+# Payout Script
 
 This is the script which does all the job related to payout payments.
 
-## Secured script.
+### Secured script.
 
 ```php
 <?php
@@ -23,7 +23,7 @@ $gateway = $payum->getGateway($token->getGatewayName());
 try {
     $gateway->execute(new Payout($token));
 
-    if (false == isset($_REQUEST['noinvalidate'])) {
+    if (! isset($_REQUEST['noinvalidate'])) {
         $payum->getHttpRequestVerifier()->invalidate($token);
     }
 
@@ -60,5 +60,12 @@ $token = $payum->getTokenFactory()->createPayoutToken($gatewayName, $details, 'a
 header("Location: ".$token->getTargetUrl());
 ```
 
-Back to [examples](index.md).
-Back to [index](../index.md).
+Back to [examples](index.md)
+
+***
+
+### Supporting Payum
+
+Payum is an MIT-licensed open source project with its ongoing development made possible entirely by the support of community and our customers. If you'd like to join them, please consider:
+
+* [Become a sponsor](https://github.com/sponsors/Payum)

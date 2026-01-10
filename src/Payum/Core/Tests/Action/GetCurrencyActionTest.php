@@ -1,66 +1,57 @@
 <?php
+
 namespace Payum\Core\Tests\Action;
 
+use Iterator;
 use Payum\Core\Action\GetCurrencyAction;
+use Payum\Core\Request\Generic;
 use Payum\Core\Request\GetCurrency;
 use Payum\Core\Tests\GenericActionTest;
+use RuntimeException;
+use stdClass;
 
 class GetCurrencyActionTest extends GenericActionTest
 {
-    protected $requestClass = 'Payum\Core\Request\GetCurrency';
+    protected $requestClass = GetCurrency::class;
 
-    protected $actionClass = 'Payum\Core\Action\GetCurrencyAction';
+    protected $actionClass = GetCurrencyAction::class;
 
-    public function provideSupportedRequests()
+    public function provideSupportedRequests(): Iterator
     {
-        return array(
-            array(new $this->requestClass('USD')),
-            array(new $this->requestClass('EUR')),
-        );
+        yield [new $this->requestClass('USD')];
+        yield [new $this->requestClass('EUR')];
     }
 
-    public function provideNotSupportedRequests()
+    public function provideNotSupportedRequests(): Iterator
     {
-        return array(
-            array('foo'),
-            array(array('foo')),
-            array(new \stdClass()),
-            array($this->getMockForAbstractClass('Payum\Core\Request\Generic', array(array()))),
-        );
+        yield ['foo'];
+        yield [['foo']];
+        yield [new stdClass()];
+        yield [$this->getMockForAbstractClass(Generic::class, [[]])];
     }
 
-    /**
-     * @test
-     */
-    public function shouldSetCurrencyByAlpha3()
+    public function testShouldSetCurrencyByAlpha3(): void
     {
         $action = new GetCurrencyAction();
 
         $action->execute($getCurrency = new GetCurrency('USD'));
 
-        $this->assertEquals('USD', $getCurrency->alpha3);
+        $this->assertSame('USD', $getCurrency->alpha3);
     }
 
-    /**
-     * @test
-     */
-    public function shouldSetCurrencyByNumeric()
+    public function testShouldSetCurrencyByNumeric(): void
     {
         $action = new GetCurrencyAction();
 
         $action->execute($getCurrency = new GetCurrency($euro = 978));
 
-        $this->assertEquals('EUR', $getCurrency->alpha3);
+        $this->assertSame('EUR', $getCurrency->alpha3);
     }
 
-    /**
-     * @test
-     *
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage ISO 4217 does not contain: 000
-     */
-    public function throwsIfCurrencyNotSupported()
+    public function testThrowsIfCurrencyNotSupported(): void
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('ISO 4217 does not contain: 000');
         $action = new GetCurrencyAction();
 
         $action->execute($getCurrency = new GetCurrency('000'));

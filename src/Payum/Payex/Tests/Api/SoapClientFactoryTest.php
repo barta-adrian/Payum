@@ -1,48 +1,37 @@
 <?php
+
 namespace Payum\Payex\Tests\Api;
 
 use Payum\Payex\Api\SoapClientFactory;
+use PHPUnit\Framework\TestCase;
+use SoapClient;
 
-class SoapClientFactoryTest extends \PHPUnit_Framework_TestCase
+class SoapClientFactoryTest extends TestCase
 {
-    /**
-     * @test
-     */
-    public function couldBeConstructedWithoutAnyArguments()
-    {
-        new SoapClientFactory();
-    }
-
-    /**
-     * @test
-     */
-    public function shouldAllowCreateSoapClientWithDefaultClassAndOptions()
+    public function testShouldAllowCreateSoapClientWithDefaultClassAndOptions(): void
     {
         $factory = new SoapClientFactory();
 
-        $client = $factory->createWsdlClient('https://test-external.payex.com/pxorder/pxorder.asmx?wsdl');
+        $client = $factory->createWsdlClient('https://external.externaltest.payex.com/pxorder/pxorder.asmx?WSDL');
 
-        $this->assertInstanceOf('SoapClient', $client);
+        $this->assertInstanceOf(SoapClient::class, $client);
     }
 
-    /**
-     * @test
-     */
-    public function shouldAllowCreateSoapClientWithCustomClassAndOptions()
+    public function testShouldAllowCreateSoapClientWithCustomClassAndOptions(): void
     {
-        $options = array(
+        $options = [
             'trace' => true,
             'exceptions' => true,
-        );
+        ];
 
-        $factory = new SoapClientFactory($options, 'Payum\Payex\Tests\Api\CustomSoapClient');
+        $factory = new SoapClientFactory($options, \Payum\Payex\Tests\Api\CustomSoapClient::class);
 
-        $client = $factory->createWsdlClient('https://test-external.payex.com/pxorder/pxorder.asmx?wsdl');
+        $client = $factory->createWsdlClient('https://external.externaltest.payex.com/pxorder/pxorder.asmx?WSDL');
 
-        $this->assertInstanceOf('Payum\Payex\Tests\Api\CustomSoapClient', $client);
+        $this->assertInstanceOf(CustomSoapClient::class, $client);
     }
 }
 
-class CustomSoapClient extends \SoapClient
+class CustomSoapClient extends SoapClient
 {
 }

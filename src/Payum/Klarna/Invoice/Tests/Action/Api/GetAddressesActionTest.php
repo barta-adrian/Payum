@@ -1,107 +1,69 @@
 <?php
+
 namespace Payum\Klarna\Invoice\Tests\Action\Api;
 
-use Payum\Core\Tests\SkipOnPhp7Trait;
+use Klarna;
+use KlarnaAddr;
+use KlarnaException;
+use Payum\Core\Exception\RequestNotSupportedException;
+use Payum\Core\Exception\UnsupportedApiException;
+use Payum\Core\Tests\GenericApiAwareActionTest;
+use Payum\Klarna\Invoice\Action\Api\BaseApiAwareAction;
 use Payum\Klarna\Invoice\Action\Api\GetAddressesAction;
 use Payum\Klarna\Invoice\Config;
 use Payum\Klarna\Invoice\Request\Api\GetAddresses;
+use PHPUnit\Framework\MockObject\MockObject;
+use PhpXmlRpc\Client;
+use ReflectionClass;
+use ReflectionProperty;
+use stdClass;
 
-class GetAddressesActionTest extends \PHPUnit_Framework_TestCase
+class GetAddressesActionTest extends GenericApiAwareActionTest
 {
-    use SkipOnPhp7Trait;
-
-    /**
-     * @test
-     */
-    public function shouldBeSubClassOfBaseApiAwareAction()
+    public function testShouldBeSubClassOfBaseApiAwareAction(): void
     {
-        $rc = new \ReflectionClass('Payum\Klarna\Invoice\Action\Api\GetAddressesAction');
+        $rc = new ReflectionClass(GetAddressesAction::class);
 
-        $this->assertTrue($rc->isSubclassOf('Payum\Klarna\Invoice\Action\Api\BaseApiAwareAction'));
+        $this->assertTrue($rc->isSubclassOf(BaseApiAwareAction::class));
     }
 
-    /**
-     * @test
-     */
-    public function couldBeConstructedWithoutAnyArguments()
+    public function testThrowApiNotSupportedIfNotConfigGivenAsApi(): void
     {
-        new GetAddressesAction();
-    }
-
-    /**
-     * @test
-     */
-    public function couldBeConstructedWithKlarnaAsArgument()
-    {
-        new GetAddressesAction($this->createKlarnaMock());
-    }
-
-    /**
-     * @test
-     */
-    public function shouldAllowSetConfigAsApi()
-    {
+        $this->expectException(UnsupportedApiException::class);
+        $this->expectExceptionMessage('Not supported api given. It must be an instance of Payum\Klarna\Invoice\Config');
         $action = new GetAddressesAction($this->createKlarnaMock());
 
-        $action->setApi($config = new Config());
-
-        $this->assertAttributeSame($config, 'config', $action);
+        $action->setApi(new stdClass());
     }
 
-    /**
-     * @test
-     *
-     * @expectedException \Payum\Core\Exception\UnsupportedApiException
-     * @expectedExceptionMessage Not supported api given. It must be an instance of Payum\Klarna\Invoice\Config
-     */
-    public function throwApiNotSupportedIfNotConfigGivenAsApi()
-    {
-        $action = new GetAddressesAction($this->createKlarnaMock());
-
-        $action->setApi(new \stdClass());
-    }
-
-    /**
-     * @test
-     */
-    public function shouldSupportGetAddressesRequest()
+    public function testShouldSupportGetAddressesRequest(): void
     {
         $action = new GetAddressesAction();
 
         $this->assertTrue($action->supports(new GetAddresses('pno')));
     }
 
-    /**
-     * @test
-     */
-    public function shouldNotSupportAnythingNotGetAddresses()
+    public function testShouldNotSupportAnythingNotGetAddresses(): void
     {
         $action = new GetAddressesAction();
 
-        $this->assertFalse($action->supports(new \stdClass()));
+        $this->assertFalse($action->supports(new stdClass()));
     }
 
-    /**
-     * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
-     */
-    public function throwIfNotSupportedRequestGivenAsArgumentOnExecute()
+    public function testThrowIfNotSupportedRequestGivenAsArgumentOnExecute(): void
     {
+        $this->expectException(RequestNotSupportedException::class);
         $action = new GetAddressesAction();
 
-        $action->execute(new \stdClass());
+        $action->execute(new stdClass());
     }
 
-    /**
-     * @test
-     */
-    public function shouldCallKlarnaGetAddresses()
+    public function testShouldCallKlarnaGetAddresses(): void
     {
-        $first = new \KlarnaAddr();
+        $first = new KlarnaAddr();
         $first->setCountry('SE');
 
-        $second = new \KlarnaAddr();
+        $second = new KlarnaAddr();
         $second->setCountry('SE');
 
         $klarnaMock = $this->createKlarnaMock();
@@ -109,7 +71,7 @@ class GetAddressesActionTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('getAddresses')
             ->with('thePno')
-            ->will($this->returnValue(array($first, $second)))
+            ->willReturn([$first, $second])
         ;
 
         $action = new GetAddressesAction($klarnaMock);
@@ -121,23 +83,19 @@ class GetAddressesActionTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($first, $getAddresses->getFirstAddress());
     }
 
-    /**
-     * @test
-     *
-     * @expectedException \KlarnaException
-     */
-    public function shouldNotCatchKlarnaException()
+    public function testShouldNotCatchKlarnaException(): void
     {
-        $details = array(
+        $this->expectException(KlarnaException::class);
+        $details = [
             'pno' => 'thePno',
-        );
+        ];
 
         $klarnaMock = $this->createKlarnaMock();
         $klarnaMock
             ->expects($this->once())
             ->method('getAddresses')
             ->with($details['pno'])
-            ->will($this->throwException(new \KlarnaException('theMessage', 123)))
+            ->willThrowException(new KlarnaException('theMessage', 123))
         ;
 
         $action = new GetAddressesAction($klarnaMock);
@@ -146,16 +104,26 @@ class GetAddressesActionTest extends \PHPUnit_Framework_TestCase
         $action->execute($getAddresses = new GetAddresses('thePno'));
     }
 
+    protected function getActionClass(): string
+    {
+        return GetAddressesAction::class;
+    }
+
+    protected function getApiClass()
+    {
+        return new Config();
+    }
+
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\Klarna
+     * @return MockObject|Klarna
      */
     protected function createKlarnaMock()
     {
-        $klarnaMock =  $this->getMock('Klarna', array('config', 'getAddresses'));
+        $klarnaMock = $this->createMock(Klarna::class);
 
-        $rp = new \ReflectionProperty($klarnaMock, 'xmlrpc');
+        $rp = new ReflectionProperty($klarnaMock, 'xmlrpc');
         $rp->setAccessible(true);
-        $rp->setValue($klarnaMock, $this->getMock('xmlrpc_client', array(), array(), '', false));
+        $rp->setValue($klarnaMock, $this->createMock(class_exists('xmlrpc_client') ? 'xmlrpc_client' : Client::class));
         $rp->setAccessible(false);
 
         return $klarnaMock;

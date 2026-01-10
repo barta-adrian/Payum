@@ -1,11 +1,16 @@
 <?php
+
 namespace Payum\Klarna\Invoice\Action\Api;
 
+use ArrayAccess;
+use Klarna;
+use KlarnaException;
 use Payum\Core\Action\ActionInterface;
 use Payum\Core\ApiAwareInterface;
 use Payum\Core\ApiAwareTrait;
 use Payum\Core\Exception\UnsupportedApiException;
 use Payum\Klarna\Invoice\Config;
+use ReflectionProperty;
 
 abstract class BaseApiAwareAction implements ApiAwareInterface, ActionInterface
 {
@@ -14,23 +19,17 @@ abstract class BaseApiAwareAction implements ApiAwareInterface, ActionInterface
     }
 
     /**
-     * BC. will be removed in 2.x. @use $this->api
+     * @deprecated BC. will be removed in 2.x. Use $this->api
      *
      * @var Config
      */
     protected $config;
 
-    /**
-     * @var \Klarna
-     */
-    private $klarna;
+    private Klarna $klarna;
 
-    /**
-     * @param \Klarna $klarna
-     */
-    public function __construct(\Klarna $klarna = null)
+    public function __construct(Klarna $klarna = null)
     {
-        $this->klarna = $klarna ?: new \Klarna();
+        $this->klarna = $klarna ?: new Klarna();
 
         $this->apiClass = Config::class;
     }
@@ -40,16 +39,16 @@ abstract class BaseApiAwareAction implements ApiAwareInterface, ActionInterface
      *
      * @throws UnsupportedApiException if the given Api is not supported.
      */
-    public function setApi($api)
+    public function setApi($api): void
     {
         $this->_setApi($api);
 
-        // BC. will be removed in 2.x. @use $this->api
+        // BC. will be removed in 2.x. Use $this->api
         $this->config = $this->api;
     }
 
     /**
-     * @return \Klarna
+     * @return Klarna
      */
     protected function getKlarna()
     {
@@ -64,7 +63,7 @@ abstract class BaseApiAwareAction implements ApiAwareInterface, ActionInterface
 
         $this->klarna->clear();
 
-        $rp = new \ReflectionProperty($this->klarna, 'xmlrpc');
+        $rp = new ReflectionProperty($this->klarna, 'xmlrpc');
         $rp->setAccessible(true);
         /** @var \xmlrpc_client $xmlrpc */
         $xmlrpc = $rp->getValue($this->klarna);
@@ -76,16 +75,14 @@ abstract class BaseApiAwareAction implements ApiAwareInterface, ActionInterface
     }
 
     /**
-     * @param \ArrayAccess     $details
-     * @param \KlarnaException $e
      * @param object           $request
      */
-    protected function populateDetailsWithError(\ArrayAccess $details, \KlarnaException $e, $request)
+    protected function populateDetailsWithError(ArrayAccess $details, KlarnaException $e, $request): void
     {
-        $details['error_request'] = get_class($request);
+        $details['error_request'] = $request::class;
         $details['error_file'] = $e->getFile();
         $details['error_line'] = $e->getLine();
         $details['error_code'] = (int) $e->getCode();
-        $details['error_message'] = utf8_encode($e->getMessage());
+        $details['error_message'] = mb_convert_encoding((string) $e->getMessage(), 'UTF-8', 'ISO-8859-1');
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Payum\Core\Tests\Security;
 
 use Payum\Core\Model\Identity;
@@ -6,42 +7,30 @@ use Payum\Core\Model\Token;
 use Payum\Core\Registry\StorageRegistryInterface;
 use Payum\Core\Security\AbstractTokenFactory;
 use Payum\Core\Security\TokenFactoryInterface;
+use Payum\Core\Security\TokenInterface;
 use Payum\Core\Storage\StorageInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use ReflectionClass;
+use stdClass;
 
-class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
+class AbstractTokenFactoryTest extends TestCase
 {
-    /**
-     * @test
-     */
-    public function shouldImplementsGenericTokenFactoryInterface()
+    public function testShouldImplementsGenericTokenFactoryInterface(): void
     {
-        $rc = new \ReflectionClass(AbstractTokenFactory::class);
+        $rc = new ReflectionClass(AbstractTokenFactory::class);
 
         $this->assertTrue($rc->implementsInterface(TokenFactoryInterface::class));
     }
 
-    /**
-     * @test
-     */
-    public function shouldBeAbstract()
+    public function testShouldBeAbstract(): void
     {
-        $rc = new \ReflectionClass(AbstractTokenFactory::class);
+        $rc = new ReflectionClass(AbstractTokenFactory::class);
 
         $this->assertFalse($rc->isInstantiable());
     }
 
-    /**
-     * @test
-     */
-    public function couldBeConstructedWithExpectedArguments()
-    {
-        $this->createTokenFactoryMock($this->createStorageMock(), $this->createStorageRegistryMock());
-    }
-
-    /**
-     * @test
-     */
-    public function shouldCreateTokenWithoutAfterPath()
+    public function testShouldCreateTokenWithoutAfterPath(): void
     {
         $token = new Token();
 
@@ -49,7 +38,7 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
         $tokenStorageMock
             ->expects($this->once())
             ->method('create')
-            ->will($this->returnValue($token))
+            ->willReturn($token)
         ;
         $tokenStorageMock
             ->expects($this->once())
@@ -57,8 +46,8 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
             ->with($this->identicalTo($token))
         ;
 
-        $model = new \stdClass();
-        $identity = new Identity('anId', 'stdClass');
+        $model = new stdClass();
+        $identity = new Identity('anId', stdClass::class);
         $gatewayName = 'theGatewayName';
 
         $modelStorage = $this->createStorageMock();
@@ -66,7 +55,7 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('identify')
             ->with($this->identicalTo($model))
-            ->will($this->returnValue($identity))
+            ->willReturn($identity)
         ;
 
         $storageRegistryMock = $this->createStorageRegistryMock();
@@ -74,7 +63,7 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('getStorage')
             ->with($this->identicalTo($model))
-            ->will($this->returnValue($modelStorage))
+            ->willReturn($modelStorage)
         ;
 
         $factory = $this->createTokenFactoryMock($tokenStorageMock, $storageRegistryMock);
@@ -83,23 +72,22 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
             $gatewayName,
             $model,
             'theTargetPath',
-            array('target' => 'val')
+            [
+                'target' => 'val',
+            ]
         );
 
         $this->assertSame($token, $actualToken);
-        $this->assertEquals($gatewayName, $token->getGatewayName());
+        $this->assertSame($gatewayName, $token->getGatewayName());
         $this->assertSame($identity, $token->getDetails());
-        $this->assertEquals(
-            'theTargetPath?payum_token='.$token->getHash().'&target=val',
+        $this->assertSame(
+            'theTargetPath?payum_token=' . $token->getHash() . '&target=val',
             $token->getTargetUrl()
         );
         $this->assertNull($token->getAfterUrl());
     }
 
-    /**
-     * @test
-     */
-    public function shouldCreateTokenWithAfterUrl()
+    public function testShouldCreateTokenWithAfterUrl(): void
     {
         $token = new Token();
 
@@ -107,7 +95,7 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
         $tokenStorageMock
             ->expects($this->once())
             ->method('create')
-            ->will($this->returnValue($token))
+            ->willReturn($token)
         ;
         $tokenStorageMock
             ->expects($this->once())
@@ -115,8 +103,8 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
             ->with($this->identicalTo($token))
         ;
 
-        $model = new \stdClass();
-        $identity = new Identity('anId', 'stdClass');
+        $model = new stdClass();
+        $identity = new Identity('anId', stdClass::class);
         $gatewayName = 'theGatewayName';
 
         $modelStorage = $this->createStorageMock();
@@ -124,7 +112,7 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('identify')
             ->with($this->identicalTo($model))
-            ->will($this->returnValue($identity))
+            ->willReturn($identity)
         ;
 
         $storageRegistryMock = $this->createStorageRegistryMock();
@@ -132,7 +120,7 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('getStorage')
             ->with($this->identicalTo($model))
-            ->will($this->returnValue($modelStorage))
+            ->willReturn($modelStorage)
         ;
 
         $factory = $this->createTokenFactoryMock($tokenStorageMock, $storageRegistryMock);
@@ -141,25 +129,26 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
             $gatewayName,
             $model,
             'theTargetPath',
-            array('target' => 'val'),
+            [
+                'target' => 'val',
+            ],
             'theAfterPath',
-            array('after' => 'val')
+            [
+                'after' => 'val',
+            ]
         );
 
         $this->assertSame($token, $actualToken);
-        $this->assertEquals($gatewayName, $token->getGatewayName());
+        $this->assertSame($gatewayName, $token->getGatewayName());
         $this->assertSame($identity, $token->getDetails());
-        $this->assertEquals(
-            'theTargetPath?payum_token='.$token->getHash().'&target=val',
+        $this->assertSame(
+            'theTargetPath?payum_token=' . $token->getHash() . '&target=val',
             $token->getTargetUrl()
         );
-        $this->assertEquals('theAfterPath?after=val', $token->getAfterUrl());
+        $this->assertSame('theAfterPath?after=val', $token->getAfterUrl());
     }
 
-    /**
-     * @test
-     */
-    public function shouldCreateTokenWithIdentityAsModel()
+    public function testShouldCreateTokenWithIdentityAsModel(): void
     {
         $token = new Token();
 
@@ -167,7 +156,7 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
         $tokenStorageMock
             ->expects($this->once())
             ->method('create')
-            ->will($this->returnValue($token))
+            ->willReturn($token)
         ;
         $tokenStorageMock
             ->expects($this->once())
@@ -176,7 +165,7 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
         ;
 
         $gatewayName = 'theGatewayName';
-        $identity = new Identity('anId', 'stdClass');
+        $identity = new Identity('anId', stdClass::class);
 
         $storageRegistryMock = $this->createStorageRegistryMock();
         $storageRegistryMock
@@ -190,19 +179,20 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
             $gatewayName,
             $identity,
             'theTargetPath',
-            array('target' => 'val'),
+            [
+                'target' => 'val',
+            ],
             'theAfterPath',
-            array('after' => 'val')
+            [
+                'after' => 'val',
+            ]
         );
 
         $this->assertSame($token, $actualToken);
         $this->assertSame($identity, $token->getDetails());
     }
 
-    /**
-     * @test
-     */
-    public function shouldCreateTokenWithoutModel()
+    public function testShouldCreateTokenWithoutModel(): void
     {
         $token = new Token();
 
@@ -210,7 +200,7 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
         $tokenStorageMock
             ->expects($this->once())
             ->method('create')
-            ->will($this->returnValue($token))
+            ->willReturn($token)
         ;
         $tokenStorageMock
             ->expects($this->once())
@@ -232,19 +222,20 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
             $gatewayName,
             null,
             'theTargetPath',
-            array('target' => 'val'),
+            [
+                'target' => 'val',
+            ],
             'theAfterPath',
-            array('after' => 'val')
+            [
+                'after' => 'val',
+            ]
         );
 
         $this->assertSame($token, $actualToken);
         $this->assertNull($token->getDetails());
     }
 
-    /**
-     * @test
-     */
-    public function shouldCreateTokenWithTargetPathAlreadyUrl()
+    public function testShouldCreateTokenWithTargetPathAlreadyUrl(): void
     {
         $token = new Token();
 
@@ -252,7 +243,7 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
         $tokenStorageMock
             ->expects($this->once())
             ->method('create')
-            ->will($this->returnValue($token))
+            ->willReturn($token)
         ;
         $tokenStorageMock
             ->expects($this->once())
@@ -260,8 +251,8 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
             ->with($this->identicalTo($token))
         ;
 
-        $model = new \stdClass();
-        $identity = new Identity('anId', 'stdClass');
+        $model = new stdClass();
+        $identity = new Identity('anId', stdClass::class);
         $gatewayName = 'theGatewayName';
 
         $modelStorage = $this->createStorageMock();
@@ -269,7 +260,7 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('identify')
             ->with($this->identicalTo($model))
-            ->will($this->returnValue($identity))
+            ->willReturn($identity)
         ;
 
         $storageRegistryMock = $this->createStorageRegistryMock();
@@ -277,7 +268,7 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('getStorage')
             ->with($this->identicalTo($model))
-            ->will($this->returnValue($modelStorage))
+            ->willReturn($modelStorage)
         ;
 
         $factory = $this->createTokenFactoryMock($tokenStorageMock, $storageRegistryMock);
@@ -285,43 +276,44 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
         $actualToken = $factory->createToken(
             $gatewayName,
             $model,
-            'http://google.com/?foo=fooVal',
-            array('target' => 'val'),
+            'https://google.com/?foo=fooVal',
+            [
+                'target' => 'val',
+            ],
             'theAfterPath',
-            array('after' => 'val')
+            [
+                'after' => 'val',
+            ]
         );
 
         $this->assertSame($token, $actualToken);
-        $this->assertEquals($gatewayName, $token->getGatewayName());
+        $this->assertSame($gatewayName, $token->getGatewayName());
         $this->assertSame($identity, $token->getDetails());
-        $this->assertEquals(
-            'http://google.com/?foo=fooVal&payum_token='.$token->getHash().'&target=val',
+        $this->assertSame(
+            'https://google.com/?foo=fooVal&payum_token=' . $token->getHash() . '&target=val',
             $token->getTargetUrl()
         );
-        $this->assertEquals('theAfterPath?after=val', $token->getAfterUrl());
+        $this->assertSame('theAfterPath?after=val', $token->getAfterUrl());
     }
 
-    /**
-     * @test
-     */
-    public function shouldNotOverwritePayumTokenHashInAfterUrl()
+    public function testShouldNotOverwritePayumTokenHashInAfterUrl(): void
     {
         $authorizeToken = new Token();
 
         $tokenStorageMock = $this->createStorageMock();
         $tokenStorageMock
-            ->expects($this->at(0))
+            ->expects($this->once())
             ->method('create')
-            ->will($this->returnValue($authorizeToken))
+            ->willReturn($authorizeToken)
         ;
         $tokenStorageMock
-            ->expects($this->at(1))
+            ->expects($this->once())
             ->method('update')
             ->with($this->identicalTo($authorizeToken))
         ;
 
-        $model = new \stdClass();
-        $identity = new Identity('anId', 'stdClass');
+        $model = new stdClass();
+        $identity = new Identity('anId', stdClass::class);
         $gatewayName = 'theGatewayName';
 
         $modelStorage = $this->createStorageMock();
@@ -329,7 +321,7 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('identify')
             ->with($this->identicalTo($model))
-            ->will($this->returnValue($identity))
+            ->willReturn($identity)
         ;
 
         $storageRegistryMock = $this->createStorageRegistryMock();
@@ -337,7 +329,7 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('getStorage')
             ->with($this->identicalTo($model))
-            ->will($this->returnValue($modelStorage))
+            ->willReturn($modelStorage)
         ;
 
         $factory = $this->createTokenFactoryMock($tokenStorageMock, $storageRegistryMock);
@@ -345,46 +337,45 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
         $actualToken = $factory->createToken(
             $gatewayName,
             $model,
-            'http://example.com/authorize.php',
+            'https://example.com/authorize.php',
             [],
-            'http://google.com/?payum_token=foo',
-            array('afterKey' => 'afterVal')
+            'https://google.com/?payum_token=foo',
+            [
+                'afterKey' => 'afterVal',
+            ]
         );
 
         $this->assertSame($authorizeToken, $actualToken);
-        $this->assertEquals($gatewayName, $authorizeToken->getGatewayName());
+        $this->assertSame($gatewayName, $authorizeToken->getGatewayName());
         $this->assertSame($identity, $authorizeToken->getDetails());
-        $this->assertEquals(
-            'http://example.com/authorize.php?payum_token='.$authorizeToken->getHash(),
+        $this->assertSame(
+            'https://example.com/authorize.php?payum_token=' . $authorizeToken->getHash(),
             $authorizeToken->getTargetUrl()
         );
-        $this->assertEquals(
-            'http://google.com/?payum_token=foo&afterKey=afterVal',
+        $this->assertSame(
+            'https://google.com/?payum_token=foo&afterKey=afterVal',
             $authorizeToken->getAfterUrl()
         );
     }
 
-    /**
-     * @test
-     */
-    public function shouldAllowCreateAfterUrlWithoutPayumToken()
+    public function testShouldAllowCreateAfterUrlWithoutPayumToken(): void
     {
         $authorizeToken = new Token();
 
         $tokenStorageMock = $this->createStorageMock();
         $tokenStorageMock
-            ->expects($this->at(0))
+            ->expects($this->once())
             ->method('create')
-            ->will($this->returnValue($authorizeToken))
+            ->willReturn($authorizeToken)
         ;
         $tokenStorageMock
-            ->expects($this->at(1))
+            ->expects($this->once())
             ->method('update')
             ->with($this->identicalTo($authorizeToken))
         ;
 
-        $model = new \stdClass();
-        $identity = new Identity('anId', 'stdClass');
+        $model = new stdClass();
+        $identity = new Identity('anId', stdClass::class);
         $gatewayName = 'theGatewayName';
 
         $modelStorage = $this->createStorageMock();
@@ -392,7 +383,7 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('identify')
             ->with($this->identicalTo($model))
-            ->will($this->returnValue($identity))
+            ->willReturn($identity)
         ;
 
         $storageRegistryMock = $this->createStorageRegistryMock();
@@ -400,7 +391,7 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('getStorage')
             ->with($this->identicalTo($model))
-            ->will($this->returnValue($modelStorage))
+            ->willReturn($modelStorage)
         ;
 
         $factory = $this->createTokenFactoryMock($tokenStorageMock, $storageRegistryMock);
@@ -408,46 +399,46 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
         $actualToken = $factory->createToken(
             $gatewayName,
             $model,
-            'http://example.com/authorize.php',
+            'https://example.com/authorize.php',
             [],
-            'http://google.com/?payum_token=foo',
-            array('payum_token' => null, 'afterKey' => 'afterVal')
+            'https://google.com/?payum_token=foo',
+            [
+                'payum_token' => null,
+                'afterKey' => 'afterVal',
+            ]
         );
 
         $this->assertSame($authorizeToken, $actualToken);
-        $this->assertEquals($gatewayName, $authorizeToken->getGatewayName());
+        $this->assertSame($gatewayName, $authorizeToken->getGatewayName());
         $this->assertSame($identity, $authorizeToken->getDetails());
-        $this->assertEquals(
-            'http://example.com/authorize.php?payum_token='.$authorizeToken->getHash(),
+        $this->assertSame(
+            'https://example.com/authorize.php?payum_token=' . $authorizeToken->getHash(),
             $authorizeToken->getTargetUrl()
         );
-        $this->assertEquals(
-            'http://google.com/?afterKey=afterVal',
+        $this->assertSame(
+            'https://google.com/?afterKey=afterVal',
             $authorizeToken->getAfterUrl()
         );
     }
 
-    /**
-     * @test
-     */
-    public function shouldAllowCreateAfterUrlWithFragment()
+    public function testShouldAllowCreateAfterUrlWithFragment(): void
     {
         $authorizeToken = new Token();
 
         $tokenStorageMock = $this->createStorageMock();
         $tokenStorageMock
-            ->expects($this->at(0))
+            ->expects($this->once())
             ->method('create')
-            ->will($this->returnValue($authorizeToken))
+            ->willReturn($authorizeToken)
         ;
         $tokenStorageMock
-            ->expects($this->at(1))
+            ->expects($this->once())
             ->method('update')
             ->with($this->identicalTo($authorizeToken))
         ;
 
-        $model = new \stdClass();
-        $identity = new Identity('anId', 'stdClass');
+        $model = new stdClass();
+        $identity = new Identity('anId', stdClass::class);
         $gatewayName = 'theGatewayName';
 
         $modelStorage = $this->createStorageMock();
@@ -455,7 +446,7 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('identify')
             ->with($this->identicalTo($model))
-            ->will($this->returnValue($identity))
+            ->willReturn($identity)
         ;
 
         $storageRegistryMock = $this->createStorageRegistryMock();
@@ -463,7 +454,7 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('getStorage')
             ->with($this->identicalTo($model))
-            ->will($this->returnValue($modelStorage))
+            ->willReturn($modelStorage)
         ;
 
         $factory = $this->createTokenFactoryMock($tokenStorageMock, $storageRegistryMock);
@@ -471,58 +462,55 @@ class AbstractTokenFactoryTest extends \PHPUnit_Framework_TestCase
         $actualToken = $factory->createToken(
             $gatewayName,
             $model,
-            'http://example.com/authorize.php',
+            'https://example.com/authorize.php',
             [],
-            'http://google.com/foo/bar?foo=fooVal#fragment',
-            array('payum_token' => null)
+            'https://google.com/foo/bar?foo=fooVal#fragment',
+            [
+                'payum_token' => null,
+            ]
         );
 
         $this->assertSame($authorizeToken, $actualToken);
-        $this->assertEquals($gatewayName, $authorizeToken->getGatewayName());
+        $this->assertSame($gatewayName, $authorizeToken->getGatewayName());
         $this->assertSame($identity, $authorizeToken->getDetails());
-        $this->assertEquals(
-            'http://example.com/authorize.php?payum_token='.$authorizeToken->getHash(),
+        $this->assertSame(
+            'https://example.com/authorize.php?payum_token=' . $authorizeToken->getHash(),
             $authorizeToken->getTargetUrl()
         );
-        $this->assertEquals(
-            'http://google.com/foo/bar?foo=fooVal#fragment',
+        $this->assertSame(
+            'https://google.com/foo/bar?foo=fooVal#fragment',
             $authorizeToken->getAfterUrl()
         );
     }
 
     /**
-     * @param StorageInterface $tokenStorage
-     * @param StorageRegistryInterface $registry
-     *
-     * @return AbstractTokenFactory|\PHPUnit_Framework_MockObject_MockObject
+     * @param StorageInterface<TokenInterface> $tokenStorage
+     * @param StorageRegistryInterface<StorageInterface<TokenInterface>> $registry
      */
-    protected function createTokenFactoryMock(StorageInterface $tokenStorage, StorageRegistryInterface $registry)
+    protected function createTokenFactoryMock(StorageInterface $tokenStorage, StorageRegistryInterface $registry): MockObject | AbstractTokenFactory
     {
-        $factoryMock = $this->getMockForAbstractClass(AbstractTokenFactory::class, array($tokenStorage, $registry));
+        $factoryMock = $this->getMockForAbstractClass(AbstractTokenFactory::class, [$tokenStorage, $registry]);
         $factoryMock
-            ->expects($this->any())
             ->method('generateUrl')
-            ->willReturnCallback(function ($path, array $args) {
-                return $path.'?'.http_build_query($args);
-            })
+            ->willReturnCallback(fn ($path, array $args) => $path . '?' . http_build_query($args))
         ;
 
         return $factoryMock;
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|StorageInterface
+     * @return MockObject|StorageInterface<TokenInterface>
      */
-    protected function createStorageMock()
+    protected function createStorageMock(): StorageInterface | MockObject
     {
-        return $this->getMock('Payum\Core\Storage\StorageInterface');
+        return $this->createMock(StorageInterface::class);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|StorageRegistryInterface
+     * @return MockObject|StorageRegistryInterface<StorageInterface<TokenInterface>>
      */
-    protected function createStorageRegistryMock()
+    protected function createStorageRegistryMock(): MockObject | StorageRegistryInterface
     {
-        return $this->getMock('Payum\Core\Registry\StorageRegistryInterface');
+        return $this->createMock(StorageRegistryInterface::class);
     }
 }

@@ -1,80 +1,55 @@
 <?php
+
 namespace Payum\Payex\Tests\Api;
 
+use Payum\Core\Exception\InvalidArgumentException;
+use Payum\Payex\Api\BaseApi;
 use Payum\Payex\Api\SoapClientFactory;
+use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
-class BaseApiTest extends \PHPUnit_Framework_TestCase
+class BaseApiTest extends TestCase
 {
-    /**
-     * @test
-     */
-    public function shouldBeAbstract()
+    public function testShouldBeAbstract(): void
     {
-        $rc = new \ReflectionClass('Payum\Payex\Api\BaseApi');
+        $rc = new ReflectionClass(BaseApi::class);
 
         $this->assertTrue($rc->isAbstract());
     }
 
-    /**
-     * @test
-     *
-     * @expectedException \Payum\Core\Exception\InvalidArgumentException
-     * @expectedExceptionMessage The account_number option must be set.
-     */
-    public function throwIfAccountNumberOptionNotSet()
+    public function testThrowIfAccountNumberOptionNotSet(): void
     {
-        $this->getMockForAbstractClass('Payum\Payex\Api\BaseApi', array(
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The account_number option must be set.');
+        $this->getMockForAbstractClass(BaseApi::class, [
             new SoapClientFactory(),
-            array(),
-        ));
+            [],
+        ]);
     }
 
-    /**
-     * @test
-     *
-     * @expectedException \Payum\Core\Exception\InvalidArgumentException
-     * @expectedExceptionMessage The encryption_key option must be set.
-     */
-    public function throwIfEncryptionKeyOptionNotSet()
+    public function testThrowIfEncryptionKeyOptionNotSet(): void
     {
-        $this->getMockForAbstractClass('Payum\Payex\Api\BaseApi', array(
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The encryption_key option must be set.');
+        $this->getMockForAbstractClass(BaseApi::class, [
             new SoapClientFactory(),
-            array(
+            [
                 'account_number' => 'aNumber',
-            ),
-        ));
+            ],
+        ]);
     }
 
-    /**
-     * @test
-     *
-     * @expectedException \Payum\Core\Exception\InvalidArgumentException
-     * @expectedExceptionMessage The boolean sandbox option must be set.
-     */
-    public function throwIfNotBoolSandboxOptionGiven()
+    public function testThrowIfNotBoolSandboxOptionGiven(): void
     {
-        $this->getMockForAbstractClass('Payum\Payex\Api\BaseApi', array(
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The boolean sandbox option must be set.');
+        $this->getMockForAbstractClass(BaseApi::class, [
             new SoapClientFactory(),
-            array(
+            [
                 'account_number' => 'aNumber',
                 'encryption_key' => 'aKey',
                 'sandbox' => 'not a bool',
-            ),
-        ));
-    }
-
-    /**
-     * @test
-     */
-    public function couldBeConstructedWithValidOptions()
-    {
-        $this->getMockForAbstractClass('Payum\Payex\Api\BaseApi', array(
-            new SoapClientFactory(),
-            array(
-                'account_number' => 'aNumber',
-                'encryption_key' => 'aKey',
-                'sandbox' => true,
-            ),
-        ));
+            ],
+        ]);
     }
 }

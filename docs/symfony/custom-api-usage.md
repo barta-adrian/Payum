@@ -1,13 +1,10 @@
-# Payum Bundle. Custom api usage
+# Custom API usage
 
-Sometime you asked to store payment gateway credentials to database. 
-If this is your case read [Configure payment in backend](configure-payment-in-backend.md) chapter.
-Here we would describe how you can add an api defined as service.
+Sometime you asked to store payment gateway credentials to database. If this is your case read [Configure payment in backend](configure-payment-in-backend.md) chapter. Here we would describe how you can add an api defined as service.
 
-## Api factory
+### Api factory
 
-First, we have to create an api factory.
-The factory would create the desired api using database or what ever else you want.
+First, we have to create an api factory. The factory would create the desired api using database or what ever else you want.
 
 ```php
 <?php
@@ -47,9 +44,7 @@ class Factory
 }
 ```
 
-As you could see we use container to build paypal api.
-Feel free to change it to suit your needs.
-Now we have to create an api service which is created by the factory one:
+As you could see we use container to build paypal api. Feel free to change it to suit your needs. Now we have to create an api service which is created by the factory one:
 
 ```yaml
 # src/Acme/PaymentBundle/Resources/config/services.yml
@@ -65,6 +60,7 @@ services:
 
     acme.payment.payum.paypal_express_checkout_api:
         class: Payum\Paypal\ExpressCheckout\Nvp\Api
+        public: true
         factory_service: acme.payment.payum.api.factory
         factory_method: createPaypalExpressCheckoutApi
 ```
@@ -88,4 +84,10 @@ payum:
 
 That's it!
 
-* [Back to index](../index.md).
+***
+
+### Supporting Payum
+
+Payum is an MIT-licensed open source project with its ongoing development made possible entirely by the support of community and our customers. If you'd like to join them, please consider:
+
+* [Become a sponsor](https://github.com/sponsors/Payum)

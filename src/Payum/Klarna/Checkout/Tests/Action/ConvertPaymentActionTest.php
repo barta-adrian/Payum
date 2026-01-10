@@ -1,6 +1,8 @@
 <?php
-namespace Payum\Klarna\Checkout\Tests\Action\Api;
 
+namespace Payum\Klarna\Checkout\Tests\Action;
+
+use Iterator;
 use Payum\Core\Model\Payment;
 use Payum\Core\Model\PaymentInterface;
 use Payum\Core\Request\Convert;
@@ -8,6 +10,7 @@ use Payum\Core\Request\Generic;
 use Payum\Core\Security\TokenInterface;
 use Payum\Core\Tests\GenericActionTest;
 use Payum\Klarna\Checkout\Action\ConvertPaymentAction;
+use stdClass;
 
 class ConvertPaymentActionTest extends GenericActionTest
 {
@@ -15,32 +18,25 @@ class ConvertPaymentActionTest extends GenericActionTest
 
     protected $requestClass = Convert::class;
 
-    public function provideSupportedRequests()
+    public function provideSupportedRequests(): Iterator
     {
-        return array(
-            array(new $this->requestClass(new Payment(), 'array')),
-            array(new $this->requestClass($this->getMock(PaymentInterface::class), 'array')),
-            array(new $this->requestClass(new Payment(), 'array', $this->getMock(TokenInterface::class))),
-        );
+        yield [new $this->requestClass(new Payment(), 'array')];
+        yield [new $this->requestClass($this->createMock(PaymentInterface::class), 'array')];
+        yield [new $this->requestClass(new Payment(), 'array', $this->createMock(TokenInterface::class))];
     }
 
-    public function provideNotSupportedRequests()
+    public function provideNotSupportedRequests(): Iterator
     {
-        return array(
-            array('foo'),
-            array(array('foo')),
-            array(new \stdClass()),
-            array($this->getMockForAbstractClass(Generic::class, array(array()))),
-            array(new $this->requestClass(new \stdClass(), 'array')),
-            array(new $this->requestClass(new Payment(), 'foobar')),
-            array(new $this->requestClass($this->getMock(PaymentInterface::class), 'foobar')),
-        );
+        yield ['foo'];
+        yield [['foo']];
+        yield [new stdClass()];
+        yield [$this->getMockForAbstractClass(Generic::class, [[]])];
+        yield [new $this->requestClass(new stdClass(), 'array')];
+        yield [new $this->requestClass(new Payment(), 'foobar')];
+        yield [new $this->requestClass($this->createMock(PaymentInterface::class), 'foobar')];
     }
 
-    /**
-     * @test
-     */
-    public function shouldCorrectlyConvertOrderToDetailsAndSetItBack()
+    public function testShouldCorrectlyConvertOrderToDetailsAndSetItBack(): void
     {
         $payment = new Payment();
         $payment->setNumber('theNumber');
@@ -56,7 +52,7 @@ class ConvertPaymentActionTest extends GenericActionTest
 
         $details = $convert->getResult();
 
-        $this->assertEquals([
+        $this->assertSame([
             'cart' => [
                 'items' => [
                     [
@@ -66,7 +62,7 @@ class ConvertPaymentActionTest extends GenericActionTest
                         'unit_price' => 164.0,
                         'discount_rate' => 0,
                         'tax_rate' => 2500,
-                    ]
+                    ],
                 ],
             ],
             'purchase_country' => 'SE',
@@ -76,10 +72,7 @@ class ConvertPaymentActionTest extends GenericActionTest
         ], $details);
     }
 
-    /**
-     * @test
-     */
-    public function shouldDoNothingIfCurrencyNotSEK()
+    public function testShouldDoNothingIfCurrencyNotSEK(): void
     {
         $payment = new Payment();
         $payment->setNumber('theNumber');
@@ -95,21 +88,18 @@ class ConvertPaymentActionTest extends GenericActionTest
 
         $details = $convert->getResult();
 
-        $this->assertEquals([], $details);
+        $this->assertSame([], $details);
     }
 
-    /**
-     * @test
-     */
-    public function shouldNotOverwriteAlreadySetExtraDetails()
+    public function testShouldNotOverwriteAlreadySetExtraDetails(): void
     {
         $payment = new Payment();
         $payment->setCurrencyCode('USD');
         $payment->setTotalAmount(123);
         $payment->setDescription('the description');
-        $payment->setDetails(array(
+        $payment->setDetails([
             'foo' => 'fooVal',
-        ));
+        ]);
 
         $action = new ConvertPaymentAction();
 
@@ -120,6 +110,6 @@ class ConvertPaymentActionTest extends GenericActionTest
         $this->assertNotEmpty($details);
 
         $this->assertArrayHasKey('foo', $details);
-        $this->assertEquals('fooVal', $details['foo']);
+        $this->assertSame('fooVal', $details['foo']);
     }
 }

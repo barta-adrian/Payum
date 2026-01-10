@@ -35,4 +35,10 @@ DEBUG - [Payum] 1# CaptureDetailsAggregatedModelAction::execute(Capture{model: P
 
 As you see it shows stack of executed actions. Also it shows some details about the request. For example it could show a model class related with request.
 
-Back to [index](index.md).
+***
+
+### Supporting Payum
+
+Payum is an MIT-licensed open source project with its ongoing development made possible entirely by the support of community and our customers. If you'd like to join them, please consider:
+
+* [Become a sponsor](https://github.com/sponsors/Payum)

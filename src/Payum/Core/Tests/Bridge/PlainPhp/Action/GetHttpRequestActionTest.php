@@ -1,42 +1,39 @@
 <?php
+
 namespace Payum\Core\Tests\Bridge\PlainPhp\Action;
 
+use Iterator;
 use Payum\Core\Bridge\PlainPhp\Action\GetHttpRequestAction;
+use Payum\Core\Request\Generic;
 use Payum\Core\Request\GetHttpRequest;
 use Payum\Core\Tests\GenericActionTest;
+use stdClass;
 
 class GetHttpRequestActionTest extends GenericActionTest
 {
-    protected $requestClass = 'Payum\Core\Request\GetHttpRequest';
+    protected $requestClass = GetHttpRequest::class;
 
-    protected $actionClass = 'Payum\Core\Bridge\PlainPhp\Action\GetHttpRequestAction';
+    protected $actionClass = GetHttpRequestAction::class;
 
-    public function provideSupportedRequests()
+    public function provideSupportedRequests(): Iterator
     {
-        return array(
-            array(new $this->requestClass()),
-        );
+        yield [new $this->requestClass()];
     }
 
-    public function provideNotSupportedRequests()
+    public function provideNotSupportedRequests(): Iterator
     {
-        return array(
-            array('foo'),
-            array(array('foo')),
-            array(new \stdClass()),
-            array($this->getMockForAbstractClass('Payum\Core\Request\Generic', array(array()))),
-        );
+        yield ['foo'];
+        yield [['foo']];
+        yield [new stdClass()];
+        yield [$this->getMockForAbstractClass(Generic::class, [[]])];
     }
 
-    /**
-     * @test
-     */
-    public function shouldFillRequestDetails()
+    public function testShouldFillRequestDetails(): void
     {
         $action = new GetHttpRequestAction();
 
         $action->execute($httpRequest = new GetHttpRequest());
 
-        $this->assertEquals('GET', $httpRequest->method);
+        $this->assertSame('GET', $httpRequest->method);
     }
 }

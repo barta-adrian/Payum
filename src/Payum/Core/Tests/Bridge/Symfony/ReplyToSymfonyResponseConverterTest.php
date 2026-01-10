@@ -1,27 +1,20 @@
 <?php
-namespace Payum\Core\Bridge\Symfony;
+
+namespace Payum\Core\Tests\Bridge\Symfony;
 
 use Payum\Core\Bridge\Symfony\Reply\HttpResponse as SymfonyHttpResponse;
 use Payum\Core\Bridge\Symfony\ReplyToSymfonyResponseConverter;
+use Payum\Core\Exception\LogicException;
+use Payum\Core\Reply\Base;
 use Payum\Core\Reply\HttpPostRedirect;
 use Payum\Core\Reply\HttpRedirect;
 use Payum\Core\Reply\HttpResponse;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
 
-class ReplyToSymfonyResponseConverterTest extends \PHPUnit_Framework_TestCase
+class ReplyToSymfonyResponseConverterTest extends TestCase
 {
-    /**
-     * @test
-     */
-    public function couldBeConstructedWithoutAnyArguments()
-    {
-        new ReplyToSymfonyResponseConverter();
-    }
-
-    /**
-     * @test
-     */
-    public function shouldReturnRedirectResponseIfPayumHttpRedirectReply()
+    public function testShouldReturnRedirectResponseIfPayumHttpRedirectReply(): void
     {
         $expectedUrl = '/foo/bar';
 
@@ -31,20 +24,17 @@ class ReplyToSymfonyResponseConverterTest extends \PHPUnit_Framework_TestCase
 
         $response = $converter->convert($reply);
 
-        $this->assertInstanceOf('Symfony\Component\HttpFoundation\Response', $response);
-        $this->assertContains('Redirecting to /foo/bar', $response->getContent());
-        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertStringContainsString('Redirecting to /foo/bar', $response->getContent());
+        $this->assertSame(302, $response->getStatusCode());
 
         $headers = $response->headers->all();
         $this->assertArrayHasKey('location', $headers);
         $this->assertNotEmpty($headers['location']);
-        $this->assertEquals($expectedUrl, $headers['location'][0]);
+        $this->assertSame($expectedUrl, $headers['location'][0]);
     }
 
-    /**
-     * @test
-     */
-    public function shouldReturnResponseIfPayumHttpResponseReply()
+    public function testShouldReturnResponseIfPayumHttpResponseReply(): void
     {
         $reply = new HttpResponse('theContent');
 
@@ -52,52 +42,45 @@ class ReplyToSymfonyResponseConverterTest extends \PHPUnit_Framework_TestCase
 
         $response = $converter->convert($reply);
 
-        $this->assertInstanceOf('Symfony\Component\HttpFoundation\Response', $response);
-        $this->assertEquals('theContent', $response->getContent());
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertSame('theContent', $response->getContent());
+        $this->assertSame(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
-    public function shouldReturnResponseIfPayumHttpResponseReplyWithCustomStatusCodeAndHeaders()
+    public function testShouldReturnResponseIfPayumHttpResponseReplyWithCustomStatusCodeAndHeaders(): void
     {
-        $reply = new HttpResponse('theContent', 418, array(
+        $reply = new HttpResponse('theContent', 418, [
             'foo' => 'fooVal',
             'bar' => 'bar',
-        ));
+        ]);
 
         $converter = new ReplyToSymfonyResponseConverter();
 
         $response = $converter->convert($reply);
 
-        $this->assertInstanceOf('Symfony\Component\HttpFoundation\Response', $response);
-        $this->assertEquals('theContent', $response->getContent());
-        $this->assertEquals(418, $response->getStatusCode());
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertSame('theContent', $response->getContent());
+        $this->assertSame(418, $response->getStatusCode());
         $this->assertArrayHasKey('foo', $response->headers->all());
         $this->assertArrayHasKey('bar', $response->headers->all());
     }
 
-    /**
-     * @test
-     */
-    public function shouldReturnResponseIfPayumHttpPostRedirectReply()
+    public function testShouldReturnResponseIfPayumHttpPostRedirectReply(): void
     {
-        $reply = new HttpPostRedirect('anUrl', array('foo' => 'foo'));
+        $reply = new HttpPostRedirect('anUrl', [
+            'foo' => 'foo',
+        ]);
 
         $converter = new ReplyToSymfonyResponseConverter();
 
         $response = $converter->convert($reply);
 
-        $this->assertInstanceOf('Symfony\Component\HttpFoundation\Response', $response);
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals($reply->getContent(), $response->getContent());
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame($reply->getContent(), $response->getContent());
     }
 
-    /**
-     * @test
-     */
-    public function shouldReturnResponseIfSymfonyHttpResponseReply()
+    public function testShouldReturnResponseIfSymfonyHttpResponseReply(): void
     {
         $expectedResponse = new Response('foobar');
 
@@ -110,15 +93,11 @@ class ReplyToSymfonyResponseConverterTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expectedResponse, $actualResponse);
     }
 
-    /**
-     * @test
-     *
-     * @expectedException \Payum\Core\Exception\LogicException
-     * @expectedExceptionMessage Cannot convert reply Mock_Base_
-     */
-    public function shouldChangeReplyToLogicExceptionIfNotSupported()
+    public function testShouldChangeReplyToLogicExceptionIfNotSupported(): void
     {
-        $notSupportedReply = $this->getMock('Payum\Core\Reply\Base');
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('Cannot convert reply Mock_Base_');
+        $notSupportedReply = $this->createMock(Base::class);
 
         $listener = new ReplyToSymfonyResponseConverter();
 

@@ -1,41 +1,37 @@
 <?php
+
 namespace Payum\Core\Tests\Bridge\Symfony\Validator\Constraints;
 
+use Datetime;
 use Payum\Core\Bridge\Symfony\Validator\Constraints\CreditCardDate;
 use Payum\Core\Bridge\Symfony\Validator\Constraints\CreditCardDateValidator;
-use Symfony\Component\Validator\Tests\Constraints\AbstractConstraintValidatorTest;
-use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 
-class CreditCardDateValidatorTest extends AbstractConstraintValidatorTest
+class CreditCardDateValidatorTest extends ConstraintValidatorTestCase
 {
-    protected function getApiVersion()
+    public function testValidate(): void
     {
-        return Validation::API_VERSION_2_5;
-    }
-    protected function createValidator()
-    {
-        return new CreditCardDateValidator();
-    }
-
-    public function testValidate()
-    {
-        $options = array('min' => 'today');
+        $options = [
+            'min' => 'today',
+        ];
         $constraint = new CreditCardDate($options);
 
-        $value = new \Datetime();
+        $value = new Datetime();
 
-        $this->validator->validate($value, $constraint);
+        $this->assertNull($this->validator->validate($value, $constraint));
     }
 
-    public function testValidateWrongDate()
+    public function testValidateWrongDate(): void
     {
-        $options = array('min' => 'today');
+        $options = [
+            'min' => 'today',
+        ];
         $constraint = new CreditCardDate($options);
 
         $validator = new CreditCardDateValidator();
         $validator->initialize($this->context);
 
-        $value = new \Datetime("1981-08-24");
+        $value = new Datetime('1981-08-24');
 
         $validator->validate($value, $constraint);
 
@@ -44,8 +40,8 @@ class CreditCardDateValidatorTest extends AbstractConstraintValidatorTest
             ->assertRaised();
     }
 
-    public function tearDown()
+    protected function createValidator(): CreditCardDateValidator
     {
-        $this->constraint = null;
+        return new CreditCardDateValidator();
     }
 }

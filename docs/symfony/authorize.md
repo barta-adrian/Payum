@@ -1,11 +1,10 @@
-# Payum Bundle. Authorize payment
+# Authorize Payment
 
-In [get it started](get-it-started.md) we showed you an example of how to capture the payment. 
-It is not always the case, sometimes you want to just authorize it and capture a bit later.
-   
-## Prepare payment
+In [get it started](get-it-started.md) we showed you an example of how to capture the payment. It is not always the case, sometimes you want to just authorize it and capture a bit later.
 
-We have to caThe only difference from capture one example 
+### Prepare payment
+
+We have to caThe only difference from capture one example
 
 ```php
 <?php
@@ -37,10 +36,10 @@ class PaymentController extends Controller
         $storage->update($payment);
         
         /** @var TokenInterface $captureToken */
-        $captureToken = $this->get('payum')->getTokenFactory()->createCaptureToken(
+        $captureToken = $this->get('payum')->getTokenFactory()->createAuthorizeToken(
             $gatewayName, 
             $payment, 
-            'done' // the route to redirect after capture;
+            'done' // the route to redirect after autorize;
         );
         
         return $this->redirect($captureToken->getTargetUrl());    
@@ -48,4 +47,10 @@ class PaymentController extends Controller
 }
 ```
 
-* [Back to index](../index.md).
+***
+
+### Supporting Payum
+
+Payum is an MIT-licensed open source project with its ongoing development made possible entirely by the support of community and our customers. If you'd like to join them, please consider:
+
+* [Become a sponsor](https://github.com/sponsors/Payum)

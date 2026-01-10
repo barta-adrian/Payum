@@ -1,116 +1,74 @@
 <?php
+
 namespace Payum\Klarna\Invoice\Tests\Action\Api;
 
-use Payum\Core\Tests\SkipOnPhp7Trait;
+use Klarna;
+use KlarnaException;
+use Payum\Core\Exception\RequestNotSupportedException;
+use Payum\Core\Exception\UnsupportedApiException;
+use Payum\Core\Tests\GenericApiAwareActionTest;
+use Payum\Klarna\Invoice\Action\Api\BaseApiAwareAction;
 use Payum\Klarna\Invoice\Action\Api\SendInvoiceAction;
 use Payum\Klarna\Invoice\Config;
 use Payum\Klarna\Invoice\Request\Api\SendInvoice;
+use PHPUnit\Framework\MockObject\MockObject;
+use PhpXmlRpc\Client;
+use ReflectionClass;
+use ReflectionProperty;
+use stdClass;
 
-class SendInvoiceActionTest extends \PHPUnit_Framework_TestCase
+class SendInvoiceActionTest extends GenericApiAwareActionTest
 {
-    use SkipOnPhp7Trait;
-
-    /**
-     * @test
-     */
-    public function shouldBeSubClassOfBaseApiAwareAction()
+    public function testShouldBeSubClassOfBaseApiAwareAction(): void
     {
-        $rc = new \ReflectionClass('Payum\Klarna\Invoice\Action\Api\SendInvoiceAction');
+        $rc = new ReflectionClass(SendInvoiceAction::class);
 
-        $this->assertTrue($rc->isSubclassOf('Payum\Klarna\Invoice\Action\Api\BaseApiAwareAction'));
+        $this->assertTrue($rc->isSubclassOf(BaseApiAwareAction::class));
     }
 
-    /**
-     * @test
-     */
-    public function couldBeConstructedWithoutAnyArguments()
+    public function testThrowApiNotSupportedIfNotConfigGivenAsApi(): void
     {
-        new SendInvoiceAction();
-    }
-
-    /**
-     * @test
-     */
-    public function couldBeConstructedWithKlarnaAsArgument()
-    {
-        new SendInvoiceAction($this->createKlarnaMock());
-    }
-
-    /**
-     * @test
-     */
-    public function shouldAllowSetConfigAsApi()
-    {
+        $this->expectException(UnsupportedApiException::class);
+        $this->expectExceptionMessage('Not supported api given. It must be an instance of Payum\Klarna\Invoice\Config');
         $action = new SendInvoiceAction($this->createKlarnaMock());
 
-        $action->setApi($config = new Config());
-
-        $this->assertAttributeSame($config, 'config', $action);
+        $action->setApi(new stdClass());
     }
 
-    /**
-     * @test
-     *
-     * @expectedException \Payum\Core\Exception\UnsupportedApiException
-     * @expectedExceptionMessage Not supported api given. It must be an instance of Payum\Klarna\Invoice\Config
-     */
-    public function throwApiNotSupportedIfNotConfigGivenAsApi()
-    {
-        $action = new SendInvoiceAction($this->createKlarnaMock());
-
-        $action->setApi(new \stdClass());
-    }
-
-    /**
-     * @test
-     */
-    public function shouldSupportSendInvoiceWithArrayAsModel()
+    public function testShouldSupportSendInvoiceWithArrayAsModel(): void
     {
         $action = new SendInvoiceAction();
 
-        $this->assertTrue($action->supports(new SendInvoice(array())));
+        $this->assertTrue($action->supports(new SendInvoice([])));
     }
 
-    /**
-     * @test
-     */
-    public function shouldNotSupportAnythingNotSendInvoice()
+    public function testShouldNotSupportAnythingNotSendInvoice(): void
     {
         $action = new SendInvoiceAction();
 
-        $this->assertFalse($action->supports(new \stdClass()));
+        $this->assertFalse($action->supports(new stdClass()));
     }
 
-    /**
-     * @test
-     */
-    public function shouldNotSupportSendInvoiceWithNotArrayAccessModel()
+    public function testShouldNotSupportSendInvoiceWithNotArrayAccessModel(): void
     {
         $action = new SendInvoiceAction();
 
-        $this->assertFalse($action->supports(new SendInvoice(new \stdClass())));
+        $this->assertFalse($action->supports(new SendInvoice(new stdClass())));
     }
 
-    /**
-     * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
-     */
-    public function throwIfNotSupportedRequestGivenAsArgumentOnExecute()
+    public function testThrowIfNotSupportedRequestGivenAsArgumentOnExecute(): void
     {
+        $this->expectException(RequestNotSupportedException::class);
         $action = new SendInvoiceAction();
 
-        $action->execute(new \stdClass());
+        $action->execute(new stdClass());
     }
 
-    /**
-     * @test
-     */
-    public function shouldCallKlarnaSendInvoice()
+    public function testShouldCallKlarnaSendInvoice(): void
     {
-        $details = array(
+        $details = [
             'invoice_number' => 'invoice number',
-        );
+        ];
 
         $klarnaMock = $this->createKlarnaMock();
         $klarnaMock
@@ -127,14 +85,11 @@ class SendInvoiceActionTest extends \PHPUnit_Framework_TestCase
         $action->execute(new SendInvoice($details));
     }
 
-    /**
-     * @test
-     */
-    public function shouldCatchKlarnaExceptionAndSetErrorInfoToDetails()
+    public function testShouldCatchKlarnaExceptionAndSetErrorInfoToDetails(): void
     {
-        $details = array(
+        $details = [
             'invoice_number' => 'invoice number',
-        );
+        ];
 
         $klarnaMock = $this->createKlarnaMock();
         $klarnaMock
@@ -143,7 +98,7 @@ class SendInvoiceActionTest extends \PHPUnit_Framework_TestCase
             ->with(
                 $details['invoice_number']
             )
-            ->will($this->throwException(new \KlarnaException('theMessage', 123)))
+            ->willThrowException(new KlarnaException('theMessage', 123))
         ;
 
         $action = new SendInvoiceAction($klarnaMock);
@@ -152,20 +107,30 @@ class SendInvoiceActionTest extends \PHPUnit_Framework_TestCase
         $action->execute($reserve = new SendInvoice($details));
 
         $postDetails = $reserve->getModel();
-        $this->assertEquals(123, $postDetails['error_code']);
-        $this->assertEquals('theMessage', $postDetails['error_message']);
+        $this->assertSame(123, $postDetails['error_code']);
+        $this->assertSame('theMessage', $postDetails['error_message']);
+    }
+
+    protected function getActionClass(): string
+    {
+        return SendInvoiceAction::class;
+    }
+
+    protected function getApiClass()
+    {
+        return new Config();
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\Klarna
+     * @return MockObject|Klarna
      */
     protected function createKlarnaMock()
     {
-        $klarnaMock =  $this->getMock('Klarna', array('config', 'sendInvoice'));
+        $klarnaMock = $this->createMock(Klarna::class);
 
-        $rp = new \ReflectionProperty($klarnaMock, 'xmlrpc');
+        $rp = new ReflectionProperty($klarnaMock, 'xmlrpc');
         $rp->setAccessible(true);
-        $rp->setValue($klarnaMock, $this->getMock('xmlrpc_client', array(), array(), '', false));
+        $rp->setValue($klarnaMock, $this->createMock(class_exists('xmlrpc_client') ? 'xmlrpc_client' : Client::class));
         $rp->setAccessible(false);
 
         return $klarnaMock;

@@ -1,83 +1,63 @@
 <?php
+
 namespace Payum\Offline\Tests\Action;
 
+use ArrayAccess;
+use Payum\Core\Action\ActionInterface;
 use Payum\Core\Bridge\Spl\ArrayObject;
+use Payum\Core\Exception\RequestNotSupportedException;
 use Payum\Core\Request\Refund;
 use Payum\Offline\Action\RefundAction;
 use Payum\Offline\Constants;
+use PHPUnit\Framework\TestCase;
+use ReflectionClass;
+use stdClass;
 
-class RefundActionTest extends \PHPUnit_Framework_TestCase
+class RefundActionTest extends TestCase
 {
-    /**
-     * @test
-     */
-    public function shouldImplementActionInterface()
+    public function testShouldImplementActionInterface(): void
     {
-        $rc = new \ReflectionClass('Payum\Offline\Action\RefundAction');
+        $rc = new ReflectionClass(RefundAction::class);
 
-        $this->assertTrue($rc->implementsInterface('Payum\Core\Action\ActionInterface'));
+        $this->assertTrue($rc->implementsInterface(ActionInterface::class));
     }
 
-    /**
-     * @test
-     */
-    public function couldBeConstructedWithoutAnyArguments()
-    {
-        new RefundAction();
-    }
-
-    /**
-     * @test
-     */
-    public function shouldSupportRefundWithArrayAccessAsModel()
+    public function testShouldSupportRefundWithArrayAccessAsModel(): void
     {
         $action = new RefundAction();
 
-        $request = new Refund($this->getMock('ArrayAccess'));
+        $request = new Refund($this->createMock(ArrayAccess::class));
 
         $this->assertTrue($action->supports($request));
     }
 
-    /**
-     * @test
-     */
-    public function shouldNotSupportNotRefund()
+    public function testShouldNotSupportNotRefund(): void
     {
         $action = new RefundAction();
 
-        $request = new \stdClass();
+        $request = new stdClass();
 
         $this->assertFalse($action->supports($request));
     }
 
-    /**
-     * @test
-     */
-    public function shouldNotSupportRefundAndNotArrayAccessAsModel()
+    public function testShouldNotSupportRefundAndNotArrayAccessAsModel(): void
     {
         $action = new RefundAction();
 
-        $request = new Refund(new \stdClass());
+        $request = new Refund(new stdClass());
 
         $this->assertFalse($action->supports($request));
     }
 
-    /**
-     * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
-     */
-    public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
+    public function testThrowIfNotSupportedRequestGivenAsArgumentForExecute(): void
     {
+        $this->expectException(RequestNotSupportedException::class);
         $action = new RefundAction();
 
-        $action->execute(new \stdClass());
+        $action->execute(new stdClass());
     }
 
-    /**
-     * @test
-     */
-    public function shouldSetStatusRefundedIfStatusSetToCaptured()
+    public function testShouldSetStatusRefundedIfStatusSetToCaptured(): void
     {
         $action = new RefundAction();
 
@@ -91,14 +71,11 @@ class RefundActionTest extends \PHPUnit_Framework_TestCase
 
         $action->execute($request);
 
-        $this->assertTrue(isset($details[Constants::FIELD_STATUS]));
-        $this->assertEquals(Constants::STATUS_REFUNDED, $details[Constants::FIELD_STATUS]);
+        $this->assertArrayHasKey(Constants::FIELD_STATUS, $details);
+        $this->assertSame(Constants::STATUS_REFUNDED, $details[Constants::FIELD_STATUS]);
     }
 
-    /**
-     * @test
-     */
-    public function shouldNotSetStatusRefundedIfStatusNotSetToCaptured()
+    public function testShouldNotSetStatusRefundedIfStatusNotSetToCaptured(): void
     {
         $action = new RefundAction();
 
@@ -112,7 +89,7 @@ class RefundActionTest extends \PHPUnit_Framework_TestCase
 
         $action->execute($request);
 
-        $this->assertTrue(isset($details[Constants::FIELD_STATUS]));
-        $this->assertEquals(Constants::STATUS_PENDING, $details[Constants::FIELD_STATUS]);
+        $this->assertArrayHasKey(Constants::FIELD_STATUS, $details);
+        $this->assertSame(Constants::STATUS_PENDING, $details[Constants::FIELD_STATUS]);
     }
 }

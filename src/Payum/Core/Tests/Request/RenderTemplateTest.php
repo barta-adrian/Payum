@@ -1,70 +1,60 @@
 <?php
+
 namespace Payum\Core\Tests\Request;
 
+use InvalidArgumentException;
+use Iterator;
 use Payum\Core\Request\RenderTemplate;
+use PHPUnit\Framework\TestCase;
 
-class RenderTemplateTest extends \PHPUnit_Framework_TestCase
+class RenderTemplateTest extends TestCase
 {
-    /**
-     * @test
-     */
-    public function couldBeConstructedWithTemplateNameAndParametersAsArguments()
+    public function testShouldAllowGetTemplateNameSetInConstructor(): void
     {
-        new RenderTemplate('aTemplate', array());
-    }
-
-    /**
-     * @test
-     */
-    public function shouldAllowGetTemplateNameSetInConstructor()
-    {
-        $request = new RenderTemplate('theTemplate', array());
+        $request = new RenderTemplate('theTemplate', []);
 
         $this->assertSame('theTemplate', $request->getTemplateName());
     }
 
-    /**
-     * @test
-     */
-    public function shouldAllowGetParametersSetInConstructor()
+    public function testShouldAllowGetParametersSetInConstructor(): void
     {
-        $request = new RenderTemplate('aTemplate', array('foo' => 'fooVal', 'bar' => 'barVal'));
+        $request = new RenderTemplate('aTemplate', [
+            'foo' => 'fooVal',
+            'bar' => 'barVal',
+        ]);
 
-        $this->assertSame(array('foo' => 'fooVal', 'bar' => 'barVal'), $request->getParameters());
+        $this->assertSame([
+            'foo' => 'fooVal',
+            'bar' => 'barVal',
+        ], $request->getParameters());
     }
 
-    /**
-     * @test
-     */
-    public function shouldAllowGetResultPreviouslySet()
+    public function testShouldAllowGetResultPreviouslySet(): void
     {
-        $request = new RenderTemplate('aTemplate', array());
+        $request = new RenderTemplate('aTemplate', []);
 
         $request->setResult('theResult');
 
-        $this->assertEquals('theResult', $request->getResult());
+        $this->assertSame('theResult', $request->getResult());
     }
 
-    public function provideParameters()
+    public static function provideParameters(): Iterator
     {
-        return array(
-            array('foo', 'fooVal'),
-            array('bar', 'barVal'),
-        );
+        yield ['foo', 'fooVal'];
+        yield ['bar', 'barVal'];
     }
 
     /**
-     * @test
      * @dataProvider provideParameters
      *
      * @param string $name
      * @param mixed  $value
      */
-    public function shouldAllowSetParameter($name, $value)
+    public function testShouldAllowSetParameter($name, $value): void
     {
-        $request = new RenderTemplate('aTemplate', array());
+        $request = new RenderTemplate('aTemplate', []);
 
-        $this->assertFalse(array_key_exists($name, $request->getParameters()));
+        $this->assertArrayNotHasKey($name, $request->getParameters());
 
         $request->setParameter($name, $value);
 
@@ -74,17 +64,16 @@ class RenderTemplateTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @test
      * @dataProvider provideParameters
      *
      * @param string $name
      * @param mixed  $value
      */
-    public function shouldAllowAddParameter($name, $value)
+    public function testShouldAllowAddParameter($name, $value): void
     {
-        $request = new RenderTemplate('aTemplate', array());
+        $request = new RenderTemplate('aTemplate', []);
 
-        $this->assertFalse(array_key_exists($name, $request->getParameters()));
+        $this->assertArrayNotHasKey($name, $request->getParameters());
 
         $request->addParameter($name, $value);
 
@@ -93,12 +82,9 @@ class RenderTemplateTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($value, $result[$name]);
     }
 
-    /**
-     * @test
-     */
-    public function shouldAllowOverwriteExistingParameterOnSetParameter()
+    public function testShouldAllowOverwriteExistingParameterOnSetParameter(): void
     {
-        $request = new RenderTemplate('aTemplate', array());
+        $request = new RenderTemplate('aTemplate', []);
 
         $request->setParameter('foo', 'fooVal');
         $request->setParameter('foo', 'barVal');
@@ -107,13 +93,10 @@ class RenderTemplateTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('barVal', $result['foo']);
     }
 
-    /**
-     * @test
-     * @expectedException \InvalidArgumentException
-     */
-    public function shouldThrowExceptionIfParameterExistsOnAddParameter()
+    public function testShouldThrowExceptionIfParameterExistsOnAddParameter(): void
     {
-        $request = new RenderTemplate('aTemplate', array());
+        $this->expectException(InvalidArgumentException::class);
+        $request = new RenderTemplate('aTemplate', []);
 
         $request->addParameter('foo', 'fooVal');
         $request->addParameter('foo', 'barVal');

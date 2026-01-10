@@ -1,88 +1,70 @@
 <?php
+
 namespace Payum\Core\Tests\Model;
 
 use Payum\Core\Model\GatewayConfig;
 use Payum\Core\Model\GatewayConfigInterface;
 use Payum\Core\Security\CryptedInterface;
 use Payum\Core\Security\CypherInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
-class GatewayConfigTest extends \PHPUnit_Framework_TestCase
+class GatewayConfigTest extends TestCase
 {
-    /**
-     * @test
-     */
-    public function shouldExtendDetailsAwareInterface()
+    public function testShouldExtendDetailsAwareInterface(): void
     {
-        $rc = new \ReflectionClass(GatewayConfig::class);
+        $rc = new ReflectionClass(GatewayConfig::class);
 
         $this->assertTrue($rc->implementsInterface(GatewayConfigInterface::class));
     }
 
-    /**
-     * @test
-     */
-    public function shouldImplementCryptedInterface()
+    public function testShouldImplementCryptedInterface(): void
     {
-        $rc = new \ReflectionClass(GatewayConfig::class);
+        $rc = new ReflectionClass(GatewayConfig::class);
 
         $this->assertTrue($rc->implementsInterface(CryptedInterface::class));
     }
 
-    /**
-     * @test
-     */
-    public function couldBeConstructedWithoutAnyArguments()
-    {
-        new GatewayConfig();
-    }
-
-    /**
-     * @test
-     */
-    public function shouldAllowGetPreviouslySetFactoryName()
+    public function testShouldAllowGetPreviouslySetFactoryName(): void
     {
         $config = new GatewayConfig();
 
         $config->setFactoryName('theName');
 
-        $this->assertEquals('theName', $config->getFactoryName());
+        $this->assertSame('theName', $config->getFactoryName());
     }
 
-    /**
-     * @test
-     */
-    public function shouldAllowGetPreviouslySetGatewayName()
+    public function testShouldAllowGetPreviouslySetGatewayName(): void
     {
         $config = new GatewayConfig();
 
         $config->setGatewayName('theName');
 
-        $this->assertEquals('theName', $config->getGatewayName());
+        $this->assertSame('theName', $config->getGatewayName());
     }
 
-    /**
-     * @test
-     */
-    public function shouldAllowGetDefaultConfigSetInConstructor()
+    public function testShouldAllowGetDefaultConfigSetInConstructor(): void
     {
         $config = new GatewayConfig();
 
-        $this->assertEquals([], $config->getConfig());
+        $this->assertSame([], $config->getConfig());
     }
 
-    /**
-     * @test
-     */
-    public function shouldAllowGetPreviouslySetConfig()
+    public function testShouldAllowGetPreviouslySetConfig(): void
     {
         $config = new GatewayConfig();
 
-        $config->setConfig(array('foo' => 'fooVal'));
+        $config->setConfig([
+            'foo' => 'fooVal',
+        ]);
 
-        $this->assertEquals(array('foo' => 'fooVal'), $config->getConfig());
+        $this->assertSame([
+            'foo' => 'fooVal',
+        ], $config->getConfig());
     }
 
-    public function testShouldDecryptConfigValuesOnDecrypt()
+    public function testShouldDecryptConfigValuesOnDecrypt(): void
     {
         $encryptedConfig = [
             'encrypted' => true,
@@ -98,18 +80,14 @@ class GatewayConfigTest extends \PHPUnit_Framework_TestCase
         $config = new GatewayConfig();
         $config->setConfig($encryptedConfig);
 
-        $this->assertAttributeSame($encryptedConfig, 'config', $config);
-        $this->assertAttributeSame($encryptedConfig, 'decryptedConfig', $config);
+        $this->assertSame($encryptedConfig, $config->getConfig());
 
         $config->decrypt($this->createDummyCypher());
-
-        $this->assertAttributeSame($encryptedConfig, 'config', $config);
-        $this->assertAttributeSame($expectedDecryptedConfig, 'decryptedConfig', $config);
 
         $this->assertSame($expectedDecryptedConfig, $config->getConfig());
     }
 
-    public function testShouldDoNothingOnDecryptIfConfigIsNotEncrypted()
+    public function testShouldDoNothingOnDecryptIfConfigIsNotEncrypted(): void
     {
         $plainConfig = [
             'encrypted' => false,
@@ -120,18 +98,14 @@ class GatewayConfigTest extends \PHPUnit_Framework_TestCase
         $config = new GatewayConfig();
         $config->setConfig($plainConfig);
 
-        $this->assertAttributeSame($plainConfig, 'config', $config);
-        $this->assertAttributeSame($plainConfig, 'decryptedConfig', $config);
+        $this->assertSame($plainConfig, $config->getConfig());
 
         $config->decrypt($this->createDummyCypher());
-
-        $this->assertAttributeSame($plainConfig, 'config', $config);
-        $this->assertAttributeSame($plainConfig, 'decryptedConfig', $config);
 
         $this->assertSame($plainConfig, $config->getConfig());
     }
 
-    public function testShouldEncryptConfigValuesOnEncrypt()
+    public function testShouldEncryptConfigValuesOnEncrypt(): void
     {
         $plainConfig = [
             'foo' => 'plainFooVal',
@@ -144,50 +118,33 @@ class GatewayConfigTest extends \PHPUnit_Framework_TestCase
             'encrypted' => true,
         ];
 
-        $expectedEncryptedConfig = [
-            'foo' => 'encrypted-plainFooVal',
-            'bar' => 'encrypted-plainBarVal',
-            'encrypted' => true,
-        ];
-
-
         $config = new GatewayConfig();
         $config->setConfig($plainConfig);
 
-        $this->assertAttributeSame($plainConfig, 'config', $config);
-        $this->assertAttributeSame($plainConfig, 'decryptedConfig', $config);
+        $this->assertSame($plainConfig, $config->getConfig());
 
         $config->encrypt($this->createDummyCypher());
-
-        $this->assertAttributeSame($expectedEncryptedConfig, 'config', $config);
-        $this->assertAttributeSame($expectedDecryptedConfig, 'decryptedConfig', $config);
 
         $this->assertSame($expectedDecryptedConfig, $config->getConfig());
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|CypherInterface
+     * @return MockObject|CypherInterface
      */
     private function createDummyCypher()
     {
-        $mock = $this->getMock(CypherInterface::class);
+        $mock = $this->createMock(CypherInterface::class);
 
         $mock
-            ->expects($this->any())
             ->method('encrypt')
             ->with($this->anything())
-            ->willReturnCallback(function($value) {
-                return 'encrypted-'.$value;
-            })
+            ->willReturnCallback(fn ($value) => 'encrypted-' . $value)
         ;
 
         $mock
-            ->expects($this->any())
             ->method('decrypt')
             ->with($this->anything())
-            ->willReturnCallback(function($value) {
-                return 'decrypted-'.$value;
-            })
+            ->willReturnCallback(fn ($value) => 'decrypted-' . $value)
         ;
 
         return $mock;

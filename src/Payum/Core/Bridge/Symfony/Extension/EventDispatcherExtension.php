@@ -1,51 +1,42 @@
 <?php
+
 namespace Payum\Core\Bridge\Symfony\Extension;
 
 use Payum\Core\Bridge\Symfony\Event\ExecuteEvent;
+use Payum\Core\Bridge\Symfony\PayumEvents;
 use Payum\Core\Extension\Context;
 use Payum\Core\Extension\ExtensionInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Payum\Core\Bridge\Symfony\PayumEvents;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+@trigger_error('The ' . __NAMESPACE__ . '\EventDispatcherExtension class is deprecated since version 2.0 and will be removed in 3.0. Use the same class from Payum/PayumBundle instead.', E_USER_DEPRECATED);
+
+/**
+ * @deprecated since 2.0. Use the same class from Payum/PayumBundle instead.
+ */
 class EventDispatcherExtension implements ExtensionInterface
 {
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $dispatcher;
+    private EventDispatcherInterface $dispatcher;
 
-    /**
-     * @param EventDispatcherInterface $dispatcher
-     */
     public function __construct(EventDispatcherInterface $dispatcher)
     {
         $this->dispatcher = $dispatcher;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function onPreExecute(Context $context)
+    public function onPreExecute(Context $context): void
     {
         $event = new ExecuteEvent($context);
-        $this->dispatcher->dispatch(PayumEvents::GATEWAY_PRE_EXECUTE, $event);
+        $this->dispatcher->dispatch($event, PayumEvents::GATEWAY_PRE_EXECUTE);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function onExecute(Context $context)
+    public function onExecute(Context $context): void
     {
         $event = new ExecuteEvent($context);
-        $this->dispatcher->dispatch(PayumEvents::GATEWAY_EXECUTE, $event);
+        $this->dispatcher->dispatch($event, PayumEvents::GATEWAY_EXECUTE);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function onPostExecute(Context $context)
+    public function onPostExecute(Context $context): void
     {
         $event = new ExecuteEvent($context);
-        $this->dispatcher->dispatch(PayumEvents::GATEWAY_POST_EXECUTE, $event);
+        $this->dispatcher->dispatch($event, PayumEvents::GATEWAY_POST_EXECUTE);
     }
 }

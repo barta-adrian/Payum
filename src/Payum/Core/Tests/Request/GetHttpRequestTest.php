@@ -1,22 +1,13 @@
 <?php
+
 namespace Payum\Core\Tests\Request;
 
 use Payum\Core\Request\GetHttpRequest;
+use PHPUnit\Framework\TestCase;
 
-class GetHttpRequestTest extends \PHPUnit_Framework_TestCase
+class GetHttpRequestTest extends TestCase
 {
-    /**
-     * @test
-     */
-    public function couldBeConstructedWithoutAnyArguments()
-    {
-        new GetHttpRequest();
-    }
-
-    /**
-     * @test
-     */
-    public function shouldSetExpectedDefaultValuesInConstructor()
+    public function testShouldSetExpectedDefaultValuesInConstructor(): void
     {
         $request = new GetHttpRequest();
 

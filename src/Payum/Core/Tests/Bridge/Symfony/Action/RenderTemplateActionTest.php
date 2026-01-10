@@ -1,11 +1,14 @@
 <?php
 
-namespace Payum\Core\Tests\Bridge\Symfony\Action\Http;
+namespace Payum\Core\Tests\Bridge\Symfony\Action;
 
+use Iterator;
 use Payum\Core\Bridge\Symfony\Action\RenderTemplateAction;
 use Payum\Core\Request\Generic;
 use Payum\Core\Request\RenderTemplate;
 use Payum\Core\Tests\GenericActionTest;
+use PHPUnit\Framework\MockObject\MockObject;
+use stdClass;
 use Symfony\Component\Templating\EngineInterface;
 
 class RenderTemplateActionTest extends GenericActionTest
@@ -20,36 +23,23 @@ class RenderTemplateActionTest extends GenericActionTest
      */
     protected $actionClass = RenderTemplateAction::class;
 
-    /**
-     * @var \PHPUnit_Framework_MockObject_MockObject
-     */
-    private $templating;
+    private MockObject $templating;
 
-    protected function setUp()
+    protected function setUp(): void
     {
-        $this->templating = $this->getMock(EngineInterface::class);
+        $this->templating = $this->createMock(EngineInterface::class);
         $this->action = new $this->actionClass($this->templating, 'layout.html.engine');
     }
 
-    public function couldBeConstructedWithoutAnyArguments()
+    public function provideNotSupportedRequests(): Iterator
     {
-        //overwrite
+        yield ['foo'];
+        yield [['foo']];
+        yield [new stdClass()];
+        yield [$this->getMockForAbstractClass(Generic::class, [[]])];
     }
 
-    public function provideNotSupportedRequests()
-    {
-        return array(
-            array('foo'),
-            array(array('foo')),
-            array(new \stdClass()),
-            array($this->getMockForAbstractClass(Generic::class, array(array()))),
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function shouldCallRenderWithCorrectArguments()
+    public function testShouldCallRenderWithCorrectArguments(): void
     {
         $this->templating
             ->expects($this->once())
@@ -62,7 +52,9 @@ class RenderTemplateActionTest extends GenericActionTest
                 ]
             );
 
-        $request = new $this->requestClass('template.html.engine', ['foo' => 'bar']);
+        $request = new $this->requestClass('template.html.engine', [
+            'foo' => 'bar',
+        ]);
         $this->action->execute($request);
     }
 }

@@ -1,64 +1,58 @@
 <?php
-namespace Payum\Klarna\Checkout\Tests\Functional\Resources\Views;
+
+namespace Payum\Stripe\Tests\Functional\Resources\Views;
 
 use Payum\Core\Bridge\Twig\TwigFactory;
+use PHPUnit\Framework\TestCase;
 
-class ObtainTokenTemplateTest extends \PHPUnit_Framework_TestCase
+class ObtainTokenTemplateTest extends TestCase
 {
-    /**
-     * @test
-     */
-    public function shouldRenderObtainJsTokenTemplate()
+    public function testShouldRenderObtainJsTokenTemplate(): void
     {
         $twig = TwigFactory::createGeneric();
 
-        $result = $twig->render('@PayumStripe/Action/obtain_js_token.html.twig', array(
+        $result = $twig->render('@PayumStripe/Action/obtain_js_token.html.twig', [
             'publishable_key' => 'theKey',
-        ));
+        ]);
 
-        $this->assertContains('Stripe.setPublishableKey("theKey");', $result);
+        $this->assertStringContainsString('Stripe.setPublishableKey("theKey");', $result);
     }
 
-    /**
-     * @test
-     */
-    public function shouldRenderObtainCheckoutTokenTemplate()
+    public function testShouldRenderObtainCheckoutTokenTemplate(): void
     {
         $twig = TwigFactory::createGeneric();
 
-        $result = $twig->render('@PayumStripe/Action/obtain_checkout_token.html.twig', array(
+        $result = $twig->render('@PayumStripe/Action/obtain_checkout_token.html.twig', [
             'publishable_key' => 'theKey',
-        ));
+        ]);
 
-        $this->assertContains('data-key="theKey"', $result);
-        $this->assertContains('https://checkout.stripe.com/checkout.js', $result);
+        $this->assertStringContainsString('data-key="theKey"', $result);
+        $this->assertStringContainsString('https://checkout.stripe.com/checkout.js', $result);
     }
 
-    /**
-     * @test
-     */
-    public function shouldRenderCheckoutTokenWithCurrencySet()
+    public function testShouldRenderCheckoutTokenWithCurrencySet(): void
     {
         $twig = TwigFactory::createGeneric();
 
-        $result = $twig->render('@PayumStripe/Action/obtain_checkout_token.html.twig', array(
-            'model' => array('currency' => 'GBP'),
-        ));
+        $result = $twig->render('@PayumStripe/Action/obtain_checkout_token.html.twig', [
+            'model' => [
+                'currency' => 'GBP',
+            ],
+        ]);
 
-        $this->assertContains('data-currency="GBP"', $result);
+        $this->assertStringContainsString('data-currency="GBP"', $result);
     }
 
-    /**
-     * @test
-     */
-    public function shouldRenderCheckoutTokenWithDollarsIfNoCurrencySet()
+    public function testShouldRenderCheckoutTokenWithDollarsIfNoCurrencySet(): void
     {
         $twig = TwigFactory::createGeneric();
 
-        $result = $twig->render('@PayumStripe/Action/obtain_checkout_token.html.twig', array(
-            'model' => array('currency' => ''),
-        ));
+        $result = $twig->render('@PayumStripe/Action/obtain_checkout_token.html.twig', [
+            'model' => [
+                'currency' => '',
+            ],
+        ]);
 
-        $this->assertContains('data-currency="USD"', $result);
+        $this->assertStringContainsString('data-currency="USD"', $result);
     }
 }

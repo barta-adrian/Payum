@@ -1,8 +1,8 @@
 # Event Dispatcher
 
-The EventDispatcherExtensions provides a Bridge to the [Symfony EventDispatcher Component](http://symfony.com/doc/current/components/event_dispatcher/index.html). The EventDispatcherComponent allows you to add behaviour without changing Payum.
+The EventDispatcherExtensions provides a Bridge to the [Symfony EventDispatcher Component](http://symfony.com/doc/current/components/event\_dispatcher/index.html). The EventDispatcherComponent allows you to add behaviour without changing Payum.
 
-## Enable the EventDispatcherExtension
+### Enable the EventDispatcherExtension
 
 ```php
 <?php
@@ -17,7 +17,7 @@ $gateway->addExtension(
 );
 ```
 
-## Listen to an Event
+### Listen to an Event
 
 ```php
 <?php
@@ -35,13 +35,13 @@ $eventDispatcher->addListener(
 );
 ```
 
-| Name | `PayumEvents` Constant | Argument passed to the listener |
-| --- | --- | ---|
-| payum.gateway.pre_execute | `PayumEvents::GATEWAY_PRE_EXECUTE` | `ExecuteEvent` |
-| payum.gateway.execute | `PayumEvents::GATEWAY_EXECUTE` | `ExecuteEvent` |
-| payum.gateway.post_execute | `PayumEvents::GATEWAY_POST_EXECUTE` | `ExecuteEvent` |
+| Name                        |  `PayumEvents` Constant             | Argument passed to the listener |
+| --------------------------- | ----------------------------------- | ------------------------------- |
+| payum.gateway.pre\_execute  | `PayumEvents::GATEWAY_PRE_EXECUTE`  | `ExecuteEvent`                  |
+| payum.gateway.execute       | `PayumEvents::GATEWAY_EXECUTE`      | `ExecuteEvent`                  |
+| payum.gateway.post\_execute | `PayumEvents::GATEWAY_POST_EXECUTE` | `ExecuteEvent`                  |
 
-## Benefit with PayumBundle
+### Benefit with PayumBundle
 
 If you use Symfony Full-Stack Framework and the PayumBundle you can add the EventDispatcherExtension via Configuration:
 
@@ -49,6 +49,7 @@ If you use Symfony Full-Stack Framework and the PayumBundle you can add the Even
 services:
     app.payum.extension.event_dispatcher:
         class: Payum\Core\Bridge\Symfony\Extension\EventDispatcherExtension
+        public: true
         arguments: ["@event_dispatcher"]
         tags:
             - { name: payum.extension, all: true, prepend: false }
@@ -64,4 +65,10 @@ services:
             - { name: kernel.event_listener, event: payum.gateway.execute }
 ```
 
-Back to [index](index.md).
+***
+
+### Supporting Payum
+
+Payum is an MIT-licensed open source project with its ongoing development made possible entirely by the support of community and our customers. If you'd like to join them, please consider:
+
+* [Become a sponsor](https://github.com/sponsors/Payum)

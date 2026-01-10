@@ -1,65 +1,44 @@
 <?php
+
 namespace Payum\Klarna\Invoice\Tests\Action\Api;
 
-use Payum\Core\Tests\SkipOnPhp7Trait;
-use Payum\Klarna\Invoice\Config;
+use Payum\Core\Action\ActionInterface;
+use Payum\Core\ApiAwareInterface;
+use Payum\Core\Exception\UnsupportedApiException;
+use Payum\Klarna\Invoice\Action\Api\BaseApiAwareAction;
+use PHPUnit\Framework\TestCase;
+use ReflectionClass;
+use stdClass;
 
-class BaseApiAwareActionTest extends \PHPUnit_Framework_TestCase
+class BaseApiAwareActionTest extends TestCase
 {
-    use SkipOnPhp7Trait;
-
-    /**
-     * @test
-     */
-    public function shouldImplementsApiAwareInterface()
+    public function testShouldImplementsApiAwareInterface(): void
     {
-        $rc = new \ReflectionClass('Payum\Klarna\Invoice\Action\Api\BaseApiAwareAction');
+        $rc = new ReflectionClass(BaseApiAwareAction::class);
 
-        $this->assertTrue($rc->implementsInterface('Payum\Core\ApiAwareInterface'));
+        $this->assertTrue($rc->implementsInterface(ApiAwareInterface::class));
     }
 
-    /**
-     * @test
-     */
-    public function shouldImplementsActionInterface()
+    public function testShouldImplementsActionInterface(): void
     {
-        $rc = new \ReflectionClass('Payum\Klarna\Invoice\Action\Api\BaseApiAwareAction');
+        $rc = new ReflectionClass(BaseApiAwareAction::class);
 
-        $this->assertTrue($rc->implementsInterface('Payum\Core\Action\ActionInterface'));
+        $this->assertTrue($rc->implementsInterface(ActionInterface::class));
     }
 
-    /**
-     * @test
-     */
-    public function shouldBeAbstracted()
+    public function testShouldBeAbstracted(): void
     {
-        $rc = new \ReflectionClass('Payum\Klarna\Invoice\Action\Api\BaseApiAwareAction');
+        $rc = new ReflectionClass(BaseApiAwareAction::class);
 
         $this->assertFalse($rc->isInstantiable());
     }
 
-    /**
-     * @test
-     */
-    public function shouldAllowSetConfigAsApi()
+    public function testThrowApiNotSupportedIfNotConfigGivenAsApi(): void
     {
-        $action = $this->getMockForAbstractClass('Payum\Klarna\Invoice\Action\Api\BaseApiAwareAction');
+        $this->expectException(UnsupportedApiException::class);
+        $this->expectExceptionMessage('Not supported api given. It must be an instance of Payum\Klarna\Invoice\Config');
+        $action = $this->getMockForAbstractClass(BaseApiAwareAction::class);
 
-        $action->setApi($config = new Config());
-
-        $this->assertAttributeSame($config, 'config', $action);
-    }
-
-    /**
-     * @test
-     *
-     * @expectedException \Payum\Core\Exception\UnsupportedApiException
-     * @expectedExceptionMessage Not supported api given. It must be an instance of Payum\Klarna\Invoice\Config
-     */
-    public function throwApiNotSupportedIfNotConfigGivenAsApi()
-    {
-        $action = $this->getMockForAbstractClass('Payum\Klarna\Invoice\Action\Api\BaseApiAwareAction');
-
-        $action->setApi(new \stdClass());
+        $action->setApi(new stdClass());
     }
 }

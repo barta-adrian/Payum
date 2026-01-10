@@ -1,15 +1,18 @@
 <?php
+
 namespace Payum\Core\Tests\Reply;
 
-class ReplyInterfaceTest extends \PHPUnit_Framework_TestCase
-{
-    /**
-     * @test
-     */
-    public function shouldImplementExceptionInterface()
-    {
-        $rc = new \ReflectionClass('Payum\Core\Reply\ReplyInterface');
+use Payum\Core\Exception\ExceptionInterface;
+use Payum\Core\Reply\ReplyInterface;
+use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
-        $this->assertTrue($rc->implementsInterface('Payum\Core\Exception\ExceptionInterface'));
+class ReplyInterfaceTest extends TestCase
+{
+    public function testShouldImplementExceptionInterface(): void
+    {
+        $rc = new ReflectionClass(ReplyInterface::class);
+
+        $this->assertTrue($rc->implementsInterface(ExceptionInterface::class));
     }
 }

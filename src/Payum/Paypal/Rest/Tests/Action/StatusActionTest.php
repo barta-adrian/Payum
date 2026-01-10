@@ -2,68 +2,59 @@
 
 namespace Payum\Paypal\Rest\Tests\Action;
 
+use ArrayObject;
+use Payum\Core\Action\ActionInterface;
+use Payum\Core\Exception\RequestNotSupportedException;
+use Payum\Core\Request\GetBinaryStatus;
 use Payum\Paypal\Rest\Action\StatusAction;
 use Payum\Paypal\Rest\Model\PaymentDetails;
-use Payum\Core\Request\GetBinaryStatus;
+use PHPUnit\Framework\TestCase;
+use ReflectionClass;
+use stdClass;
 
-class StatusActionTest extends \PHPUnit_Framework_TestCase
+class StatusActionTest extends TestCase
 {
-    /**
-     * @test
-     */
-    public function shouldImplementsActionInterface()
+    public function testShouldImplementsActionInterface(): void
     {
-        $rc = new \ReflectionClass('Payum\Paypal\Rest\Action\StatusAction');
+        $rc = new ReflectionClass(StatusAction::class);
 
-        $this->assertTrue($rc->implementsInterface('Payum\Core\Action\ActionInterface'));
+        $this->assertTrue($rc->implementsInterface(ActionInterface::class));
     }
 
-    /**
-     * @test
-     */
-    public function couldBeConstructedWithoutAnyArguments()
-    {
-        new StatusAction();
-    }
-
-    /**
-     * @test
-     */
-    public function shouldNotSupportStatusRequestWithNoPaymentAsModel()
+    public function testShouldNotSupportStatusRequestWithNoPaymentAsModel(): void
     {
         $action = new StatusAction();
 
-        $request = new GetBinaryStatus(new \stdClass());
+        $request = new GetBinaryStatus(new stdClass());
 
         $this->assertFalse($action->supports($request));
     }
 
-    /**
-     * @test
-     */
-    public function shouldNotSupportAnythingNotStatusRequest()
+    public function testShouldSupportStatusRequestWithArrayObjectAsModel(): void
     {
         $action = new StatusAction();
 
-        $this->assertFalse($action->supports(new \stdClass()));
+        $request = new GetBinaryStatus(new ArrayObject());
+
+        $this->assertTrue($action->supports($request));
     }
 
-    /**
-     * @test
-     *
-     * @expectedException \Payum\Core\Exception\RequestNotSupportedException
-     */
-    public function throwIfNotSupportedRequestGivenAsArgumentForExecute()
+    public function testShouldNotSupportAnythingNotStatusRequest(): void
     {
         $action = new StatusAction();
 
-        $action->execute(new \stdClass());
+        $this->assertFalse($action->supports(new stdClass()));
     }
 
-    /**
-     * @test
-     */
-    public function shouldMarkNewIfStateCreated()
+    public function testThrowIfNotSupportedRequestGivenAsArgumentForExecute(): void
+    {
+        $this->expectException(RequestNotSupportedException::class);
+        $action = new StatusAction();
+
+        $action->execute(new stdClass());
+    }
+
+    public function testShouldMarkPendingIfStateCreated(): void
     {
         $action = new StatusAction();
 
@@ -74,13 +65,19 @@ class StatusActionTest extends \PHPUnit_Framework_TestCase
 
         $action->execute($request);
 
-        $this->assertTrue($request->isNew());
+        $this->assertTrue($request->isPending());
+
+        $model = new ArrayObject([
+            'state' => 'created',
+        ]);
+        $request = new GetBinaryStatus($model);
+
+        $action->execute($request);
+
+        $this->assertTrue($request->isPending());
     }
 
-    /**
-     * @test
-     */
-    public function shouldMarkNewIfStateNotSet()
+    public function testShouldMarkNewIfStateNotSet(): void
     {
         $action = new StatusAction();
 
@@ -91,12 +88,16 @@ class StatusActionTest extends \PHPUnit_Framework_TestCase
         $action->execute($request);
 
         $this->assertTrue($request->isNew());
+
+        $model = new ArrayObject();
+        $request = new GetBinaryStatus($model);
+
+        $action->execute($request);
+
+        $this->assertTrue($request->isNew());
     }
 
-    /**
-     * @test
-     */
-    public function shouldMarkCapturedIfStateApproved()
+    public function testShouldMarkCapturedIfStateApproved(): void
     {
         $action = new StatusAction();
 
@@ -108,18 +109,56 @@ class StatusActionTest extends \PHPUnit_Framework_TestCase
         $action->execute($request);
 
         $this->assertTrue($request->isCaptured());
+
+        $model = new ArrayObject([
+            'state' => 'approved',
+        ]);
+        $request = new GetBinaryStatus($model);
+
+        $action->execute($request);
+
+        $this->assertTrue($request->isCaptured());
     }
 
-    /**
-     * @test
-     */
-    public function shouldMarkUnknownIfStateIsSetAndSetUnknown()
+    public function testShouldMarkCanceledIfStateCanceled(): void
+    {
+        $action = new StatusAction();
+
+        $model = new PaymentDetails();
+        $model->setState('cancelled');
+
+        $request = new GetBinaryStatus($model);
+
+        $action->execute($request);
+
+        $this->assertTrue($request->isCanceled());
+
+        $model = new ArrayObject([
+            'state' => 'cancelled',
+        ]);
+        $request = new GetBinaryStatus($model);
+
+        $action->execute($request);
+
+        $this->assertTrue($request->isCanceled());
+    }
+
+    public function testShouldMarkUnknownIfStateIsSetAndSetUnknown(): void
     {
         $action = new StatusAction();
 
         $model = new PaymentDetails();
         $model->setState('random');
 
+        $request = new GetBinaryStatus($model);
+
+        $action->execute($request);
+
+        $this->assertTrue($request->isUnknown());
+
+        $model = new ArrayObject([
+            'state' => 'random',
+        ]);
         $request = new GetBinaryStatus($model);
 
         $action->execute($request);

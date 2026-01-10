@@ -1,8 +1,10 @@
 <?php
+
 namespace Payum\Paypal\ProHosted\Nvp\Action;
 
-use League\Uri\Schemes\Http as HttpUri;
-use League\Uri\Modifiers\MergeQuery;
+use ArrayAccess;
+use League\Uri\Http as HttpUri;
+use League\Uri\UriModifier;
 use Payum\Core\Action\ActionInterface;
 use Payum\Core\Bridge\Spl\ArrayObject;
 use Payum\Core\Exception\RequestNotSupportedException;
@@ -18,13 +20,12 @@ class CaptureAction implements ActionInterface, GatewayAwareInterface
     use GatewayAwareTrait;
 
     /**
-     * {@inheritDoc}
-     *
      * @param Capture $request
      */
-    public function execute($request)
+    public function execute($request): void
     {
-        /** @var $request Capture */
+        $newResponse = [];
+        /** @var Capture $request */
         RequestNotSupportedException::assertSupports($this, $request);
         $model = ArrayObject::ensureArrayObject($request->getModel());
 
@@ -38,7 +39,7 @@ class CaptureAction implements ActionInterface, GatewayAwareInterface
             return;
         }
 
-        if ($response['txn_id'] != null) {
+        if (null != $response['txn_id']) {
             $response->validateNotEmpty([
                 'payment_status',
                 'business',
@@ -53,8 +54,7 @@ class CaptureAction implements ActionInterface, GatewayAwareInterface
         } else {
             if ($model['cancel_return']) {
                 $cancelUri = HttpUri::createFromString($model['cancel_return']);
-                $modifier  = new MergeQuery('cancelled=1');
-                $cancelUri = $modifier($cancelUri);
+                $cancelUri = UriModifier::mergeQuery($cancelUri, 'cancelled=1');
 
                 $model['cancel_return'] = (string) $cancelUri;
             }
@@ -63,11 +63,8 @@ class CaptureAction implements ActionInterface, GatewayAwareInterface
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function supports($request)
     {
-        return $request instanceof Capture && $request->getModel() instanceof \ArrayAccess;
+        return $request instanceof Capture && $request->getModel() instanceof ArrayAccess;
     }
 }

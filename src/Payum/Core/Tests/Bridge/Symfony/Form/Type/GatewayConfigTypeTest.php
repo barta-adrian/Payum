@@ -1,47 +1,35 @@
 <?php
+
 namespace Payum\Core\Tests\Bridge\Symfony\Form\Type;
 
 use Payum\Core\Bridge\Symfony\Form\Type\GatewayConfigType;
+use Payum\Core\Model\GatewayConfig;
+use Payum\Core\Registry\GatewayFactoryRegistryInterface;
+use PHPUnit\Framework\TestCase;
+use ReflectionClass;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class GatewayConfigTypeTest extends \PHPUnit_Framework_TestCase
+class GatewayConfigTypeTest extends TestCase
 {
-    /**
-     * @test
-     */
-    public function shouldBeSubClassOfAbstractType()
+    public function testShouldBeSubClassOfAbstractType(): void
     {
-        $rc = new \ReflectionClass('Payum\Core\Bridge\Symfony\Form\Type\GatewayConfigType');
+        $rc = new ReflectionClass(GatewayConfigType::class);
 
-        $this->assertTrue($rc->isSubclassOf('Symfony\Component\Form\AbstractType'));
+        $this->assertTrue($rc->isSubclassOf(AbstractType::class));
     }
 
-    /**
-     * @test
-     */
-    public function couldBeConstructedWithGatewayFactoryRegistryAsFirstArgument()
+    public function testShouldExtendFormType(): void
     {
-        new GatewayConfigType($this->getMock('Payum\Core\Registry\GatewayFactoryRegistryInterface'));
+        $type = new GatewayConfigType($this->createMock(GatewayFactoryRegistryInterface::class));
+
+        $this->assertSame(FormType::class, $type->getParent());
     }
 
-    /**
-     * @test
-     */
-    public function shouldExtendFormType()
+    public function testShouldAllowResolveOptions(): void
     {
-        $this->markTestSkipped('Undo mark skipp when minimum supported version of Symfony will be 2.8');
-
-        $type = new GatewayConfigType($this->getMock('Payum\Core\Registry\GatewayFactoryRegistryInterface'));
-
-        $this->assertEquals('form', $type->getParent());
-    }
-
-    /**
-     * @test
-     */
-    public function shouldAllowResolveOptions()
-    {
-        $type = new GatewayConfigType($this->getMock('Payum\Core\Registry\GatewayFactoryRegistryInterface'));
+        $type = new GatewayConfigType($this->createMock(GatewayFactoryRegistryInterface::class));
 
         $resolver = new OptionsResolver();
 
@@ -50,6 +38,6 @@ class GatewayConfigTypeTest extends \PHPUnit_Framework_TestCase
         $options = $resolver->resolve();
 
         $this->assertArrayHasKey('data_class', $options);
-        $this->assertEquals('Payum\Core\Model\GatewayConfig', $options['data_class']);
+        $this->assertSame(GatewayConfig::class, $options['data_class']);
     }
 }
